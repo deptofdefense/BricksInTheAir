@@ -13,6 +13,9 @@ instance the both have:
  - concept of receiver/transmitter (1553) / slave (I2C)
  - concept of selective addressing
  - limited bandwidth (1553 - ~1Mbs) / I2C (~100Khz)
+ 
+Other similarities in the overall desing strategy:
+ - Lego PF support different channels for addressing (i.e. channel 1-4 each with RED/BLUE drivers), quite common to have multiple 1553 buses (i.e. 1 to many) on an aircraft.
 
 
 ## Ideas
@@ -44,3 +47,7 @@ Similar to #1
 ### Challenge #4 - Persist in keeping the landing gear down - difficulty hard
 This solution should require scripting to be constantly sending the desired I2C command. This will in effect override the
 remote control
+
+
+### Challenge #5 - Pivot - difficutly moderate/hard
+Have a unit (i.e. Mission Computer) that can accept changes to the channel that it needs to talk on to interact with various other units. Essentaially have an exploit/vulnerability in the device that accepts channel assignments and blindly forwards commands along in effect allowing complete control of the entire bus.
