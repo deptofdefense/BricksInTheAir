@@ -192,7 +192,15 @@ void service_ir_comms() {
   }
 }
 
-
+/*
+ * Parse a string into the I2C buffer to be spit out
+ */
+void string_to_i2c_buffer(String data) {
+  int i;
+  for(i=0; i < data.length(); i++) {
+    g_i2c_tx_buffer.push(data.charAt(i));
+  }
+}
 
 /*
  * generate the imediate response needed as fast as possible
@@ -208,6 +216,7 @@ void process_i2c_request(void) {
       case GET_ENGINE_STATUS:
         Serial.println("Command Received, GET_ENGINE_STATUS");
         g_i2c_tx_buffer.push(currentMode);
+        string_to_i2c_buffer("hello");
         break;
   
       case SET_ENGINE_SPEED:
