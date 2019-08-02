@@ -92,47 +92,8 @@ void setup() {
  */
 void loop() {
   service_ir_comms();
-  process_i2c_request();
 }
 
-
-/*
- * Set's LED State
- * 0x00 = OFF = LED off
- * 0x01 = ON = LED on
- * 0x10 = DC = Don't change the state
- */
-void set_led(short g, short y, short r) {
-  switch(g) {
-    case 0x00:
-      digitalWrite(GREEN_LED, LOW);
-      break;
-
-    case 0x01:
-      digitalWrite(GREEN_LED, HIGH);
-      break;
-  }
-
-  switch(y){
-    case 0x00:
-      digitalWrite(YELLOW_LED, LOW);
-      break;
-
-    case 0x01:
-      digitalWrite(YELLOW_LED, HIGH);
-      break;
-  }
-
-  switch(r) {
-    case 0x00:
-      digitalWrite(RED_LED, LOW);
-      break;
-
-    case 0x01:
-      digitalWrite(RED_LED, HIGH);
-      break;
-  }
-}
 
 /*
  * Manages IR comms interface
@@ -216,7 +177,7 @@ void process_i2c_request(void) {
       case GET_ENGINE_STATUS:
         Serial.println("Command Received, GET_ENGINE_STATUS");
         g_i2c_tx_buffer.push(currentMode);
-        string_to_i2c_buffer("hello");
+        //string_to_i2c_buffer("hello");
         break;
   
       case SET_ENGINE_SPEED:
@@ -265,6 +226,46 @@ void requestEvent() {
   }
 }
 
+
+/*
+ * Set's LED State
+ * 0x00 = OFF = LED off
+ * 0x01 = ON = LED on
+ * 0x10 = DC = Don't change the state
+ */
+void set_led(short g, short y, short r) {
+  switch(g) {
+    case 0x00:
+      digitalWrite(GREEN_LED, LOW);
+      break;
+
+    case 0x01:
+      digitalWrite(GREEN_LED, HIGH);
+      break;
+  }
+
+  switch(y){
+    case 0x00:
+      digitalWrite(YELLOW_LED, LOW);
+      break;
+
+    case 0x01:
+      digitalWrite(YELLOW_LED, HIGH);
+      break;
+  }
+
+  switch(r) {
+    case 0x00:
+      digitalWrite(RED_LED, LOW);
+      break;
+
+    case 0x01:
+      digitalWrite(RED_LED, HIGH);
+      break;
+  }
+}
+
+
 /*
  * DEBUG ONLY
  * print rx receive buffer
@@ -280,19 +281,5 @@ void dbg_print_rx_buffer(void) {
   }
   else {
     Serial.println("Buffer Empty");
-  }
-}
-
-/*
- * DELETE ME: 
- * Manages I2C comms interface
- */
-void service_i2c_comms(void) {
-  if(g_i2c_rx_buffer.isEmpty() != true) {
-    modeChange = true;
-    pastMode = currentMode;
-    currentMode = g_i2c_rx_buffer.shift();
-    Serial.println(currentMode);
-    g_i2c_tx_buffer.push(currentMode);
   }
 }
