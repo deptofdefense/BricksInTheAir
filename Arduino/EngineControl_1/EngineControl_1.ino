@@ -92,6 +92,7 @@ void setup() {
  */
 void loop() {
   service_ir_comms();
+  process_i2c_request();
 }
 
 
@@ -199,6 +200,8 @@ void service_ir_comms() {
 void process_i2c_request(void) {
   short command_temp;
   if(g_i2c_rx_buffer.isEmpty() != true) {
+    //clear any unsent responses
+    g_i2c_tx_buffer.clear();
     //read command and pull it out of the buffer
     command_temp = g_i2c_rx_buffer.shift();
     switch(command_temp){
@@ -214,17 +217,14 @@ void process_i2c_request(void) {
         modeChange = true;
         Serial.println(currentMode, HEX);
         //Note, there should be some sanitization here, but maybe not for hacking comp?
+        break;
   
       default:
         Serial.print("Received unknown command: ");
         Serial.println(command_temp);
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
-  
-      
     }
-    g_i2c_tx_buffer.clear(); //flush buffer after processing
-    dbg_print_rx_buffer();
-    
+    g_i2c_rx_buffer.clear(); //flush buffer after processing  
   }
 }
 
@@ -238,8 +238,7 @@ void receiveEvent()
 {  
   while(Wire.available()){
     g_i2c_rx_buffer.push((short) Wire.read());
-  }  
-  dbg_print_rx_buffer();
+  }
   process_i2c_request();
 }
 
@@ -255,7 +254,6 @@ void requestEvent() {
   else {
     Wire.write(NO_DATA); // Out of data, respond with NO DATA
   }
-  
 }
 
 /*
