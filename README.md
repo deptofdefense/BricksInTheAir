@@ -9,16 +9,24 @@ Pictures of the kits are contained below but chekc out the [LegoKits](https://gi
 
 [LEGO Jet 42066](https://www.amazon.com/LEGO-Technic-Race-42066-Building/dp/B072MHYCYZ/ref=asc_df_B072MHYCYZ/?tag=hyprod-20&linkCode=df0&hvadid=312131879690&hvpos=1o3&hvnetw=g&hvrand=1663373337932599929&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9058761&hvtargid=pla-567522045562&psc=1)
 <img src="https://images.brickset.com/sets/images/42066-1.jpg?201611300919" width="300">
+
 ---
+
 [LEGO Plane 42025](https://www.amazon.com/Lego-42025-Technic-Cargo-Plane/dp/B00F3B48YA/ref=asc_df_B00F3B48YA/?tag=hyprod-20&linkCode=df0&hvadid=312131879690&hvpos=1o2&hvnetw=g&hvrand=1663373337932599929&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9058761&hvtargid=pla-440286468189&psc=1 )
 <img src="https://images.brickset.com/sets/images/42025-1.jpg?201311210338" width="300">
+
 ---
+
 [LEGO Helicopter 42052](https://www.amazon.com/LEGO-Technic-Helicopter-Advanced-Building/dp/B01E78WKEO/ref=asc_df_B01E78WKEO/?tag=hyprod-20&linkCode=df0&hvadid=312143210575&hvpos=1o2&hvnetw=g&hvrand=8773246636342787586&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9058761&hvtargid=pla-572282343772&psc=1 )
 <img src="https://images.brickset.com/sets/images/42052-1.jpg?201601050913" width="300">
+
 ---
+
 [LEGO Power Functions IR Receiver (8884)](https://www.amazon.com/LEGO-Functions-Power-IR-8884/dp/B00440E2GK/ref=sr_1_1?keywords=lego+power+functions+IR&qid=1565984821&s=toys-and-games&sr=1-1 )
 <img src="https://images.brickset.com/sets/images/8884-1.jpg?200712260710" width="300">
+
 ---
+
 [LEGO Power Functions IR Remote (8879)](https://www.amazon.com/LEGO-Functions-Control-Discontinued-manufacturer/dp/B003FOA2VK/ref=sr_1_4?keywords=lego+power+functions+IR+remote&qid=1565985000&s=toys-and-games&sr=1-4 )
 <img src="https://images.brickset.com/sets/large/8879-1.jpg?200903300421" width="300">
 
