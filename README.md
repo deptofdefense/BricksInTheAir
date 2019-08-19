@@ -9,15 +9,15 @@ Pictures of the kits are contained below but chekc out the [/LegoKits](https://g
 
 [LEGO Jet 42066](https://www.amazon.com/LEGO-Technic-Race-42066-Building/dp/B072MHYCYZ/ref=asc_df_B072MHYCYZ/?tag=hyprod-20&linkCode=df0&hvadid=312131879690&hvpos=1o3&hvnetw=g&hvrand=1663373337932599929&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9058761&hvtargid=pla-567522045562&psc=1)
 
-<img src="https://images.brickset.com/sets/images/42025-1.jpg?201311210338" width="300">
+<img src="https://images.brickset.com/sets/images/42066-1.jpg?201611300919" width="300">
 
 [LEGO Plane 42025](https://www.amazon.com/Lego-42025-Technic-Cargo-Plane/dp/B00F3B48YA/ref=asc_df_B00F3B48YA/?tag=hyprod-20&linkCode=df0&hvadid=312131879690&hvpos=1o2&hvnetw=g&hvrand=1663373337932599929&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9058761&hvtargid=pla-440286468189&psc=1 )
 
-<img src="https://images.brickset.com/sets/images/42052-1.jpg?201601050913" width="300">
+<img src="https://images.brickset.com/sets/images/42025-1.jpg?201311210338" width="300">
 
 [LEGO Helicopter 42052](https://www.amazon.com/LEGO-Technic-Helicopter-Advanced-Building/dp/B01E78WKEO/ref=asc_df_B01E78WKEO/?tag=hyprod-20&linkCode=df0&hvadid=312143210575&hvpos=1o2&hvnetw=g&hvrand=8773246636342787586&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9058761&hvtargid=pla-572282343772&psc=1 )
 
-<img src="https://images.brickset.com/sets/images/42066-1.jpg?201611300919" width="300">
+<img src="https://images.brickset.com/sets/images/42052-1.jpg?201601050913" width="300">
 
 [LEGO Power Functions IR Receiver (8884)](https://www.amazon.com/LEGO-Functions-Power-IR-8884/dp/B00440E2GK/ref=sr_1_1?keywords=lego+power+functions+IR&qid=1565984821&s=toys-and-games&sr=1-1 )
 
@@ -40,6 +40,7 @@ It is worth noting that an Arduino Uno with an IR LED and resistor connected to 
 
 ## I2C
 We used the Bus Pirate to interface with the Arduino over I2C.
+
 [Bus Pirate](http://dangerousprototypes.com/docs/Bus_Pirate)
 
 Why? 
@@ -55,7 +56,9 @@ Well, the smoker was a last minute add-in that was hacked together using an air 
 Our Electrical Engineer was on site to keep on eye on everything during the competition but the design is not ready for prime time. Additional safety features to prevent overheating and the system from getting stuck into the ON state should be added. 
 
 If you want to take a stab at making your own setup (at your own risk) here are a couple of links to get you started.
+
 [Pump](https://www.amazon.com/DIMINUS-Replacement-Accessories-Aquarium-Circulate/dp/B06ZXW7Z1P)
+
 [eCig Ceramic Cartridge](https://www.amazon.com/Ceramic-Wickless-Cartridge-AC-1003-Acessaries/dp/B07SMRZZMY/ref=sr_1_1?keywords=5+pack+1ml+ceramic+ac1003&qid=1566240299&s=hi&sr=8-1)
 
 
