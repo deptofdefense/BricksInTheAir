@@ -1,4 +1,4 @@
-# DDS Hack the Plane
+# [DDS](https://www.dds.mil) Bricks in the Loop
 
 Hack the Plane with [Legos](https://www.lego.com/en-us) and [Arduinos](https://www.arduino.cc/)!
 
