@@ -106,17 +106,17 @@ CircularBuffer<short,I2C_TX_BUFFER_SIZE> g_i2c_tx_buffer;
 /*
  * Strings
  */
-const String PROGMEM g_no_dbg_command_list = "0x22 0x23 0x63 0xAA";
-const String PROGMEM g_dbg_command_list = "0x22 0x23 0x63 0xAA 0x24 0x77";
-const String PROGMEM g_ovrd_command_list = "0x22 0x23 0x63 0xAA 0x77 0x99";
-const String PROGMEM g_list_cmd_name = "list commands";
-const String PROGMEM g_get_status_cmd_name = "get status";
-const String PROGMEM g_set_speed_cmd_name = "set speed";
-const String PROGMEM g_debug_cmd_name = "set debug mode";
-const String PROGMEM g_marco_cmd_name = "marco";
-const String PROGMEM g_override_cmd_name = "enable override";
-const String PROGMEM g_hbridge_burn_cmd_name = "enable h-bridge burn";
-const String PROGMEM g_unknown_cmd_response = "Unknown Command";
+const String g_no_dbg_command_list = "0x22 0x23 0x63 0xAA";
+const String g_dbg_command_list = "0x22 0x23 0x63 0xAA 0x24 0x77";
+const String g_ovrd_command_list = "0x22 0x23 0x63 0xAA 0x77 0x99";
+const String g_list_cmd_name = "list commands";
+const String g_get_status_cmd_name = "get status";
+const String g_set_speed_cmd_name = "set speed";
+const String g_debug_cmd_name = "set debug mode";
+const String g_marco_cmd_name = "marco";
+const String g_override_cmd_name = "enable override";
+const String g_hbridge_burn_cmd_name = "enable h-bridge burn";
+const String g_unknown_cmd_response = "Unknown Command";
 
 /*
  * Setup method to handle I2C Wire setup, LED Pins and Serial output
