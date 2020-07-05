@@ -3,8 +3,8 @@
 #include <CircularBuffer.h>
 
 /**
- *  Project: Hack The "Airplane" - dds.mil
- *  Title: Engine Control Unit
+ *  Project: Bricks in the Air - dds.mil
+ *  Title: Flight Control Computer
  *  
  *  Purpose: To expose people to common low level protocols that mimic aviation protocols, specifically 
  *  using I2C as a correlation to 1553.
@@ -23,14 +23,14 @@
 /*
  * General Config Definitions
  */
-#define ENGINE_I2C_ADDRESS 0x58
+#define I2C_ADDRESS 0x60
+#define I2C_ENGINE_ADDRESS 0x58
 #define LEGO_IR_CHANNEL 0 //0=ch1 1=ch2 etc.
 #define LEGO_MOTOR_OUTPUT_BLOCK BLUE
 #define LEGO_SMOKE_OUTPUT_BLOCK RED
 #define SERIAL_BAUD 9600
 #define I2C_RX_BUFFER_SIZE 50
 #define I2C_TX_BUFFER_SIZE 100
-#define SMOKE_LENGTH_MS   10000
 #define STARTUP_LED_SPEED_MS  100
 
 /*
@@ -47,11 +47,6 @@
 #define OFF 0x00
 #define ON  0x01
 #define DC  0x10
-
-#define SMOKE_OFF     0x00
-#define SMOKE_START   0x01
-#define SMOKE_RUNNING 0x02
-#define SMOKE_STOP    0x03
 
 #define MOTOR_CRUISING_NORMAL 0x00
 
@@ -71,6 +66,7 @@
 #define SET_DEBUG_MODE    0xAA
 #define SET_OVERRIDE      0x77
 #define HBRIDGE_BURN      0x99
+
 
 //Response
 #define UNKNOWN_COMMAND   0x33
@@ -123,9 +119,10 @@ const char g_unknown_cmd_response[] PROGMEM = {"Unknown Command"};
  */
 void setup() {
   int i;  
-  Wire.begin(ENGINE_I2C_ADDRESS);
-  Wire.onReceive(receiveEvent); // register event handler for recieve
-  Wire.onRequest(requestEvent); // register event handler for request
+  //Wire.begin(I2C_ADDRESS);
+  Wire.begin();
+  //Wire.onReceive(receiveEvent); // register event handler for recieve
+  //Wire.onRequest(requestEvent); // register event handler for request
 
   pinMode(GREEN_LED, OUTPUT);
   pinMode(YELLOW_LED, OUTPUT);
@@ -140,11 +137,6 @@ void setup() {
   g_current_time_ms = millis();
 
   //run inital state config
-  g_smoke_state = SMOKE_OFF;
-  g_motor_state = MOTOR_CRUISING_NORMAL;
-  g_debug_state = DEBUG_MODE_OFF;
-  g_mode_change = true;     
-
   for (i=0; i<5; i++) {
     set_led(ON, OFF, OFF);
     delay(STARTUP_LED_SPEED_MS);
@@ -164,8 +156,38 @@ void setup() {
  * The main loop of execution for the Engine Control Unit
  */
 void loop() {
-  service_ir_comms();
-  service_timers();
+
+  delay(1000);
+  
+  //service_ir_comms();
+  byte data[] = {0x23, 0x3};
+
+  Wire.beginTransmission(I2C_ENGINE_ADDRESS);
+  Wire.write(0xAA);
+  Wire.write(0x01);
+  Wire.endTransmission();
+  
+  while(Wire.available())    // slave may send less than requested
+  {
+    char c = Wire.read();    // receive a byte as character
+    Serial.print(c);         // print the character
+  }
+  
+  Wire.beginTransmission(I2C_ENGINE_ADDRESS);
+  Wire.write(0x23);
+  Wire.write(0x3);
+  Wire.endTransmission();
+
+  while(Wire.available())    // slave may send less than requested
+  {
+    char c = Wire.read();    // receive a byte as character
+    Serial.print(c);         // print the character
+  }
+  
+  //service_timers();
+
+  
+  
 }
 
 /*
@@ -202,45 +224,7 @@ void loop() {
  * Manages IR comms interface
  */
 void service_ir_comms() {
-  if(g_mode_change == true){   //process new mode of operation
-    Serial.print(F("Mode change request to: 0x"));
-    Serial.println(g_engine_speed, HEX);
-    g_mode_change = false;
-    switch(g_motor_state) {
 
-    }
-    
-    update_ir_motor_speed();
-  }
-
-  switch(g_smoke_state){
-    case SMOKE_OFF:
-      //Just chill here and wait
-      break;
-      
-    case SMOKE_START:
-      g_smoke_timer_ms = SMOKE_LENGTH_MS;
-      Serial.println(F("SMOKEN!!!"));
-      pf.single_pwm(LEGO_SMOKE_OUTPUT_BLOCK, PWM_FWD7);
-      g_smoke_state = SMOKE_RUNNING;
-      set_led(DC, DC, ON);
-      break;
-
-    case SMOKE_RUNNING:
-      if(g_smoke_timer_ms == 0) {
-          g_smoke_state = SMOKE_STOP;
-      }
-      break;
-      
-    case SMOKE_STOP:
-      Serial.println(F("Extinguish!!!"));
-      pf.single_pwm(LEGO_SMOKE_OUTPUT_BLOCK, PWM_BRK);
-      pf.single_pwm(LEGO_SMOKE_OUTPUT_BLOCK, PWM_FLT);
-      g_smoke_state = SMOKE_OFF;
-      break;
-  }
-  //Limit loop speed
-  //delay(100);
 }
 
 /*
@@ -260,6 +244,7 @@ void string_to_i2c_buffer(String data) {
  * Needs to be non-blocking and as quick as possible
  */
 void process_i2c_request(void) {
+  /*
   short command_temp;
   if(g_i2c_rx_buffer.isEmpty() != true) {
     //clear any unsent responses
@@ -499,6 +484,7 @@ void process_i2c_request(void) {
     }
     g_i2c_rx_buffer.clear(); //flush buffer after processing  
   }
+  */
 }
 
 
