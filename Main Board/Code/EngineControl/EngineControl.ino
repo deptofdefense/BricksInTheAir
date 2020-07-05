@@ -5,15 +5,10 @@
 
 /**
  *  Project: Bricks in the Air - dds.mil
- *  Title: Landing Gear Control Computer
+ *  Title: Engine Control Unit
  *  
  *  Purpose: To expose people to common low level protocols that mimic aviation protocols, specifically 
  *  using I2C as a correlation to 1553.
- *  
- *  LED usage:
- *    Green: Gear is down and locked
- *    Yellow: Gear is in transit
- *    Red: Gear is retracted
  *    
  *    
  *  @author Dan Allen
@@ -23,25 +18,21 @@
  *  Jason Phillips
  *    
  *  Credits:
- *    https://github.com/jurriaan/Arduino-PowerFunctions *    
+ *    https://github.com/jurriaan/Arduino-PowerFunctions
+ *    https://github.com/marcelloromani/Arduino-SimpleTimer
  */
 
 /*
  * General Config Definitions
  */
-#define I2C_ADDRESS 0x60
+#define ENGINE_I2C_ADDRESS 0x55
 #define LEGO_IR_CHANNEL 0 //0=ch1 1=ch2 etc.
-#define LEGO_MOTOR_OUTPUT_BLOCK 0x01 // 0x00 RED, 0x01 BLUE
+#define LEGO_MOTOR_OUTPUT_BLOCK 0x00 // 0x00 RED, 0x01 BLUE
 #define SERIAL_BAUD 9600
 #define I2C_RX_BUFFER_SIZE 100
 #define I2C_TX_BUFFER_SIZE 200
 #define STARTUP_LED_SPEED_MS  100
 
-#define GEAR_RETRACT_DELAY 5000  //Gear up/down will need to be tuned per Lego model
-#define GEAR_EXTEND_DELAY 7000
-const short GEAR_EXTEND_DIRECTION = PWM_FWD2;
-const short GEAR_RETRACT_DIRECTION = PWM_REV2;
-const short GEAR_STOP_DIRECTION = PWM_BRK;
 
 /*
  * Pin Definitions
@@ -58,28 +49,31 @@ const short GEAR_STOP_DIRECTION = PWM_BRK;
 #define ON  0x01
 #define DC  0x10
 
-#define GEAR_EXTENDED 0x00
-#define GEAR_RETRACTED 0x01
-#define GEAR_IN_TRANSIT 0x02
+#define MOTOR_CRUISING_NORMAL 0x02
 
 #define PRI_OPERATION_MODE 0x00
 #define SEC_OPERATION_MODE  0x01
 #define MAINT_STATUS_NORMAL 0x00
 #define MAINT_STATUS_DEBUG 0x01
 
+#define REJECTED_COMMAND 0xDE
+#define ACCEPTED_COMMAND 0x01
+#define FAULT_DETECTED   0xDA
+
+
 /*
  * I2C Comms Definitions
  */
 //Commands
-#define GET_GEAR_POS 0x20
-#define SET_GEAR_POS 0x21
-#define GET_MODE_OF_OPERTION 0x30
-#define SET_MODE_OF_OPERTION 0x31
-#define GET_MAINT_STATUS 0x40
-#define SET_MAINT_STATUS 0x41
-#define GET_LEGO_PF_CHANNEL 0x80
-#define GET_LEGO_PF_COLOR 0x90
-#define RESET 0xFE
+#define GET_ENGINE_SPEED      0x10
+#define SET_ENGINE_SPEED      0x11
+#define GET_MODE_OF_OPERATION 0x30
+#define SET_MODE_OF_OPERATION 0x31
+#define GET_MAINT_STATUS      0x40
+#define SET_MAINT_STATUS      0x41
+#define GET_LEGO_PF_CHANNEL   0x80
+#define GET_LEGO_PF_COLOR     0x90
+#define RESET                 0xFE
 
 //Response
 #define UNKNOWN_COMMAND   0x33
@@ -94,42 +88,72 @@ PowerFunctions pf(LEGO_PF_PIN, LEGO_IR_CHANNEL);   //Setup Lego Power functions 
 /*
  * Globals
  */
-short volatile g_gear_position = GEAR_RETRACTED;
-short volatile g_pri_operation_mode = PRI_OPERATION_MODE;
+short volatile g_engine_speed = MOTOR_CRUISING_NORMAL;
+short volatile g_operation_mode = PRI_OPERATION_MODE;
 short volatile g_main_status_mode = MAINT_STATUS_NORMAL;
-boolean volatile g_mode_change = false;
-boolean volatile g_lower_gear = false;
-boolean volatile g_raise_gear = false;
 
-// the timer object
+//Timers
+unsigned long volatile g_last_time_ms = 0;
+unsigned long volatile g_current_time_ms =0;
+unsigned long volatile g_smoke_timer_ms = 0;
+
+// the timer object, used to uncouple the Lego pf call routine from I2C commands
 SimpleTimer timer;
 
- 
 CircularBuffer<short,I2C_RX_BUFFER_SIZE> g_i2c_rx_buffer;
 CircularBuffer<short,I2C_TX_BUFFER_SIZE> g_i2c_tx_buffer;
 
 /*
- * The function the timer calls to the stop motion of the gear motor
+ * Update motor speed by sending IR command
  */
-void stop_motor(){
-  pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_STOP_DIRECTION);
-  if(g_lower_gear == true){
-    g_gear_position = GEAR_EXTENDED;
-    g_lower_gear = false;
-    set_led(ON, OFF, OFF);
-  }else if(g_raise_gear == true){
-    g_gear_position = GEAR_RETRACTED;
-    g_raise_gear = false;
-    set_led(OFF, OFF, ON);
-  }  
-}
+ void update_ir_motor_speed(void) {
+  //Handle the desired mode change
+    switch(g_engine_speed){
+      case 0:
+        Serial.println(F("Engine off"));
+        pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_BRK);
+        break;
+      case 1:
+        Serial.println(F("Slow Speed 1"));
+        pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_FWD1);
+        break;
+      case 2:
+        Serial.println(F("Slow Speed 2"));
+        pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_FWD2);
+        break;
+      case 3:
+        Serial.println(F("Medium Speed 1"));
+        pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_FWD3);
+        break;
+      case 4:
+        Serial.println(F("Medium Speed 2"));
+        pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_FWD4);
+        break;
+      case 5:
+        Serial.println(F("Fast Speed 1"));
+        pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_FWD5);
+        break;
+      case 6:
+        Serial.println(F("Fast Speed 2"));
+        pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_FWD6);
+        break;
+      case 7:
+        Serial.println(F("Fast Speed 3"));
+        pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_FWD7);
+        break;
+      default:   
+        Serial.println(F("Unknown Motor Speed"));         
+        break;
+    }
+ }
+
 
 /*
  * Setup method to handle I2C Wire setup, LED Pins and Serial output
  */
 void setup() {
   int i;  
-  Wire.begin(I2C_ADDRESS);
+  Wire.begin(ENGINE_I2C_ADDRESS);
   Wire.onReceive(receiveEvent); // register event handler for recieve
   Wire.onRequest(requestEvent); // register event handler for request
 
@@ -140,7 +164,6 @@ void setup() {
   Serial.begin(SERIAL_BAUD);    // start serial for output debugging
   Serial.println(F("Main Engine Control Unit is online, ready for tasking"));
   
-  //run inital state config
   for (i=0; i<5; i++) {
     set_led(ON, OFF, OFF);
     delay(STARTUP_LED_SPEED_MS);
@@ -152,8 +175,8 @@ void setup() {
     delay(STARTUP_LED_SPEED_MS);
   }
 
-  // Gear is normally retracted at startup
-  set_led(OFF, OFF, ON);
+  set_led(ON, OFF, OFF);
+  update_ir_motor_speed();
   
 }
 
@@ -164,10 +187,9 @@ void loop() {
   timer.run();  
 }
 
-
 /*
  * I2c State machine
- * Needs to be non-blocking and as quick as possible
+ * Needs to be non-blocking
  */
 void process_i2c_request(void) {
   short command = 0xff;
@@ -184,115 +206,109 @@ void process_i2c_request(void) {
 
   if(command != 0xff && payload != 0xff){
     //recieved a set request, need a payload
-    switch(command){      
-      case SET_GEAR_POS:
-        if(payload == g_gear_position){
-          //nothing to do, already in the desired state
-          break;
-        }else if(g_gear_position == GEAR_RETRACTED && payload == GEAR_EXTENDED){
-          set_led(OFF, ON, OFF);
-          //requesting a gear change from retracted to lowered
-          g_gear_position = GEAR_IN_TRANSIT;
-          g_lower_gear = true;
-          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_EXTEND_DIRECTION);
-          timer.setTimeout(GEAR_EXTEND_DELAY, stop_motor);
-        }else if(g_gear_position == GEAR_EXTENDED && payload == GEAR_RETRACTED){
-          //requesting a gear change from lowered to retracted
-          set_led(OFF, ON, OFF);
-          g_gear_position = GEAR_IN_TRANSIT;
-          g_raise_gear = true;
-          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_RETRACT_DIRECTION);
-          timer.setTimeout(GEAR_RETRACT_DELAY, stop_motor);
+    switch(command){
+      
+      case SET_ENGINE_SPEED:
+        // Need to expand logic to speicify when the enigne can be changed
+        if(g_main_status_mode == MAINT_STATUS_DEBUG){
+          if(payload >= 0 && payload <= 7){
+            g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+            g_engine_speed = payload;            
+            timer.setTimeout(1, update_ir_motor_speed);
+          }else{
+            g_engine_speed = FAULT_DETECTED;
+            g_i2c_tx_buffer.push(FAULT_DETECTED);
+          }
+        }else if(payload >= 2 && payload <= 4){
+            g_engine_speed = payload;            
+            g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+            timer.setTimeout(1, update_ir_motor_speed);
         }else{
-          //gear is probably in transit... do nothing
-          //maybe put an easter egg here.. it would be timing dependent to execute.
-          break;
-        }
-        
-        break;  
-            
-      case SET_MODE_OF_OPERTION:
-        if(payload == PRI_OPERATION_MODE){
-          g_pri_operation_mode = PRI_OPERATION_MODE;
-          set_led(DC, OFF, DC);
-        }else if(payload == SEC_OPERATION_MODE){
-          g_pri_operation_mode = SEC_OPERATION_MODE;
-          set_led(DC, ON, DC);
-        }
-        break;   
-             
-      case SET_MAINT_STATUS:
-        if(payload == MAINT_STATUS_NORMAL){
-          g_main_status_mode = MAINT_STATUS_NORMAL;
-          set_led(DC, DC, OFF);
-        }else if(payload == MAINT_STATUS_DEBUG){
-          g_main_status_mode = MAINT_STATUS_DEBUG;
-          set_led(DC, DC, ON);
+            g_i2c_tx_buffer.push(REJECTED_COMMAND);
         }
         break;
-        
+      
+      case SET_MODE_OF_OPERATION:
+        if(payload == PRI_OPERATION_MODE){
+          g_operation_mode = PRI_OPERATION_MODE;
+          set_led(DC, OFF, DC);
+        }else if(payload == SEC_OPERATION_MODE){
+          g_operation_mode = SEC_OPERATION_MODE;
+          set_led(DC, ON, DC);
+        }else{
+          g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
+        }
+        break;
+      
+      case SET_MAINT_STATUS:
+        if(g_operation_mode == SEC_OPERATION_MODE){
+          if(payload == MAINT_STATUS_NORMAL){
+            g_main_status_mode = MAINT_STATUS_NORMAL;
+            set_led(DC, DC, OFF);
+          }else if(payload == MAINT_STATUS_DEBUG){
+            g_main_status_mode = MAINT_STATUS_DEBUG;
+            set_led(DC, DC, ON);
+          }else{
+            g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
+          }
+        }else{
+          g_i2c_tx_buffer.push(REJECTED_COMMAND);
+        }
+        break;        
+      
       default:
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;
-       
-    }    
-  }else if(command != 0xff){
+    }
+  }else if (command != 0xff){
     //recieved a get request, no payload required
     switch(command){
-      case GET_GEAR_POS:
-        g_i2c_tx_buffer.push(g_gear_position);        
+      
+      case GET_ENGINE_SPEED:
+        g_i2c_tx_buffer.push(g_engine_speed);
         break;
-      case GET_MODE_OF_OPERTION:
-        g_i2c_tx_buffer.push(g_pri_operation_mode);        
+      
+      case GET_MODE_OF_OPERATION:
+        g_i2c_tx_buffer.push(g_operation_mode);
         break;
+      
       case GET_MAINT_STATUS:
-        g_i2c_tx_buffer.push(g_main_status_mode);        
+        g_i2c_tx_buffer.push(g_main_status_mode);
         break;
+      
       case GET_LEGO_PF_CHANNEL:
         g_i2c_tx_buffer.push(LEGO_IR_CHANNEL);
-        break;        
+        break;
+      
       case GET_LEGO_PF_COLOR:
         g_i2c_tx_buffer.push(LEGO_MOTOR_OUTPUT_BLOCK);
         break;
+      
       case RESET:
-      // Reset all local variables EXCEPT the position of the GEAR (i.e. up or down)
-        g_i2c_tx_buffer.clear();
-        g_i2c_rx_buffer.clear();
-        g_pri_operation_mode = PRI_OPERATION_MODE;
+        g_engine_speed = MOTOR_CRUISING_NORMAL;
+        g_operation_mode = PRI_OPERATION_MODE;
         g_main_status_mode = MAINT_STATUS_NORMAL;
-        g_mode_change = false;
-        g_lower_gear = false;
-        g_raise_gear = false;
-        if(g_gear_position == GEAR_IN_TRANSIT){
-          set_led(OFF, ON, OFF);
-        }else if(g_gear_position == GEAR_RETRACTED){
-          set_led(OFF, OFF, ON);
-        }else{
-          set_led(ON, OFF, OFF);
-        }
         set_led(ON, OFF, OFF);
+        timer.setTimeout(1, update_ir_motor_speed);
         break;
       default:
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
-        break;     
+        break;
     }
   }else{
     g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
   }
 }
 
-
 /*
  * Event Handler for processing I2C commands sent to this device
- * NOTE: I don't like accessing the response in this inturrupt,
- * but I2C needs an imeediate response.
  */
 void receiveEvent(int numofbytes)
 {  
   while(Wire.available()){
     g_i2c_rx_buffer.push((short) Wire.read());
   }
-  process_i2c_request();  
+  process_i2c_request();
 }
 
 /*
@@ -306,7 +322,7 @@ void requestEvent() {
   }
   else {
     Wire.write(NO_DATA); // Out of data, respond with NO DATA
-  } 
+  }
 }
 
 
@@ -318,31 +334,31 @@ void requestEvent() {
  */
 void set_led(short g, short y, short r) {
   switch(g) {
-    case 0x00:
+    case OFF:
       digitalWrite(GREEN_LED, LOW);
       break;
 
-    case 0x01:
+    case ON:
       digitalWrite(GREEN_LED, HIGH);
       break;
   }
 
   switch(y){
-    case 0x00:
+    case OFF:
       digitalWrite(YELLOW_LED, LOW);
       break;
 
-    case 0x01:
+    case ON:
       digitalWrite(YELLOW_LED, HIGH);
       break;
   }
 
   switch(r) {
-    case 0x00:
+    case OFF:
       digitalWrite(RED_LED, LOW);
       break;
 
-    case 0x01:
+    case ON:
       digitalWrite(RED_LED, HIGH);
       break;
   }
