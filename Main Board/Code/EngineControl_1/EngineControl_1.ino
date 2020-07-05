@@ -11,7 +11,7 @@
  *    
  *    
  *  @author Dan Allen
- *  @version 1.1 7/1/20
+ *  @version 1.0 7/25/19
  *  
  *  Contributers:
  *  Jason Phillips
@@ -106,17 +106,17 @@ CircularBuffer<short,I2C_TX_BUFFER_SIZE> g_i2c_tx_buffer;
 /*
  * Strings
  */
-const char g_no_dbg_command_list[] PROGMEM = {"0x22 0x23 0x63 0xAA"};
-const char g_dbg_command_list[] PROGMEM = {"0x22 0x23 0x63 0xAA 0x24 0x77"};
-const char g_ovrd_command_list[] PROGMEM = {"0x22 0x23 0x63 0xAA 0x77 0x99"};
-const char g_list_cmd_name[] PROGMEM = {"list commands"};
-const char g_get_status_cmd_name[] PROGMEM = {"get status"};
-const char g_set_speed_cmd_name[] PROGMEM = {"set speed"};
-const char g_debug_cmd_name[] PROGMEM = {"set debug mode"};
-const char g_marco_cmd_name[] PROGMEM = {"marco"};
-const char g_override_cmd_name[] PROGMEM = {"enable override"};
-const char g_hbridge_burn_cmd_name[] PROGMEM  = {"enable h-bridge burn"};
-const char g_unknown_cmd_response[] PROGMEM = {"Unknown Command"};
+const String PROGMEM g_no_dbg_command_list = "0x22 0x23 0x63 0xAA";
+const String PROGMEM g_dbg_command_list = "0x22 0x23 0x63 0xAA 0x24 0x77";
+const String PROGMEM g_ovrd_command_list = "0x22 0x23 0x63 0xAA 0x77 0x99";
+const String PROGMEM g_list_cmd_name = "list commands";
+const String PROGMEM g_get_status_cmd_name = "get status";
+const String PROGMEM g_set_speed_cmd_name = "set speed";
+const String PROGMEM g_debug_cmd_name = "set debug mode";
+const String PROGMEM g_marco_cmd_name = "marco";
+const String PROGMEM g_override_cmd_name = "enable override";
+const String PROGMEM g_hbridge_burn_cmd_name = "enable h-bridge burn";
+const String PROGMEM g_unknown_cmd_response = "Unknown Command";
 
 /*
  * Setup method to handle I2C Wire setup, LED Pins and Serial output
@@ -251,8 +251,6 @@ void string_to_i2c_buffer(String data) {
   for(i=0; i < data.length(); i++) {
     g_i2c_tx_buffer.push(data.charAt(i));
   }
-  //terminate buffer with newline to know when finished
-  g_i2c_tx_buffer.push('\n');
 }
 
 /*
