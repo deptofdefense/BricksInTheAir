@@ -142,9 +142,11 @@ void loop() {
 
   if(g_smoke_popped == true){
     pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_FWD7);
+    set_led(OFF, DC, DC);
     delay(1000);
     pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, PWM_BRK);
     g_smoke_popped = false;
+    set_led(ON, DC, DC);
   }
 }
 

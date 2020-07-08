@@ -78,7 +78,17 @@ def test_landing_gear_functionality(gear_address):
 
 def test_fcc_functionality(fcc_address):
     print("*************testing fcc functionality")
+
+    op_mode = write_read(fcc_address, [0x31, 0x01])
+    time.sleep(2)
+    main_mode = write_read(fcc_address, [0x41, 0x01])
+    time.sleep(2)
+
+    print("Popping smoke")
     write_read(fcc_address, [0xb5, 0x01])
+
+    write_read(fcc_address, [0xFE])
+    print("Send RESET command")
 
 test_engine_funcionality(engine_address)
 print("\n\n")
