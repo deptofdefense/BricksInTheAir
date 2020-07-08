@@ -1,20 +1,24 @@
-import time
 
+import os
+os.environ['BLINKA_FT232H'] = '1'   # board modue needs this variable set
+
+import time
 import board
 import busio
-
 
 # Create library object using our Bus I2C port
 i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
 print("setup i2c")
 
-#avail = i2c.scan()
-#print(avail)
-
 fcc_address = 0x50
 engine_address = 0x55
 gear_address = 0x60
 
+# Verify that everything is communicating as expected
+avail = i2c.scan()
+print("fcc_address present: {}".format("True" if fcc_address in avail else "False"))
+print("engine_address present: {}".format("True" if engine_address in avail else "False"))
+print("gear_address present: {}".format("True" if gear_address in avail else "False"))
 
 def write_read(address, command, buf_size=0):
     i2c.writeto(address, command)
@@ -72,6 +76,12 @@ def test_landing_gear_functionality(gear_address):
     retract = write_read(gear_address, [0x21, 0x01])
     time.sleep(10)
 
+def test_fcc_functionality(fcc_address):
+    print("*************testing fcc functionality")
+    write_read(fcc_address, [0xb5, 0x01])
+
 test_engine_funcionality(engine_address)
 print("\n\n")
 test_landing_gear_functionality(gear_address)
+print("\n\n")
+test_fcc_functionality(fcc_address)
