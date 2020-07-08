@@ -92,11 +92,6 @@ short volatile g_engine_speed = MOTOR_CRUISING_NORMAL;
 short volatile g_operation_mode = PRI_OPERATION_MODE;
 short volatile g_main_status_mode = MAINT_STATUS_NORMAL;
 
-//Timers
-unsigned long volatile g_last_time_ms = 0;
-unsigned long volatile g_current_time_ms =0;
-unsigned long volatile g_smoke_timer_ms = 0;
-
 // the timer object, used to uncouple the Lego pf call routine from I2C commands
 SimpleTimer timer;
 
@@ -291,6 +286,7 @@ void process_i2c_request(void) {
         set_led(ON, OFF, OFF);
         timer.setTimeout(1, update_ir_motor_speed);
         break;
+      
       default:
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;
