@@ -71,7 +71,7 @@
 #define GET_ALL_STATES        0x35
 #define GET_MAINT_STATUS      0x40
 #define SET_MAINT_STATUS      0x41
-#define SEND_RT_MSG           0x50
+#define SEND_RT_MSG           0x51
 #define GET_LEGO_PF_CHANNEL   0x80
 #define GET_LEGO_PF_COLOR     0x90
 #define RESET                 0xFE
@@ -81,6 +81,9 @@
 #define UNKNOWN_COMMAND       0x33
 #define NO_DATA               0xFF
 #define DATA_NOT_RETRIEVED    0xDA
+
+#define SUCCESS               0x01
+#define FAILURE               0x00
 
 /*
  * Library Instantiations
@@ -166,7 +169,7 @@ void process_i2c_request(void) {
     command = g_i2c_rx_buffer.shift();
     if(g_i2c_rx_buffer.isEmpty() != true) {
       payload = g_i2c_rx_buffer.shift();
-    }
+    }    
   }
 
   if(command != 0xff && payload != 0xff){
@@ -176,22 +179,27 @@ void process_i2c_request(void) {
       case SET_MODE_OF_OPERATION:
         if(payload == PRI_OPERATION_MODE){
           g_operation_mode = PRI_OPERATION_MODE;
+          g_i2c_tx_buffer.push(SUCCESS);
           set_led(DC, OFF, DC);
         }else if(payload == SEC_OPERATION_MODE){
           g_operation_mode = SEC_OPERATION_MODE;
+          g_i2c_tx_buffer.push(SUCCESS);
           set_led(DC, ON, DC);
         }else{
           g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         }
+        g_i2c_rx_buffer.clear();
         break;
 
       case SET_MAINT_STATUS:
         if(g_operation_mode == SEC_OPERATION_MODE){
           if(payload == MAINT_STATUS_NORMAL){
             g_main_status_mode = MAINT_STATUS_NORMAL;
+            g_i2c_tx_buffer.push(SUCCESS);
             set_led(DC, DC, OFF);
           }else if(payload == MAINT_STATUS_DEBUG){
             g_main_status_mode = MAINT_STATUS_DEBUG;
+            g_i2c_tx_buffer.push(SUCCESS);
             set_led(DC, DC, ON);
           }else{
             g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
@@ -199,6 +207,7 @@ void process_i2c_request(void) {
         }else{
           g_i2c_tx_buffer.push(REJECTED_COMMAND);
         }
+        g_i2c_rx_buffer.clear();
         break;
 
       case POP_SMOKE:
@@ -207,10 +216,13 @@ void process_i2c_request(void) {
         //and will execute at face value.
         if(payload == ON){
           g_smoke_popped = true;
+          g_i2c_tx_buffer.push(SUCCESS);
         }
+        g_i2c_rx_buffer.clear();
         break;
         
       default:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;        
     }
@@ -221,32 +233,40 @@ void process_i2c_request(void) {
       case GET_GEAR_POSITION:
         // Send a fixed response indicating that the chatbot controller has to lookup the correct response
         g_i2c_tx_buffer.push(DATA_NOT_RETRIEVED);
+        g_i2c_rx_buffer.clear();
         break;
 
       case GET_MODE_OF_OPERATION:
         g_i2c_tx_buffer.push(g_operation_mode);
+        g_i2c_rx_buffer.clear();
         break;
       
       case GET_MAINT_STATUS:
         g_i2c_tx_buffer.push(g_main_status_mode);
+        g_i2c_rx_buffer.clear();
         break;
       
       case GET_LEGO_PF_CHANNEL:
         g_i2c_tx_buffer.push(LEGO_IR_CHANNEL);
+        g_i2c_rx_buffer.clear();
         break;
       
       case GET_LEGO_PF_COLOR:
         g_i2c_tx_buffer.push(LEGO_MOTOR_OUTPUT_BLOCK);
+        g_i2c_rx_buffer.clear();
         break;
 
       case RESET:
         g_smoke_popped = false;
         g_operation_mode = PRI_OPERATION_MODE;
         g_main_status_mode = MAINT_STATUS_NORMAL;
-        set_led(ON, OFF, OFF);        
+        set_led(ON, OFF, OFF);
+        g_i2c_rx_buffer.clear();
+        g_i2c_tx_buffer.push(SUCCESS);     
         break;
       
       default:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;     
     }
