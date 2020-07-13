@@ -46,7 +46,7 @@ class GameDisplay(QMainWindow):
 
         self.cmdLabel.setText(str(cmdMsg))
         #self.show
-        time.sleep(1)
+        time.sleep(5)
         self.cmdLabel.setText("")
         #self.show
 

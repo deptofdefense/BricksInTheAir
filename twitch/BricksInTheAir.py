@@ -61,15 +61,24 @@ class BricksInTheAir:
         """
         passed_step = user.checkAnswer(cmd)
         if passed_step == True:
-            # do the stuff to indicate complete
-            response = self.process_cmd(user, cmd)
-            print(type(response))
-            return response + " Congratulations, you've completed this step."
+            # limitations to VR and time to build, some answers just need to be faked
+            # allow the config file to guide the gameplay.
+            response = ""
+            if user.getFakeI2CResponse() != None:
+                 response = user.getFakeI2CResponse()
+            else:
+                # do the stuff to indicate complete
+                response = "0x" + self.process_cmd(user, cmd)[2:-1]
+
+            user.incrementCurrentStepIndex()
+
+            return "\n\nI2C Response: " + response + "\n\nCongratulations, you've completed this step.\n"\
+                            "\n\nNext Question: " + user.getQuestion()
 
         else:
             # nothing to do here?
-            response = self.process_cmd(user, cmd)
-            return "Incorrect"
+            # response = self.process_cmd(user, cmd)
+            return "Incorrect cmd sent for the current question."
 
 
     def process_cmd(self, user, cmd):
@@ -124,20 +133,11 @@ class BricksInTheAir:
         return buf
 
     def reset(self, user):
-        """
-        threading.Thread(target=self.write_read_i2c, args=(self.fcc_address, [0x31, 0x00]), daemon=True).start()
-        threading.Thread(target=self.write_read_i2c, args=(self.fcc_address, [0x41, 0x00]), daemon=True).start()
-        threading.Thread(target=self.write_read_i2c, args=(self.fcc_address, [0x31, 0x00]), daemon=True).start()
-        threading.Thread(target=self.write_read_i2c, args=(self.fcc_address, [0x41, 0x00]), daemon=True).start()
-        """
+
         print("Calling brick reset")
         #time.sleep(.1)
         self.write_read_i2c(self.fcc_address, [0xFE])
         time.sleep(.1)
-
-        #self.write_read_i2c(self.engine_address, [0xFE])
-        #time.sleep(.1)
-
 
 
 def str_to_hex(hex_str):

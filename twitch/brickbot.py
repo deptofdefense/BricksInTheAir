@@ -92,7 +92,7 @@ async def cmd(ctx):
         userList.getCurrentUser().resetTimeout()
         msg = bia_game.checkCmd(userList.getCurrentUser(), ctx.content[5:])
         dispMan.updateCmdMsg(ctx.content)
-        await ctx.channel.send(f"{ctx.author.name}: Response: {msg}")
+        await ctx.channel.send(f"{ctx.author.name} {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to use the ground station")
 
@@ -102,6 +102,7 @@ async def join(ctx):
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this control station, and is now the active user")
+            await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this control station")
     else:
@@ -127,13 +128,31 @@ async def help(ctx):
 async def hint(ctx):
     if userList.getCurrentUser().matchName(ctx.author.name):
         userList.getCurrentUser().resetTimeout()
-        print(type(userList.getCurrentUser()))
         msg = userList.getCurrentUser().getHint()
         dispMan.updateCmdMsg(ctx.content)
         await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
 
+@bot.command(name='goto')
+async def goto(ctx):
+    if userList.getCurrentUser().matchName(ctx.author.name):
+        userList.getCurrentUser().resetTimeout()
+        msg = userList.getCurrentUser().setCurrentStep(int(ctx.content[6:]))
+        dispMan.updateCmdMsg(ctx.content)
+        await ctx.channel.send(f"{ctx.author.name}: {msg}")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+
+@bot.command(name='question')
+async def question(ctx):
+    if userList.getCurrentUser().matchName(ctx.author.name):
+        userList.getCurrentUser().resetTimeout()
+        msg = userList.getCurrentUser().getQuestion()
+        dispMan.updateCmdMsg(ctx.content)
+        await ctx.channel.send(f"{ctx.author.name}: {msg}")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
 
 # manages the user list locally, so that the chatbot can easily announce who the new controller is
 def userThread():
