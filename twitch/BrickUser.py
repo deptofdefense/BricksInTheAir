@@ -1,5 +1,8 @@
 
 from collections import OrderedDict
+import time
+import os
+import json
 
 class BrickUser:
     """ Base class for keeping track of a unique Bricks in the Air user."""
@@ -9,8 +12,8 @@ class BrickUser:
         """ Initialization method: note name needs to be unique """
 
         self.name = str(name)
-        self.cfg = cfg
-        self.steps = self.cfg["steps"]
+        self.steps = cfg["steps"]
+        self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
         for x in self.steps:
             self.steps[x]["completed"] = False
 
@@ -19,6 +22,10 @@ class BrickUser:
         self.currentStepIndex = 1
         self.maxStep = 0
         self.timeOut = 3
+
+        self.join_timestamp = time.time()
+
+        self.log_event()
 
 
     def __eq__(self, other):
@@ -72,11 +79,13 @@ class BrickUser:
             compare = parts[-1]
             print(compare)
             if compare < self.steps[self.currentStepIndex]["answer_lower"] or compare > self.steps[self.currentStepIndex]["answer_upper"]:
+                self.update_game_progress()
                 return True
 
         else:
             for x in self.steps[self.currentStepIndex]["answer"]:
                 if x == provided_answer:
+                    self.update_game_progress()
                     return True
 
         return False
@@ -121,3 +130,13 @@ class BrickUser:
     def resetTimeout(self):
         """ Resets the timeout to the default value (3) """
         self.timeOut = 3
+
+
+    def update_game_progress(self):
+        self.steps[self.currentStepIndex]["completed"] = True
+        self.steps[self.currentStepIndex]["completed_timestamp"] = time.time()
+        self.log_event()
+
+    def log_event(self):
+        with open(self.log_name,"w") as f:
+            f.write(json.dumps(self.__dict__))
