@@ -59,6 +59,11 @@ class BricksInTheAir:
         """
         Checks the user command and passes to the appropriate function
         """
+
+        # run prologoue for this specific step
+        self.run_prolouge(user)
+
+
         passed_step = user.checkAnswer(cmd)
         if passed_step == True:
             # limitations to VR and time to build, some answers just need to be faked
@@ -125,7 +130,7 @@ class BricksInTheAir:
 
         self.i2c.writeto(address, command)
         buf = None
-        print("wrote to address: 0x{:x}, value: {}".format(address, command))
+        #print("wrote to address: 0x{:x}, value: {}".format(address, command))
         if buf_size > 0:
             buf = bytearray(buf_size)
             self.i2c.readfrom_into(address, buf)
@@ -138,6 +143,18 @@ class BricksInTheAir:
         #time.sleep(.1)
         self.write_read_i2c(self.fcc_address, [0xFE])
         time.sleep(.1)
+
+
+    def run_prolouge(self, user):
+        prologue = user.get_prologue()
+        if prologue != None:
+            for i2c_command in prologue:
+                tmp_command = i2c_command.split()
+                tmp = []
+                for x in tmp_command:
+                    tmp.append(str_to_hex(x))
+                self.write_read_i2c(tmp[0], tmp[1:])
+
 
 
 def str_to_hex(hex_str):

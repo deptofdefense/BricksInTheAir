@@ -1,23 +1,18 @@
 # aerobot.py
 # Created for defcon28 aerospace village
 
+import threading    # needed for threading
+import time         # needed for sleep
+import binascii     # needed for serial
 import yaml # needed for config
-from BricksInTheAir import BricksInTheAir # needed to manage game
+import asyncio      # needed for async ops
 
-from twitchio.ext import commands # from tutorial, for twitch
+from twitchio.ext import commands           # from tutorial, for twitch
+from BricksInTheAir import BricksInTheAir   # needed to manage game
+from UserList import UserList               # needed for user management
+from BrickUser import BrickUser             # needed for user management
 
-from UserList import UserList # needed for user management
-from BrickUser import BrickUser # needed for user management
-
-import threading # needed for threading
-import time # needed for sleep
-import asyncio # needed for async ops
-
-import binascii # needed for serial
-import serial # needed for serial
-import struct # needed for serial
-
-from gameDisplay import DisplayManager # needed for running the game overlay
+from gameDisplay import DisplayManager  # needed for running the game overlay
 
 CFG = None  # global CFG settings
 with open("config.yml", "r") as ymlfile:
@@ -38,7 +33,7 @@ bot = commands.Bot(
     irc_token = CFG["twitch"]["TMI_TOKEN"],
     client_id = CFG["twitch"]["CLIENT_ID"],
     nick = CFG["twitch"]["BOT_NICK"],
-    prefix =CFG["twitch"]["BOT_PREFIX"],
+    prefix = CFG["twitch"]["BOT_PREFIX"],
     initial_channels = CFG["twitch"]["CHANNEL"]
 )
 

@@ -140,3 +140,9 @@ class BrickUser:
     def log_event(self):
         with open(self.log_name,"w") as f:
             f.write(json.dumps(self.__dict__))
+
+    def get_prologue(self):
+        if "prologue" in self.steps[self.currentStepIndex]:
+            return self.steps[self.currentStepIndex]["prologue"]
+        else:
+            return None
