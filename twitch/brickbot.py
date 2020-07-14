@@ -96,6 +96,7 @@ async def cmd(ctx):
 async def join(ctx):
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
+            bia_game.run_prolouge(userList.getCurrentUser())
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this control station, and is now the active user")
             await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
         else:
@@ -133,8 +134,14 @@ async def hint(ctx):
 async def goto(ctx):
     if userList.getCurrentUser().matchName(ctx.author.name):
         userList.getCurrentUser().resetTimeout()
-        msg = userList.getCurrentUser().setCurrentStep(int(ctx.content[6:]))
-        dispMan.updateCmdMsg(ctx.content)
+        try:
+            step = int(ctx.content[6:])
+            msg = userList.getCurrentUser().setCurrentStep(step)
+            bia_game.run_prolouge(userList.getCurrentUser())
+            dispMan.updateCmdMsg(ctx.content)
+        except ValueError:
+            pass
+
         await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
