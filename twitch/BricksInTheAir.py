@@ -130,7 +130,7 @@ class BricksInTheAir:
 
         self.i2c.writeto(address, command)
         buf = None
-        print("wrote to address: 0x{:x}, value: {}".format(address, command))
+        #print("wrote to address: 0x{:x}, value: {}".format(address, command))
         if buf_size > 0:
             buf = bytearray(buf_size)
             self.i2c.readfrom_into(address, buf)
@@ -139,7 +139,7 @@ class BricksInTheAir:
 
     def reset(self, user):
 
-        print("Calling brick reset")
+        #print("Calling brick reset")
         #time.sleep(.1)
         self.write_read_i2c(self.fcc_address, [0xFE])
         time.sleep(.1)
@@ -147,7 +147,7 @@ class BricksInTheAir:
 
     def run_prolouge(self, user):
         prologue = user.get_prologue()
-        print(prologue)
+        #print(prologue)
         if prologue != None:
             for i2c_command in prologue:
                 tmp_command = i2c_command.split()
