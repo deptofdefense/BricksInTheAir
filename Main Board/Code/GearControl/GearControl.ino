@@ -38,10 +38,10 @@
 #define I2C_TX_BUFFER_SIZE 200
 #define STARTUP_LED_SPEED_MS  100
 
-#define GEAR_RETRACT_DELAY 5000  //Gear up/down will need to be tuned per Lego model
-#define GEAR_EXTEND_DELAY 7000
-const short GEAR_EXTEND_DIRECTION = PWM_FWD2;
-const short GEAR_RETRACT_DIRECTION = PWM_REV2;
+#define GEAR_RETRACT_DELAY 4100  //Gear up/down will need to be tuned per Lego model
+#define GEAR_EXTEND_DELAY 4100
+const short GEAR_EXTEND_DIRECTION = PWM_REV7;
+const short GEAR_RETRACT_DIRECTION = PWM_FWD7;
 const short GEAR_STOP_DIRECTION = PWM_BRK;
 
 /*
@@ -59,32 +59,34 @@ const short GEAR_STOP_DIRECTION = PWM_BRK;
 #define ON  0x01
 #define DC  0x10
 
-#define GEAR_EXTENDED 0x00
-#define GEAR_RETRACTED 0x01
-#define GEAR_IN_TRANSIT 0x02
+#define GEAR_EXTENDED         0x00
+#define GEAR_RETRACTED        0x01
+#define GEAR_IN_TRANSIT       0x02
 
-#define PRI_OPERATION_MODE 0x00
-#define SEC_OPERATION_MODE  0x01
-#define MAINT_STATUS_NORMAL 0x00
-#define MAINT_STATUS_DEBUG 0x01
+#define PRI_OPERATION_MODE    0x00
+#define SEC_OPERATION_MODE    0x01
+#define MAINT_STATUS_NORMAL   0x00
+#define MAINT_STATUS_DEBUG    0x01
 
 /*
  * I2C Comms Definitions
  */
 //Commands
-#define GET_GEAR_POS 0x20
-#define SET_GEAR_POS 0x21
-#define GET_MODE_OF_OPERTION 0x30
-#define SET_MODE_OF_OPERTION 0x31
-#define GET_MAINT_STATUS 0x40
-#define SET_MAINT_STATUS 0x41
-#define GET_LEGO_PF_CHANNEL 0x80
-#define GET_LEGO_PF_COLOR 0x90
-#define RESET 0xFE
+#define GET_GEAR_POS          0x20
+#define SET_GEAR_POS          0x21
+#define GET_MODE_OF_OPERTION  0x30
+#define SET_MODE_OF_OPERTION  0x31
+#define GET_MAINT_STATUS      0x40
+#define SET_MAINT_STATUS      0x41
+#define GET_LEGO_PF_CHANNEL   0x80
+#define GET_LEGO_PF_COLOR     0x90
+#define RESET                 0xFE
 
 //Response
-#define UNKNOWN_COMMAND   0x33
-#define NO_DATA           0xFF
+#define UNKNOWN_COMMAND       0x33
+#define NO_DATA               0xFF
+#define SUCCESS               0x01
+#define FAILURE               0x00
 
 /*
  * Library Instantiations
@@ -189,50 +191,65 @@ void process_i2c_request(void) {
       case SET_GEAR_POS:
         if(payload == g_gear_position){
           //nothing to do, already in the desired state
+          g_i2c_tx_buffer.push(SUCCESS);     
           break;
         }else if(g_gear_position == GEAR_RETRACTED && payload == GEAR_EXTENDED){
           set_led(OFF, ON, OFF);
           //requesting a gear change from retracted to lowered
           g_gear_position = GEAR_IN_TRANSIT;
           g_lower_gear = true;
+          g_i2c_tx_buffer.push(SUCCESS);
           pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_EXTEND_DIRECTION);
-          timer.setTimeout(GEAR_EXTEND_DELAY, stop_motor);
+          timer.setTimeout(GEAR_EXTEND_DELAY, stop_motor);               
         }else if(g_gear_position == GEAR_EXTENDED && payload == GEAR_RETRACTED){
           //requesting a gear change from lowered to retracted
           set_led(OFF, ON, OFF);
           g_gear_position = GEAR_IN_TRANSIT;
           g_raise_gear = true;
+          g_i2c_tx_buffer.push(SUCCESS); 
           pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_RETRACT_DIRECTION);
-          timer.setTimeout(GEAR_RETRACT_DELAY, stop_motor);
+          timer.setTimeout(GEAR_RETRACT_DELAY, stop_motor);              
         }else{
           //gear is probably in transit... do nothing
           //maybe put an easter egg here.. it would be timing dependent to execute.
+          g_i2c_tx_buffer.push(SUCCESS);     
           break;
         }
-        
+        g_i2c_rx_buffer.clear();
         break;  
             
       case SET_MODE_OF_OPERTION:
         if(payload == PRI_OPERATION_MODE){
           g_pri_operation_mode = PRI_OPERATION_MODE;
           set_led(DC, OFF, DC);
+          g_i2c_tx_buffer.push(SUCCESS);     
         }else if(payload == SEC_OPERATION_MODE){
           g_pri_operation_mode = SEC_OPERATION_MODE;
           set_led(DC, ON, DC);
+          g_i2c_tx_buffer.push(SUCCESS);     
+        }else{          
+          g_i2c_tx_buffer.push(UNKNOWN_COMMAND);     
         }
+        g_i2c_rx_buffer.clear();
         break;   
              
       case SET_MAINT_STATUS:
         if(payload == MAINT_STATUS_NORMAL){
           g_main_status_mode = MAINT_STATUS_NORMAL;
           set_led(DC, DC, OFF);
+          g_i2c_tx_buffer.push(SUCCESS);
         }else if(payload == MAINT_STATUS_DEBUG){
           g_main_status_mode = MAINT_STATUS_DEBUG;
           set_led(DC, DC, ON);
+          g_i2c_tx_buffer.push(SUCCESS);
+        }else{
+          g_i2c_tx_buffer.push(UNKNOWN_COMMAND);   
         }
+        g_i2c_rx_buffer.clear();
         break;
         
       default:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;
        
@@ -241,15 +258,19 @@ void process_i2c_request(void) {
     //recieved a get request, no payload required
     switch(command){
       case GET_GEAR_POS:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(g_gear_position);        
         break;
       case GET_MODE_OF_OPERTION:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(g_pri_operation_mode);        
         break;
       case GET_MAINT_STATUS:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(g_main_status_mode);        
         break;
       case GET_LEGO_PF_CHANNEL:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(LEGO_IR_CHANNEL);
         break;        
       case GET_LEGO_PF_COLOR:
@@ -274,10 +295,12 @@ void process_i2c_request(void) {
         set_led(ON, OFF, OFF);
         break;
       default:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;     
     }
   }else{
+    g_i2c_rx_buffer.clear();
     g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
   }
 }

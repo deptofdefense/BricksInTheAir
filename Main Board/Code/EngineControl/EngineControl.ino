@@ -51,14 +51,14 @@
 
 #define MOTOR_CRUISING_NORMAL 0x02
 
-#define PRI_OPERATION_MODE 0x00
-#define SEC_OPERATION_MODE  0x01
-#define MAINT_STATUS_NORMAL 0x00
-#define MAINT_STATUS_DEBUG 0x01
+#define PRI_OPERATION_MODE    0x00
+#define SEC_OPERATION_MODE    0x01
+#define MAINT_STATUS_NORMAL   0x00
+#define MAINT_STATUS_DEBUG    0x01
 
-#define REJECTED_COMMAND 0xDE
-#define ACCEPTED_COMMAND 0x01
-#define FAULT_DETECTED   0xDA
+#define REJECTED_COMMAND      0xDE
+#define ACCEPTED_COMMAND      0x01
+#define FAULT_DETECTED        0xDA
 
 
 /*
@@ -76,8 +76,10 @@
 #define RESET                 0xFE
 
 //Response
-#define UNKNOWN_COMMAND   0x33
-#define NO_DATA           0xFF
+#define UNKNOWN_COMMAND       0x33
+#define NO_DATA               0xFF
+#define SUCCESS               0x01
+#define FAILURE               0x00
 
 /*
  * Library Instantiations
@@ -207,20 +209,21 @@ void process_i2c_request(void) {
         // Need to expand logic to speicify when the enigne can be changed
         if(g_main_status_mode == MAINT_STATUS_DEBUG){
           if(payload >= 0 && payload <= 7){
-            g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
             g_engine_speed = payload;            
-            timer.setTimeout(1, update_ir_motor_speed);
+            timer.setTimeout(10, update_ir_motor_speed);
+            g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
           }else{
             g_engine_speed = FAULT_DETECTED;
             g_i2c_tx_buffer.push(FAULT_DETECTED);
           }
         }else if(payload >= 2 && payload <= 4){
             g_engine_speed = payload;            
+            timer.setTimeout(10, update_ir_motor_speed);
             g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
-            timer.setTimeout(1, update_ir_motor_speed);
         }else{
             g_i2c_tx_buffer.push(REJECTED_COMMAND);
         }
+        g_i2c_rx_buffer.clear();
         break;
       
       case SET_MODE_OF_OPERATION:
@@ -233,6 +236,7 @@ void process_i2c_request(void) {
         }else{
           g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         }
+        g_i2c_rx_buffer.clear();
         break;
       
       case SET_MAINT_STATUS:
@@ -249,9 +253,11 @@ void process_i2c_request(void) {
         }else{
           g_i2c_tx_buffer.push(REJECTED_COMMAND);
         }
+        g_i2c_rx_buffer.clear();
         break;        
       
       default:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;
     }
@@ -260,22 +266,27 @@ void process_i2c_request(void) {
     switch(command){
       
       case GET_ENGINE_SPEED:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(g_engine_speed);
         break;
       
       case GET_MODE_OF_OPERATION:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(g_operation_mode);
         break;
       
       case GET_MAINT_STATUS:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(g_main_status_mode);
         break;
       
       case GET_LEGO_PF_CHANNEL:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(LEGO_IR_CHANNEL);
         break;
       
       case GET_LEGO_PF_COLOR:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(LEGO_MOTOR_OUTPUT_BLOCK);
         break;
       
@@ -285,13 +296,17 @@ void process_i2c_request(void) {
         g_main_status_mode = MAINT_STATUS_NORMAL;
         set_led(ON, OFF, OFF);
         timer.setTimeout(1, update_ir_motor_speed);
+        g_i2c_rx_buffer.clear();
+        g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
         break;
       
       default:
+        g_i2c_rx_buffer.clear();
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;
     }
   }else{
+    g_i2c_rx_buffer.clear();
     g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
   }
 }

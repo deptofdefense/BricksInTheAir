@@ -270,6 +270,9 @@ void process_i2c_request(void) {
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         break;     
     }
+  }else{
+    g_i2c_rx_buffer.clear();
+    g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
   }
 }
 

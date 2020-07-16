@@ -94,8 +94,29 @@ def test_fcc_functionality(fcc_address):
     res = write_read(fcc_address, [0x51, 0x55, 0x80])
     print(res)
 
-#test_engine_funcionality(engine_address)
-#print("\n\n")
-#test_landing_gear_functionality(gear_address)
-#print("\n\n")
-test_fcc_functionality(fcc_address)
+
+def engine_gear_setup_test():
+    print(write_read(engine_address, [0x11, 0x02]))
+
+    print(write_read(gear_address, [0x21, 0x00]))
+    time.sleep(5)
+    print(write_read(gear_address, [0x21, 0x01]))
+
+    time.sleep(1)
+    print(write_read(engine_address, [0x11, 0x04]))
+    time.sleep(1)
+
+    print(write_read(engine_address, [0x11, 0x01]))
+    time.sleep(1)
+
+    print(write_read(engine_address, [0x11, 0x07]))
+    time.sleep(1)
+
+def end_to_end_test():
+    test_engine_funcionality(engine_address)
+    print("\n\n")
+    test_landing_gear_functionality(gear_address)
+    print("\n\n")
+    test_fcc_functionality(fcc_address)
+
+end_to_end_test()
