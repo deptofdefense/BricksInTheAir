@@ -22,11 +22,11 @@
 #define MIN_FOG         0
 #define MAX_FOG         255
 
-#define DEFAULT_RUN     20
+#define DEFAULT_RUN     15
 #define MIN_RUN         0
 #define MAX_RUN         255
 
-#define DEFAULT_COOL    5
+#define DEFAULT_COOL    60
 #define MIN_COOL        0
 #define MAX_COOL        255
 
