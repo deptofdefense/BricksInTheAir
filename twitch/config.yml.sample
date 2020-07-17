@@ -1,0 +1,157 @@
+#
+# Do not track any of the twitch credentials
+#
+twitch:
+    TMI_TOKEN:
+    CLIENT_ID:
+    BOT_NICK:
+    BOT_PREFIX: '!'
+    #The prefix that you want to use to denote a chatbot command.
+    CHANNEL:
+        -
+    #This can be a list with multiple channels to connect to.
+
+# Serial connection pieces specific to the hardware it's running on.
+hardware:
+    i2c: BLINKA_FT232H
+    value: 1
+    frequency: 100000
+    fcc_address: 0x50
+    engine_address: 0x55
+    gear_address: 0x60
+
+
+display:
+    height: 720
+    width: 1280
+
+logging:
+    path: "/user_logs/"
+
+# These are used to add context to actions
+audio:
+    background: 'audio/bensound-scifi.wav'
+
+steps:
+    1:
+      question: "What Lego Power Function IR Channel is the engine motor connected to?"
+      answer:
+        - "0x50 0x51 0x55 0x80"
+      hint: "The devil is in the details. What does the ICD say?"
+      scene: ""
+      fake_i2c_response: "0x00"
+
+    2:
+      question: "What Lego Power Function IR Color is the landing gear motor connected to?"
+      answer:
+        - "0x50 0x51 0x60 0x90"
+      hint: "You've already been reading the ICD... read some more."
+      scene: ""
+      fake_i2c_response: "0x01"
+
+    3:
+      question: "Is the Flight Control Computer connected to a Lego Power Function IR Channel?"
+      answer:
+        - "0x50 0x80"
+        - "0x50 0x90"
+      hint: ""
+      scene: ""
+
+    4:
+      question: "In it's current state the FCC is the bus controller. Can you configure to stop overriding messages?"
+      answer:
+        - "0x50 0x31 0x01"
+      hint: "The FCC has 2 modes of operation, try setting it to secondary mode."
+
+    5:
+      question: "Now that it's in secondary mode, can you set it to debug?"
+      answer:
+        - "0x50 0x41 0x01"
+      hint: "The FCC has a maintenace debug mode."
+
+    6:
+      question: "Now that you have the FCC out of the way, can you lower the landing gear?"
+      answer:
+        - "0x60 0x21 0x00"
+      hint: ""
+
+    7:
+      question: "Okay, show-off. Raise the landing gear so we can move along with the test flight."
+      answer:
+        - "0x60 0x21 0x01"
+      hint: ""
+
+    8:
+      question: "Changing the landing gear was a fluke. The engine control has a lot of additional safety precautions."
+      answer:
+        - "0x55 0x11 0x02"
+        - "0x55 0x11 0x03"
+        - "0x55 0x11 0x04"
+      hint: "Like the FCC the engine control unit has various modes of operation, what range of values is it letting you change to/from?"
+
+    9:
+      question: "Can you get the engine controller into a different mode?"
+      answer:
+        - "0x55 0x31 0x01"
+      hint: ""
+
+    10:
+      question: "Can you get the engine controller into maintenace debug mode?"
+      answer:
+        - "0x55 0x41 0x01"
+      hint: ""
+
+    11:
+      question: "What valid range of engine speed values can you set now?"
+      answer:
+        - "0x55 0x11 0x00"
+        - "0x55 0x11 0x01"
+        - "0x55 0x11 0x02"
+        - "0x55 0x11 0x03"
+        - "0x55 0x11 0x04"
+        - "0x55 0x11 0x05"
+        - "0x55 0x11 0x06"
+        - "0x55 0x11 0x07"
+      hint: ""
+
+    12:
+      question: "What about invalid values?"
+      answer: "0x55 0x11"
+      answer_lower: "0x00"
+      answer_upper: "0x07"
+      hint: ""
+
+    13:
+      question: "Put it back! Put it back! I need engine power back!"
+      answer:
+        - "0x55 0x11 0x02"
+        - "0x55 0x11 0x03"
+        - "0x55 0x11 0x04"
+        - "0x55 0x11 0x05"
+        - "0x55 0x11 0x06"
+        - "0x55 0x11 0x07"
+      hint: ""
+
+    14:
+      question: "Alright alright! You've convinced me. Cybersecurity in avionics systems is critical! Let's go in to land... set my engine speed to 4."
+      answer:
+        - "0x55 0x11 0x04"
+      hint: ""
+
+    15:
+      question: "We've been cleared to land.. airspeed checks... gear down please."
+      answer:
+        - "0x60 0x21 0x00"
+      hint: ""
+
+    16:
+      question: "Success you've worked through the entire challenge! We hope that you've learned something new here and have a newfound appreciation for cybersecurity and avionics!"
+      hint: "Your progress has been saved and you can go back to any point previous."
+
+# A generic place to put global text based messages
+text:
+    help: >
+        I am OtterBot, your helpful ground station interface
+        for all SatelliteDotCom system!  For a list of commands
+        and formating, please see the user documentation with
+        your purchase [LINK HERE].
