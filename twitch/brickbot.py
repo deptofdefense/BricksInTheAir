@@ -4,8 +4,9 @@
 import threading    # needed for threading
 import time         # needed for sleep
 import binascii     # needed for serial
-import yaml # needed for config
+import yaml         # needed for config
 import asyncio      # needed for async ops
+import argparse
 
 from twitchio.ext import commands           # from tutorial, for twitch
 from BricksInTheAir import BricksInTheAir   # needed to manage game
@@ -15,8 +16,14 @@ from BrickUser import BrickUser             # needed for user management
 from gameDisplay import DisplayManager  # needed for running the game overlay
 
 CFG = None  # global CFG settings
+
 with open("config.yml", "r") as ymlfile:
-    CFG = yaml.safe_load(ymlfile)
+    creds = yaml.safe_load(ymlfile)
+
+with open("script.yml", "r") as scriptfile:
+    script = yaml.safe_load(scriptfile)
+
+CFG = {**creds, **script}
 
 # manages the game
 bia_game = BricksInTheAir(CFG)
@@ -27,6 +34,8 @@ userList = UserList(CFG)
 # Display Manager to handle overlay
 dispMan = DisplayManager()
 
+dispMan.startDisplay(CFG["display"]["width"], CFG["display"]["height"])
+
 # pulling the values from config.yml
 # keeping them separate for flexibilitycode sharing
 bot = commands.Bot(
@@ -36,6 +45,7 @@ bot = commands.Bot(
     prefix = CFG["twitch"]["BOT_PREFIX"],
     initial_channels = CFG["twitch"]["CHANNEL"]
 )
+
 
 # bot connection event
 @bot.event
@@ -189,13 +199,16 @@ def userThread():
         # done to make sure current user is never null
         userList.setCurrentUser(tempUser)
 
-if __name__ == "__main__":
+
+def main():
+    global CFG
     #t = threading.Thread(target=readThread, daemon=True)
     #t.start()
 
-    #t = threading.Thread(target=userThread, daemon=True)
-    #t.start()
-
-    dispMan.startDisplay(CFG["display"]["width"], CFG["display"]["height"])
+    t = threading.Thread(target=userThread, daemon=True)
+    t.start()
 
     bot.run()
+
+if __name__ == "__main__":
+    main()
