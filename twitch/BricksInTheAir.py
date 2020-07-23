@@ -14,7 +14,7 @@ import binascii
 
 
 class BricksInTheAir:
-    ''' Used to manage progressing through the cpx simple sat game '''
+    ''' Used to manage progressing through the Bricks in the Air game '''
 
     def __init__(self, CFG):
 
@@ -53,7 +53,13 @@ class BricksInTheAir:
             bg_audio_loop = pygame.mixer.Sound(self.cfg["audio"]["background"])
             self.background_channel.play(bg_audio_loop, loops=-1)
         except FileNotFoundError as err:
-            print("background audio: file not found")
+            print("pygame background audio: file not found")
+
+        try:
+            effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_2"])
+            self.effect_channel.play(effect, loops=-1)
+        except FileNotFoundError as err:
+            print("pygame effect audio: file not found")
 
     def checkCmd(self, user, cmd):
         """
@@ -74,6 +80,11 @@ class BricksInTheAir:
             else:
                 # do the stuff to indicate complete
                 response = "0x" + self.process_cmd(user, cmd)[2:-1]
+
+            if "0x55 0x11" in cmd:
+                # this is a set engine speed command... update the sound effect.
+                value = int(cmd.split()[-1],16) #take the last value and convert to int
+                self.set_engine_sound(value)
 
             user.incrementCurrentStepIndex()
 
@@ -156,6 +167,17 @@ class BricksInTheAir:
                     tmp.append(str_to_hex(x))
                 self.write_read_i2c(tmp[0], tmp[1:])
 
+        # Update the user's engine sound
+        self.set_engine_sound(user.getEngineSpeed())
+
+    def set_engine_sound(self, value):
+        print("changing engine speed {}".format(value))
+        if value >= 0 and value <= 7:
+            try:
+                effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_"+str(value)])
+                self.effect_channel.play(effect, loops=-1)
+            except FileNotFoundError as err:
+                print("pygame effect audio: file not found")
 
 
 def str_to_hex(hex_str):

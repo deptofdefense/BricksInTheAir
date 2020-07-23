@@ -25,6 +25,8 @@ class BrickUser:
 
         self.join_timestamp = time.time()
 
+        self.engine_speed = 2
+
         self.log_event()
 
 
@@ -86,6 +88,12 @@ class BrickUser:
             for x in self.steps[self.currentStepIndex]["answer"]:
                 if x == provided_answer:
                     self.update_game_progress()
+
+                    if "0x55 0x11" in provided_answer:
+                        # this is a set engine speed command... update the user's engine sound.
+                        engine_speed = int(cmd.split()[-1],16) #take the last value and convert to int
+                        self.engine_speed = engine_speed
+
                     return True
 
         return False
@@ -130,6 +138,10 @@ class BrickUser:
     def resetTimeout(self):
         """ Resets the timeout to the default value (3) """
         self.timeOut = 3
+
+    def getEngineSpeed(self):
+        """ Get the user's set engine speed for audio sound file purposes. """
+        return self.engine_speed
 
 
     def update_game_progress(self):

@@ -28,13 +28,14 @@ CFG = {**creds, **script}
 # manages the game
 bia_game = BricksInTheAir(CFG)
 
-# user list for managing active connections
-userList = UserList(CFG)
-
 # Display Manager to handle overlay
-dispMan = DisplayManager()
+dispMan = DisplayManager(CFG)
 
-dispMan.startDisplay(CFG["display"]["width"], CFG["display"]["height"])
+# user list for managing active connections
+userList = UserList(CFG, dispMan)
+userList.startUserThread()
+
+
 
 # pulling the values from config.yml
 # keeping them separate for flexibilitycode sharing
@@ -47,11 +48,12 @@ bot = commands.Bot(
 )
 
 
+
 # bot connection event
 @bot.event
 async def event_ready():
 
-    global CFG
+    global CFG, bia_game, userList, dispMan
 
     print(CFG["twitch"]["BOT_NICK"] + " is online!")
     ws = bot._ws
@@ -60,7 +62,7 @@ async def event_ready():
 # event for user entering something in chat
 @bot.event
 async def event_message(ctx):
-    global CFG
+    global CFG, bia_game, userList, dispMan
 
     if ctx.author.name.lower() == CFG["twitch"]["BOT_NICK"].lower():
         return
@@ -70,6 +72,7 @@ async def event_message(ctx):
 # reset command - proof of concept
 @bot.command(name='reset')
 async def reset(ctx):
+    global CFG, bia_game, userList, dispMan
 
     if userList.getCurrentUser().matchName(ctx.author.name):
         userList.getCurrentUser().resetTimeout()
@@ -81,6 +84,8 @@ async def reset(ctx):
 # replay command - sets the current step to 0 so the user may replay the game
 @bot.command(name='replay')
 async def replay(ctx):
+    global CFG, bia_game, userList, dispMan
+
     if userList.getCurrentUser().matchName(ctx.author.name):
         userList.getCurrentUser().resetTimeout()
         userList.getCurrentUser().setCurrentStep(0)
@@ -92,6 +97,7 @@ async def replay(ctx):
 # generic command - meant to be flexible
 @bot.command(name='cmd')
 async def cmd(ctx):
+    global CFG, bia_game, userList, dispMan
 
     if userList.getCurrentUser().matchName(ctx.author.name):
         userList.getCurrentUser().resetTimeout()
@@ -104,6 +110,8 @@ async def cmd(ctx):
 # join command - allows user to join the user list
 @bot.command(name='join')
 async def join(ctx):
+    global CFG, bia_game, userList, dispMan
+
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
             bia_game.run_prolouge(userList.getCurrentUser())
@@ -117,6 +125,8 @@ async def join(ctx):
 # leave command - allows user to leave the user list before they timeout
 @bot.command(name='leave')
 async def leave(ctx):
+    global CFG, bia_game, userList, dispMan
+
     if userList.removeUser(ctx.author.name):
         await ctx.channel.send(f"{ctx.author.name} has left the user list for this control station")
         dispMan.updateUserList(userList.getNextUserList(5))
@@ -126,12 +136,14 @@ async def leave(ctx):
 # help command - link to repo readme with instructions
 @bot.command(name='help')
 async def help(ctx):
-    global CFG
+    global CFG, bia_game, userList, dispMan
 
     await ctx.channel.send(f'Hello {ctx.author.name}: {CFG["text"]["help"]}')
 
 @bot.command(name='hint')
 async def hint(ctx):
+    global CFG, bia_game, userList, dispMan
+
     if userList.getCurrentUser().matchName(ctx.author.name):
         userList.getCurrentUser().resetTimeout()
         msg = userList.getCurrentUser().getHint()
@@ -142,6 +154,8 @@ async def hint(ctx):
 
 @bot.command(name='goto')
 async def goto(ctx):
+    global CFG, bia_game, userList, dispMan
+
     if userList.getCurrentUser().matchName(ctx.author.name):
         userList.getCurrentUser().resetTimeout()
         try:
@@ -158,6 +172,8 @@ async def goto(ctx):
 
 @bot.command(name='question')
 async def question(ctx):
+    global CFG, bia_game, userList, dispMan
+
     if userList.getCurrentUser().matchName(ctx.author.name):
         userList.getCurrentUser().resetTimeout()
         msg = userList.getCurrentUser().getQuestion()
@@ -168,8 +184,9 @@ async def question(ctx):
 
 # manages the user list locally, so that the chatbot can easily announce who the new controller is
 def userThread():
+    global CFG, bia_game, userList, dispMan
 
-    print("user thread running")
+    print("************************************user thread running")
 
     tempUser = BrickUser("temp", CFG)
     tempString = ""
@@ -186,7 +203,7 @@ def userThread():
 
                 dispMan.updateUserList(userList.getNextUserList(5))
 
-                time.sleep(60)
+                time.sleep(CFG["cue"]["time"])
             else:
                 userList.getUserList().remove(user)
 
@@ -199,16 +216,13 @@ def userThread():
         # done to make sure current user is never null
         userList.setCurrentUser(tempUser)
 
-
-def main():
-    global CFG
+if __name__ == "__main__":
     #t = threading.Thread(target=readThread, daemon=True)
     #t.start()
 
-    t = threading.Thread(target=userThread, daemon=True)
-    t.start()
+    #t = threading.Thread(target=userThread, daemon=True)
+    #t.start()
+
+    dispMan.startDisplay()
 
     bot.run()
-
-if __name__ == "__main__":
-    main()

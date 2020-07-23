@@ -9,12 +9,15 @@ from BrickUser import BrickUser
 class UserList:
     """ List of active users """
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, dispMan):
         """ init method """
 
         self.cfg = cfg
+        self.dispMan = dispMan
         self.userList = []
         self.currentUser = BrickUser("temp", self.cfg)
+        self.limit = cfg["cue"]["limit"]
+        self.time_allowed = cfg["cue"]["time"]
 
     def addUser(self, name):
         """ Checks if user already exists, and if not adds them to the list.  \nReturns True if name is added, False otherwise """
@@ -27,8 +30,15 @@ class UserList:
         if not self.userList:
             self.setCurrentUser(BrickUser(name, self.cfg))
 
-        self.userList.append(BrickUser(name, self.cfg))
-        return True
+        if len(self.userList) < self.limit:
+            print("adding new user:" + name)
+            self.userList.append(BrickUser(name, self.cfg))
+            self.dispMan.updateUserList(self.getNextUserList(5))
+            return True
+        else:
+            return False
+
+
 
     def removeUser(self, name):
         ''' Checks if user already exists and removes them from the list.  \nReturns true if removed, false otherwise '''
@@ -36,12 +46,14 @@ class UserList:
         for user in self.userList:
             if (user.matchName(name)):
                 self.userList.remove(user)
+                self.dispMan.updateUserList(self.getNextUserList(5))
                 return True
 
         return False
 
     def startUserThread(self):
         """ Starts the user thread """
+        print("Start userList thread")
 
         t = threading.Thread(target=self.userThread, daemon=True)
         t.start()
@@ -52,15 +64,15 @@ class UserList:
         tempUser = BrickUser("temp", self.cfg)
 
         while True:
-            for user in self.userList:
+            if len(self.userList) > 0:
+                user = self.userList.pop()
                 if (user.updateTimeout() >= 0):
-                    self.currentUser = user
-                    time.sleep(60)
+                    time.sleep(self.time_allowed)
+                    self.userList.append(user)   #put them at the end
                 else:
-                    self.userList.remove(user)
+                    pass    #already removed with the pop() above
 
-            # done to make sure current user is never null
-            self.currentUser = tempUser
+                self.dispMan.updateUserList(self.getNextUserList(5))
 
     def getCurrentUser(self):
         """ Grabs the current user as dictated by userThread """
@@ -79,27 +91,8 @@ class UserList:
 
     def getNextUserList(self, nextCount):
         ''' Returns the next X users in the list formated by Name : time \nnextCount : how long the next user list should be '''
-
-        startPoint = 0
-
-        if nextCount > len(self.userList):
-            nextCount = len(self.userList)
-
-        for user in self.userList:
-            if user.matchName(self.currentUser.name):
-                break
-            else:
-                startPoint = startPoint + 1
-
-        if (startPoint >= len(self.userList)) or (len(self.userList) == 0):
-            return "N/A"
-
         msg = ""
-        for i in range(nextCount):
-            msg = msg + f"\n{self.userList[startPoint].getName()} : {i} min "
-            startPoint = startPoint + 1
-
-            if startPoint >= len(self.userList):
-                startPoint = 0
-
+        for x in self.userList:
+            msg += x.getName() + "\n"
+        print("active user list: " + msg)
         return msg

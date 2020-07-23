@@ -10,8 +10,9 @@ import threading # needed for threads
 class GameDisplay(QMainWindow):
     ''' Custom Class to handle the game overlay window '''
 
-    def __init__(self, sizeX, sizeY):
+    def __init__(self, CFG):
         super().__init__()
+        self.cfg = CFG
 
         # set the title
         self.setWindowTitle("Text Overlay Window")
@@ -20,22 +21,22 @@ class GameDisplay(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # setting  the geometry of window
-        self.setGeometry(0, 0, sizeX, sizeY)
+        self.setGeometry(0, 0, self.cfg["display"]["width"], self.cfg["display"]["height"])
 
         # Command Label
         self.cmdLabel = QLabel("cmdLabel", self)
         self.cmdLabel.setStyleSheet("color: rgb(251, 0, 255);")
         self.cmdLabel.setText("")
         self.cmdLabel.setFont(QFont('Arial', 20))
-        self.cmdLabel.resize(sizeX, sizeY)
+        self.cmdLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.cmdLabel.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
 
         # UserList Label
         self.lstLabel = QLabel("lstLabel", self)
         self.lstLabel.setStyleSheet("color: rgb(251, 0, 255);")
-        self.lstLabel.setText("User List (Next 5): ")
+        self.lstLabel.setText("Active User List (limit {}): ".format(self.cfg["cue"]["limit"]))
         self.lstLabel.setFont(QFont('Arial', 20))
-        self.lstLabel.resize(sizeX, sizeY)
+        self.lstLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.lstLabel.setAlignment(Qt.AlignRight)
 
         # show all the widgets
@@ -48,17 +49,22 @@ class GameDisplay(QMainWindow):
         #self.show
         time.sleep(5)
         self.cmdLabel.setText("")
+        self.cmdLabel.update()
         #self.show
 
     def dispUser(self, userMsg):
         ''' Updates the user list '''
 
-        self.lstLabel.setText("User List (Next 5): \n" + str(userMsg))
+        self.lstLabel.setText("Active User List (limit {})\n{}".format(self.cfg["cue"]["limit"], userMsg))
+        self.lstLabel.update()
 
 class DisplayManager():
     ''' Custom class for managing the display '''
 
-    def __startDisplayThread(self, sizeX, sizeY):
+    def __init__(self, cfg):
+        self.cfg = cfg
+
+    def __startDisplayThread(self):
         ''' private class for starting the display as a separate thread '''
 
         #print("test")
@@ -67,14 +73,14 @@ class DisplayManager():
         App = QApplication(sys.argv)
 
         # create the instance of our Window
-        self.display = GameDisplay(sizeX, sizeY)
+        self.display = GameDisplay(self.cfg)
 
         # start the app
         sys.exit(App.exec())
 
-    def startDisplay(self, sizeX, sizeY):
+    def startDisplay(self):
         ''' Starts the game overlay '''
-        threading.Thread(target=self.__startDisplayThread, args=(sizeX, sizeY, ), daemon=True).start()
+        threading.Thread(target=self.__startDisplayThread, daemon=True).start()
         time.sleep(1)
 
     def updateUserList(self, userMsg):
