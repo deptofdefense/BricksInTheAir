@@ -91,7 +91,7 @@ class BrickUser:
 
                     if "0x55 0x11" in provided_answer:
                         # this is a set engine speed command... update the user's engine sound.
-                        engine_speed = int(cmd.split()[-1],16) #take the last value and convert to int
+                        engine_speed = int(provided_answer.split()[-1],16) #take the last value and convert to int
                         self.engine_speed = engine_speed
 
                     return True

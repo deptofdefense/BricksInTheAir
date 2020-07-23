@@ -34,21 +34,24 @@ class UserList:
             print("adding new user:" + name)
             self.userList.append(BrickUser(name, self.cfg))
             self.dispMan.updateUserList(self.getNextUserList(5))
+            print(self.userList)
             return True
         else:
             return False
 
-
-
     def removeUser(self, name):
         ''' Checks if user already exists and removes them from the list.  \nReturns true if removed, false otherwise '''
 
+        print("remove name: " + name)
+        print(self.userList)
         for user in self.userList:
             if (user.matchName(name)):
                 self.userList.remove(user)
                 self.dispMan.updateUserList(self.getNextUserList(5))
+                print("found the user, returning true")
                 return True
 
+        print("returning false")
         return False
 
     def startUserThread(self):
@@ -66,6 +69,7 @@ class UserList:
         while True:
             if len(self.userList) > 0:
                 user = self.userList.pop()
+                self.currentUser = user
                 if (user.updateTimeout() >= 0):
                     time.sleep(self.time_allowed)
                     self.userList.append(user)   #put them at the end

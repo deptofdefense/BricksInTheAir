@@ -175,6 +175,7 @@ class BricksInTheAir:
         if value >= 0 and value <= 7:
             try:
                 effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_"+str(value)])
+                self.effect_channel.stop()
                 self.effect_channel.play(effect, loops=-1)
             except FileNotFoundError as err:
                 print("pygame effect audio: file not found")

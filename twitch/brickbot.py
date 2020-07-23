@@ -127,9 +127,10 @@ async def join(ctx):
 async def leave(ctx):
     global CFG, bia_game, userList, dispMan
 
+    print("leave cmd sent")
     if userList.removeUser(ctx.author.name):
         await ctx.channel.send(f"{ctx.author.name} has left the user list for this control station")
-        dispMan.updateUserList(userList.getNextUserList(5))
+        #dispMan.updateUserList(userList.getNextUserList(5))
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are not on the user list")
 
@@ -168,7 +169,7 @@ async def goto(ctx):
 
         await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
 
 @bot.command(name='question')
 async def question(ctx):
