@@ -58,6 +58,14 @@ class GameDisplay(QMainWindow):
         self.lstLabel.setText("Active User List (limit {})\n{}".format(self.cfg["cue"]["limit"], userMsg))
         self.lstLabel.update()
 
+    def dispImage(self, fileStr):
+        # Image Overlay
+        self.imageLabel = QLabel(self)
+        pixmap = QPixmap(fileStr)
+        self.imageLabel.setPixmap(pixmap)
+        self.update()
+
+
 class DisplayManager():
     ''' Custom class for managing the display '''
 

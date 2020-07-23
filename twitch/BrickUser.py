@@ -17,18 +17,18 @@ class BrickUser:
         for x in self.steps:
             self.steps[x]["completed"] = False
 
-        #print(self.steps)
-
         self.currentStepIndex = 1
         self.maxStep = 0
         self.timeOut = 3
-
         self.join_timestamp = time.time()
-
         self.engine_speed = 2
-
         self.log_event()
 
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
 
     def __eq__(self, other):
         """ Overwrites equal method to check names """
@@ -119,6 +119,12 @@ class BrickUser:
     def getAudio(self):
         if "audio" in self.steps[self.currentStepIndex]:
             return self.steps[self.currentStepIndex]["audio"]
+        else:
+            return None
+
+    def getI2CEffect(self):
+        if "i2c_effect" in self.steps[self.currentStepIndex]:
+            return self.steps[self.currentStepIndex]["i2c_effect"]
         else:
             return None
 

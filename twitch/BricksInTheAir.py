@@ -105,14 +105,23 @@ class BricksInTheAir:
         for i in range(1, len(x)):
             payload.append(str_to_hex(x[i]))
 
-        print(hex(addr))
-        for x in payload:
-            print(hex(x))
+        #print(hex(addr))
+        #for x in payload:
+        #    print(hex(x))
 
         response = None
         response = self.write_read_i2c(addr, payload, 1)
-        print(binascii.hexlify(response))
+        #print(binascii.hexlify(response))
 
+        # handle the possible i2c effect
+        i2c_effect = user.getI2CEffect()
+        if(i2c_effect):
+            for i2c_command in i2c_effect:
+                tmp_command = i2c_command.split()
+                tmp = []
+                for x in tmp_command:
+                    tmp.append(str_to_hex(x))
+                self.write_read_i2c(tmp[0], tmp[1:])
 
         # handle the possible sound effect
         sound_effect_str = user.getAudio()

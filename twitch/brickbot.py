@@ -130,7 +130,6 @@ async def leave(ctx):
     print("leave cmd sent")
     if userList.removeUser(ctx.author.name):
         await ctx.channel.send(f"{ctx.author.name} has left the user list for this control station")
-        #dispMan.updateUserList(userList.getNextUserList(5))
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are not on the user list")
 
@@ -182,40 +181,6 @@ async def question(ctx):
         await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
-
-# manages the user list locally, so that the chatbot can easily announce who the new controller is
-def userThread():
-    global CFG, bia_game, userList, dispMan
-
-    print("************************************user thread running")
-
-    tempUser = BrickUser("temp", CFG)
-    tempString = ""
-
-    while True:
-        for user in userList.getUserList():
-            if (user.updateTimeout() >= 0):
-                userList.setCurrentUser(user)
-
-                print(f"Active user: {userList.getCurrentUser().getName()}")
-                bia_game.reset(userList.getCurrentUser().getCurrentStep())
-                tempString = f"The new active user is: {user.getName()}"
-                asyncio.run(bot._ws.send_privmsg(bot.initial_channels[0], tempString))
-
-                dispMan.updateUserList(userList.getNextUserList(5))
-
-                time.sleep(CFG["cue"]["time"])
-            else:
-                userList.getUserList().remove(user)
-
-                tempString = f"Removing {user.getName()} for inactivity"
-                print(tempString)
-                asyncio.run(bot._ws.send_privmsg(bot.initial_channels[0], tempString))
-                #time.sleep(1)
-                dispMan.updateUserList(userList.getNextUserList(5))
-
-        # done to make sure current user is never null
-        userList.setCurrentUser(tempUser)
 
 if __name__ == "__main__":
     #t = threading.Thread(target=readThread, daemon=True)
