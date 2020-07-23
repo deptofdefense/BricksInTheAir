@@ -1,6 +1,16 @@
 # These are used to add context to actions
 audio:
     background: 'audio/bensound-scifi.wav'
+    engine_speed_1: '../resources/cargo_plane/cargo_prop_1.wav'
+    engine_speed_2: '../resources/cargo_plane/cargo_prop_2.wav'
+    engine_speed_3: '../resources/cargo_plane/cargo_prop_3.wav'
+    engine_speed_4: '../resources/cargo_plane/cargo_prop_4.wav'
+    engine_speed_5: '../resources/cargo_plane/cargo_prop_5.wav'
+    engine_speed_6: '../resources/cargo_plane/cargo_prop_6.wav'
+    engine_speed_7: '../resources/cargo_plane/cargo_prop_7.wav'
+    gear_down: ''
+    gear_up: ''
+    screech: '../resources/cargo_plane/pop_smoke_sound.wav'
 
 steps:
     1:
@@ -15,6 +25,7 @@ steps:
           - "0x55 0xFE"
           - "0x55 0x11 0x02"
           - "0x60 0xFE"
+
 
     2:
       question: "What Lego Power Function IR Color is the landing gear motor connected to?"
@@ -47,8 +58,6 @@ steps:
       hint: "The FCC has 2 modes of operation, try setting it to secondary mode."
       prologue:
           - "0x50 0xFE"
-          - "0x55 0xFE"
-          - "0x60 0xFE"
 
     5:
       question: "Now that it's in secondary mode, can you set it to debug?"
@@ -58,8 +67,6 @@ steps:
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
-          - "0x55 0xFE"
-          - "0x60 0xFE"
 
     6:
       question: "Now that you have the FCC out of the way, can you lower the landing gear?"
@@ -70,8 +77,7 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"
-          - "0x55 0xFE"
-          - "0x60 0xFE"
+          - "0x60 0x21 0x01"
 
     7:
       question: "Okay, show-off. Raise the landing gear so we can move along with the test flight."
@@ -82,8 +88,7 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
-          - "0x60 0xFE"
+          - "0x60 0x21 0x00"
 
     8:
       question: "Changing the landing gear was a fluke. The engine control has a lot of additional safety precautions."
@@ -96,8 +101,6 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
-          - "0x60 0xFE"
           - "0x60 0x21 0x01"
 
     9:
@@ -109,8 +112,6 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
-          - "0x60 0xFE"
           - "0x60 0x21 0x01"
 
     10:
@@ -122,7 +123,6 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x60 0xFE"
           - "0x60 0x21 0x01"
@@ -143,7 +143,6 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
@@ -159,11 +158,14 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
           - "0x60 0x21 0x01"
+      audio: '../resources/cargo_plane/pop_smoke_sound.wav'
+      i2c_effect:
+          - "0x50 0xb5 0x01"
+          - "0x55 0x11 0x00"
 
     13:
       question: "Put it back! Put it back! I need engine power back!"
@@ -179,7 +181,6 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
@@ -194,7 +195,6 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
@@ -209,7 +209,6 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x55 0xFE"
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
