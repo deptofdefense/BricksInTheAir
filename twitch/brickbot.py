@@ -34,6 +34,7 @@ dispMan = DisplayManager(CFG)
 # user list for managing active connections
 userList = UserList(CFG, dispMan)
 userList.startUserThread()
+dispMan.startDisplay()
 
 
 
@@ -99,11 +100,13 @@ async def replay(ctx):
 async def cmd(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser().matchName(ctx.author.name):
-        userList.getCurrentUser().resetTimeout()
-        msg = bia_game.checkCmd(userList.getCurrentUser(), ctx.content[5:])
-        dispMan.updateCmdMsg(ctx.content)
-        await ctx.channel.send(f"{ctx.author.name} {msg}")
+    if userList.getCurrentUser() != None:
+        if userList.getCurrentUser().matchName(ctx.author.name):
+            userList.getCurrentUser().resetTimeout()
+            msg = bia_game.checkCmd(userList.getCurrentUser(), ctx.content[5:])
+            dispMan.updateCmdMsg(ctx.content)
+            userList.triggerChanges()
+            await ctx.channel.send(f"{ctx.author.name} {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to use the ground station")
 
@@ -144,11 +147,12 @@ async def help(ctx):
 async def hint(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser().matchName(ctx.author.name):
-        userList.getCurrentUser().resetTimeout()
-        msg = userList.getCurrentUser().getHint()
-        dispMan.updateCmdMsg(ctx.content)
-        await ctx.channel.send(f"{ctx.author.name}: {msg}")
+    if userList.getCurrentUser() != None:
+        if userList.getCurrentUser().matchName(ctx.author.name):
+            userList.getCurrentUser().resetTimeout()
+            msg = userList.getCurrentUser().getHint()
+            dispMan.updateCmdMsg(ctx.content)
+            await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
 
@@ -156,17 +160,19 @@ async def hint(ctx):
 async def goto(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser().matchName(ctx.author.name):
-        userList.getCurrentUser().resetTimeout()
-        try:
-            step = int(ctx.content[6:])
-            msg = userList.getCurrentUser().setCurrentStep(step)
-            bia_game.run_prolouge(userList.getCurrentUser())
-            dispMan.updateCmdMsg(ctx.content)
-        except ValueError:
-            pass
+    if userList.getCurrentUser() != None:
+        if userList.getCurrentUser().matchName(ctx.author.name):
+            userList.getCurrentUser().resetTimeout()
+            try:
+                step = int(ctx.content[6:])
+                msg = userList.getCurrentUser().setCurrentStep(step)
+                bia_game.run_prolouge(userList.getCurrentUser())
+                userList.triggerChanges()
+                dispMan.updateCmdMsg(ctx.content)
+            except ValueError:
+                pass
 
-        await ctx.channel.send(f"{ctx.author.name}: {msg}")
+            await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
 
@@ -174,11 +180,12 @@ async def goto(ctx):
 async def question(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser().matchName(ctx.author.name):
-        userList.getCurrentUser().resetTimeout()
-        msg = userList.getCurrentUser().getQuestion()
-        dispMan.updateCmdMsg(ctx.content)
-        await ctx.channel.send(f"{ctx.author.name}: {msg}")
+    if userList.getCurrentUser() != None:
+        if userList.getCurrentUser().matchName(ctx.author.name):
+            userList.getCurrentUser().resetTimeout()
+            msg = userList.getCurrentUser().getQuestion()
+            dispMan.updateCmdMsg(ctx.content)
+            await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
 
@@ -189,6 +196,6 @@ if __name__ == "__main__":
     #t = threading.Thread(target=userThread, daemon=True)
     #t.start()
 
-    dispMan.startDisplay()
+    #dispMan.startDisplay()
 
     bot.run()

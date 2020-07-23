@@ -3,6 +3,7 @@ from PyQt5.QtGui import *  # needed for gui
 from PyQt5.QtWidgets import * # needed for gui
 
 import sys # needed for gui
+import os   # to make sure files exist
 
 import time # needed for sleep
 import threading # needed for threads
@@ -13,6 +14,8 @@ class GameDisplay(QMainWindow):
     def __init__(self, CFG):
         super().__init__()
         self.cfg = CFG
+        self.font_size_users = 14
+        self.font_size_cmd = 20
 
         # set the title
         self.setWindowTitle("Text Overlay Window")
@@ -23,47 +26,62 @@ class GameDisplay(QMainWindow):
         # setting  the geometry of window
         self.setGeometry(0, 0, self.cfg["display"]["width"], self.cfg["display"]["height"])
 
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.lay = QVBoxLayout(self.central_widget)
+
+        self.imageLabel = QLabel(self)
+        self.pixmap = QPixmap()
+        self.imageLabel.setPixmap(self.pixmap)
+        self.resize(self.pixmap.width(), self.pixmap.height())
+
+        self.lay.addWidget(self.imageLabel)
+        #self.show()
+
         # Command Label
         self.cmdLabel = QLabel("cmdLabel", self)
-        self.cmdLabel.setStyleSheet("color: rgb(251, 0, 255);")
+        self.cmdLabel.setStyleSheet("color: rgb(0, 0, 0);")
         self.cmdLabel.setText("")
-        self.cmdLabel.setFont(QFont('Arial', 20))
+        self.cmdLabel.setFont(QFont('Arial', self.font_size_cmd))
         self.cmdLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.cmdLabel.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
 
         # UserList Label
         self.lstLabel = QLabel("lstLabel", self)
-        self.lstLabel.setStyleSheet("color: rgb(251, 0, 255);")
-        self.lstLabel.setText("Active User List (limit {}): ".format(self.cfg["cue"]["limit"]))
-        self.lstLabel.setFont(QFont('Arial', 20))
+        self.lstLabel.setStyleSheet("color: rgb(0, 0, 0);")
+        self.lstLabel.setText("Active User List (limit {})".format(self.cfg["cue"]["limit"]))
+        self.lstLabel.setFont(QFont('Arial', self.font_size_users))
         self.lstLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.lstLabel.setAlignment(Qt.AlignRight)
 
         # show all the widgets
         self.show()
 
+
     def dispCmd(self, cmdMsg):
         ''' Causes a string representing the command message to be displayed on the bottom of the screen '''
 
         self.cmdLabel.setText(str(cmdMsg))
-        #self.show
         time.sleep(5)
         self.cmdLabel.setText("")
         self.cmdLabel.update()
-        #self.show
 
     def dispUser(self, userMsg):
         ''' Updates the user list '''
-
         self.lstLabel.setText("Active User List (limit {})\n{}".format(self.cfg["cue"]["limit"], userMsg))
         self.lstLabel.update()
 
     def dispImage(self, fileStr):
         # Image Overlay
-        self.imageLabel = QLabel(self)
-        pixmap = QPixmap(fileStr)
-        self.imageLabel.setPixmap(pixmap)
-        self.update()
+        print("Calling dispImage")
+        if os.path.isfile(fileStr):
+            print(fileStr)
+            self.pixmap = QPixmap(fileStr)
+            self.imageLabel.setPixmap(self.pixmap)
+        else:
+            print("emptying imageLabel")
+            self.imageLabel.clear()
+        self.imageLabel.update()
 
 
 class DisplayManager():
@@ -74,8 +92,6 @@ class DisplayManager():
 
     def __startDisplayThread(self):
         ''' private class for starting the display as a separate thread '''
-
-        #print("test")
 
         # create pyqt5 app
         App = QApplication(sys.argv)
@@ -98,3 +114,6 @@ class DisplayManager():
     def updateCmdMsg(self, cmdMsg):
         ''' public interface for updating the command message '''
         threading.Thread(target=self.display.dispCmd, args=(cmdMsg, ), daemon=True).start()
+
+    def updateImage(self, fileStr):
+        self.display.dispImage(fileStr)

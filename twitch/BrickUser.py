@@ -32,8 +32,9 @@ class BrickUser:
 
     def __eq__(self, other):
         """ Overwrites equal method to check names """
-        if (self.name == other.name):
-            return True
+        if other != None:
+            if (self.name == other.name):
+                return True
         else:
             return False
 
@@ -125,6 +126,12 @@ class BrickUser:
     def getI2CEffect(self):
         if "i2c_effect" in self.steps[self.currentStepIndex]:
             return self.steps[self.currentStepIndex]["i2c_effect"]
+        else:
+            return None
+
+    def getImage(self):
+        if "image" in self.steps[self.currentStepIndex]:
+            return self.steps[self.currentStepIndex]["image"]
         else:
             return None
 

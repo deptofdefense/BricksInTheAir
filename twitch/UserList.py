@@ -34,11 +34,12 @@ class UserList:
         #if user list is empty
         if not self.userList:
             self.setCurrentUser(BrickUser(name, self.cfg))
+            self.triggerChanges()
 
         if len(self.userList) < self.limit:
             print("adding new user:" + name)
             self.userList.append(BrickUser(name, self.cfg))
-            self.dispMan.updateUserList(self.getNextUserList(5))
+            self.triggerChanges()
             print(self.userList)
             self.cue_lock.release()
             return True
@@ -54,14 +55,31 @@ class UserList:
         for user in self.userList:
             if (user.matchName(name)):
                 self.userList.remove(user)
-                self.dispMan.updateUserList(self.getNextUserList(5))
+
                 print("found the user, returning true")
                 self.cue_lock.release()
-                return True
 
-        print("returning false")
+                self.current_user_lock.acquire()
+                if user == self.currentUser:
+                    # need to remove/adjust who currentUser actually is
+                    if len(self.userList) > 0:
+                        self.currentUser = self.userList[0]
+                    else:
+                        self.currentUser = None
+                self.triggerChanges()
+
+                self.current_user_lock.release()
+                return True
+        self.triggerChanges()
         self.cue_lock.release()
         return False
+
+    def triggerChanges(self):
+        self.dispMan.updateUserList(self.getNextUserList(5))
+        if self.currentUser != None:
+            self.dispMan.updateImage(self.currentUser.getImage())
+        else:
+            self.dispMan.updateImage(None)
 
     def startUserThread(self):
         """ Starts the user thread """
@@ -71,12 +89,11 @@ class UserList:
         t.start()
 
     def userThread(self):
-        """ Runs through list and updates the current user every 60 seconds """
-
+        """ Runs through list and updates the current user every X seconds """
         while True:
             if len(self.userList) > 0:
                 self.cue_lock.acquire()
-                user = self.userList.pop()
+                user = self.userList.pop(0) # remove the first user in the list
                 self.cue_lock.release()
 
                 self.setCurrentUser(user)
@@ -87,9 +104,16 @@ class UserList:
                     self.cue_lock.release()
                     time.sleep(self.time_allowed)
                 else:
-                    pass    #already removed with the pop() above
-                #self.lock.release()
+                    print("removing user for inactivity: " + str(user))
+                    pass    # already removed with the pop() above
+
                 self.dispMan.updateUserList(self.getNextUserList(5))
+                if self.currentUser != None:
+                    self.dispMan.updateImage(self.currentUser.getImage())
+            else:
+                print("no active users")
+                self.dispMan.updateImage(None)
+                self.currentUser = None
 
     def getCurrentUser(self):
         """ Grabs the current user as dictated by userThread """
@@ -98,8 +122,10 @@ class UserList:
 
     def setCurrentUser(self, user):
         """ Grabs the current user as dictated by userThread """
+        print("setting current user: " + str(user))
         with self.current_user_lock:
             self.currentUser = user
+            self.triggerChanges()
 
     def getUserList(self):
         """ Returns the list of current Users """
@@ -108,6 +134,7 @@ class UserList:
 
     def getNextUserList(self, nextCount):
         ''' Returns the next X users in the list formated by Name : time \nnextCount : how long the next user list should be '''
+
         msg = ""
         for x in self.userList:
             msg += x.getName() + "\n"
