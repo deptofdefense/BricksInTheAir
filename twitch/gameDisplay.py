@@ -33,7 +33,7 @@ class GameDisplay(QMainWindow):
         self.imageLabel = QLabel(self)
         self.pixmap = QPixmap()
         self.imageLabel.setPixmap(self.pixmap)
-        self.resize(self.pixmap.width(), self.pixmap.height())
+        self.imageLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
 
         self.lay.addWidget(self.imageLabel)
         #self.show()
@@ -55,6 +55,7 @@ class GameDisplay(QMainWindow):
         self.lstLabel.setAlignment(Qt.AlignRight)
 
         # show all the widgets
+        self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.show()
 
 
@@ -74,14 +75,19 @@ class GameDisplay(QMainWindow):
     def dispImage(self, fileStr):
         # Image Overlay
         print("Calling dispImage")
-        if os.path.isfile(fileStr):
-            print(fileStr)
-            self.pixmap = QPixmap(fileStr)
-            self.imageLabel.setPixmap(self.pixmap)
+        if fileStr != None:
+            if os.path.isfile(fileStr):
+                print(fileStr)
+                self.pixmap = QPixmap(fileStr)
+                self.pixmap = self.pixmap.scaledToWidth(self.cfg["display"]["width"])
+                self.pixmap = self.pixmap.scaledToHeight(self.cfg["display"]["height"])
+                self.imageLabel.setPixmap(self.pixmap)
         else:
             print("emptying imageLabel")
             self.imageLabel.clear()
+        self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.imageLabel.update()
+
 
 
 class DisplayManager():

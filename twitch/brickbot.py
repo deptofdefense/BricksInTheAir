@@ -48,8 +48,6 @@ bot = commands.Bot(
     initial_channels = CFG["twitch"]["CHANNEL"]
 )
 
-
-
 # bot connection event
 @bot.event
 async def event_ready():
@@ -108,7 +106,7 @@ async def cmd(ctx):
             userList.triggerChanges()
             await ctx.channel.send(f"{ctx.author.name} {msg}")
     else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to use the ground station")
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
 
 # join command - allows user to join the user list
 @bot.command(name='join')
@@ -118,12 +116,12 @@ async def join(ctx):
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
             bia_game.run_prolouge(userList.getCurrentUser())
-            await ctx.channel.send(f"{ctx.author.name} has joined the user list for this control station, and is now the active user")
+            await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
             await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
         else:
-            await ctx.channel.send(f"{ctx.author.name} has joined the user list for this control station")
+            await ctx.channel.send(f"{ctx.author.name} has joined the user list.")
     else:
-        await ctx.channel.send(f"{ctx.author.name}, you are already on the user list")
+        await ctx.channel.send(f"{ctx.author.name}, you are already on the user list.")
 
 # leave command - allows user to leave the user list before they timeout
 @bot.command(name='leave')
@@ -132,9 +130,9 @@ async def leave(ctx):
 
     print("leave cmd sent")
     if userList.removeUser(ctx.author.name):
-        await ctx.channel.send(f"{ctx.author.name} has left the user list for this control station")
+        await ctx.channel.send(f"{ctx.author.name} has left the user list.")
     else:
-        await ctx.channel.send(f"{ctx.author.name}, you are not on the user list")
+        await ctx.channel.send(f"{ctx.author.name}, you are not on the user list.")
 
 # help command - link to repo readme with instructions
 @bot.command(name='help')
@@ -187,15 +185,7 @@ async def question(ctx):
             dispMan.updateCmdMsg(ctx.content)
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
 
 if __name__ == "__main__":
-    #t = threading.Thread(target=readThread, daemon=True)
-    #t.start()
-
-    #t = threading.Thread(target=userThread, daemon=True)
-    #t.start()
-
-    #dispMan.startDisplay()
-
     bot.run()
