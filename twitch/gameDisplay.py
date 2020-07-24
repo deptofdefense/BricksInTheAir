@@ -74,7 +74,6 @@ class GameDisplay(QMainWindow):
 
     def dispImage(self, fileStr):
         # Image Overlay
-        print("Calling dispImage")
         if fileStr != None:
             if os.path.isfile(fileStr):
                 print(fileStr)
@@ -83,14 +82,11 @@ class GameDisplay(QMainWindow):
                 self.pixmap = self.pixmap.scaledToHeight(self.cfg["display"]["height"])
                 self.imageLabel.setPixmap(self.pixmap)
             else:
-                print("emptying imageLabel")
                 self.imageLabel.clear()
         else:
-            print("emptying imageLabel")
             self.imageLabel.clear()
         self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.imageLabel.update()
-
 
 
 class DisplayManager():
@@ -98,6 +94,7 @@ class DisplayManager():
 
     def __init__(self, cfg):
         self.cfg = cfg
+        self.display = None
 
     def __startDisplayThread(self):
         ''' private class for starting the display as a separate thread '''

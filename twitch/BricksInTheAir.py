@@ -158,11 +158,9 @@ class BricksInTheAir:
         return buf
 
     def reset(self, user):
-
-        #print("Calling brick reset")
-        #time.sleep(.1)
         self.write_read_i2c(self.fcc_address, [0xFE])
-        time.sleep(.1)
+        self.write_read_i2c(self.engine_address, [0xFE])
+        self.write_read_i2c(self.gear_address, [0xFE])
 
 
     def run_prolouge(self, user):

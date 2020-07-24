@@ -4,16 +4,19 @@
 import time # needed for sleep
 import threading # needed for userThread
 import random # needed for zone generation
+import asyncio # needed for async ops
+
 from BrickUser import BrickUser
 
 class UserList:
     """ List of active users """
 
-    def __init__(self, cfg, dispMan):
+    def __init__(self, cfg, dispMan, bot):
         """ init method """
 
         self.cfg = cfg
         self.dispMan = dispMan
+        self.bot = bot
         self.userList = []
         #self.currentUser = BrickUser("temp", self.cfg)
         self.currentUser = None
@@ -33,7 +36,11 @@ class UserList:
 
         #if user list is empty
         if not self.userList:
-            self.setCurrentUser(BrickUser(name, self.cfg))
+            print("adding new user:" + name)
+            newUser = BrickUser(name, self.cfg)
+            self.userList.append(newUser)
+            self.cue_lock.release()
+            self.setCurrentUser(newUser)
             self.triggerChanges()
 
         if len(self.userList) < self.limit:
@@ -85,35 +92,51 @@ class UserList:
         """ Starts the user thread """
         print("Start userList thread")
 
-        t = threading.Thread(target=self.userThread, daemon=True)
+        t = threading.Thread(target=self.userThread, args=(), daemon=True)
         t.start()
 
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
         while True:
+            print("********************************servicing userthread")
+
             if len(self.userList) > 0:
                 self.cue_lock.acquire()
                 user = self.userList.pop(0) # remove the first user in the list
                 self.cue_lock.release()
 
                 self.setCurrentUser(user)
+                time.sleep(self.time_allowed)
 
                 if (user.updateTimeout() >= 0):
                     self.cue_lock.acquire()
                     self.userList.append(user)   #put them at the end
                     self.cue_lock.release()
-                    time.sleep(self.time_allowed)
+
+
                 else:
                     print("removing user for inactivity: " + str(user))
-                    pass    # already removed with the pop() above
+                    try:
+                        msg = "Removing " + user.getName() + " for inactivity."
+                        asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
+                    except Exception as err:
+                        pass
 
                 self.dispMan.updateUserList(self.getNextUserList(5))
                 if self.currentUser != None:
                     self.dispMan.updateImage(self.currentUser.getImage())
+
             else:
-                print("no active users")
-                self.dispMan.updateImage(None)
-                self.currentUser = None
+                #print("no active users")
+                time.sleep(1)
+                try:
+                    self.dispMan.updateImage(None)
+                    self.currentUser = None
+                except Exception as err:
+                    print("error inializing dispMan")
+                    print(repr(err))
+
+
 
     def getCurrentUser(self):
         """ Grabs the current user as dictated by userThread """
@@ -136,7 +159,9 @@ class UserList:
         ''' Returns the next X users in the list formated by Name : time \nnextCount : how long the next user list should be '''
 
         msg = ""
+        self.cue_lock.acquire()
         for x in self.userList:
             msg += x.getName() + "\n"
+        self.cue_lock.release()
         print("active user list: " + msg)
         return msg

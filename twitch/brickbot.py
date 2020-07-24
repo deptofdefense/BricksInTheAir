@@ -25,19 +25,6 @@ with open("script.yml", "r") as scriptfile:
 
 CFG = {**creds, **script}
 
-# manages the game
-bia_game = BricksInTheAir(CFG)
-
-# Display Manager to handle overlay
-dispMan = DisplayManager(CFG)
-
-# user list for managing active connections
-userList = UserList(CFG, dispMan)
-userList.startUserThread()
-dispMan.startDisplay()
-
-
-
 # pulling the values from config.yml
 # keeping them separate for flexibilitycode sharing
 bot = commands.Bot(
@@ -47,6 +34,17 @@ bot = commands.Bot(
     prefix = CFG["twitch"]["BOT_PREFIX"],
     initial_channels = CFG["twitch"]["CHANNEL"]
 )
+
+# manages the game
+bia_game = BricksInTheAir(CFG)
+
+# Display Manager to handle overlay
+dispMan = DisplayManager(CFG)
+
+# user list for managing active connections
+userList = UserList(CFG, dispMan, bot)
+userList.startUserThread()
+dispMan.startDisplay()
 
 # bot connection event
 @bot.event
@@ -73,12 +71,11 @@ async def event_message(ctx):
 async def reset(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser().matchName(ctx.author.name):
-        userList.getCurrentUser().resetTimeout()
+    if ctx.author.name in CFG["admins"]:
         bia_game.reset(userList.getCurrentUser().getCurrentStep())
         await ctx.channel.send(f"{ctx.author.name} sent the command reset")
     else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to use the ground station")
+        await ctx.channel.send(f"{ctx.author.name}: nope")
 
 # replay command - sets the current step to 0 so the user may replay the game
 @bot.command(name='replay')
@@ -186,6 +183,8 @@ async def question(ctx):
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
+
+
 
 if __name__ == "__main__":
     bot.run()

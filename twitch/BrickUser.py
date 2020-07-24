@@ -65,39 +65,65 @@ class BrickUser:
         """
         Check for a valid answer, if found return true and advance step
         """
+        self.resetTimeout()
 
-        # this is a bizzare question... any answer outside of an otehrwise valid range is the answer
-        if "answer_lower" in self.steps[self.currentStepIndex] and "answer_upper" in self.steps[self.currentStepIndex]:
-            parts = provided_answer.split()
-            answer = self.steps[self.currentStepIndex]["answer"].split()
+        provided_answer = self.parseStrHex(provided_answer)
 
-            answer_total_len = len(answer) + 1
-            if len(parts) != answer_total_len:
-                return False
+        if provided_answer == None:
+            # malformed string hex provided.. simply stop here.
+            return False
 
-            for i in range(len(answer)):
-                if parts[i] != answer[i]:
-                    return False
+        # Passed conversion to int... start looking for possible answers.
+        for possible_answer in self.steps[self.currentStepIndex]["answer"]:
+            print(possible_answer)
+            possible_answer = self.parseStrHex(possible_answer)
 
-            compare = parts[-1]
-            print(compare)
-            if compare < self.steps[self.currentStepIndex]["answer_lower"] or compare > self.steps[self.currentStepIndex]["answer_upper"]:
+            # some challenges are straight forward unique comparison
+            if provided_answer == possible_answer:
+
+                if provided_answer[0] == 0x55 and provided_answer[1] == 0x11:
+                    # recieved a set engine speed command
+                    engine_speed = provided_answer[2]
+                    self.engine_speed = engine_speed
+
                 self.update_game_progress()
                 return True
 
-        else:
-            for x in self.steps[self.currentStepIndex]["answer"]:
-                if x == provided_answer:
-                    self.update_game_progress()
+            # possible that the answer is outside the valid range
+            if "answer_lower" in self.steps[self.currentStepIndex] and "answer_upper" in self.steps[self.currentStepIndex]:
+                if len(provided_answer) != len(possible_answer) + 1:
+                    # recieved too many values... stop here
+                    print("too many values:")
+                    print(provided_answer)
+                    print(possible_answer)
+                    return False
 
-                    if "0x55 0x11" in provided_answer:
-                        # this is a set engine speed command... update the user's engine sound.
-                        engine_speed = int(provided_answer.split()[-1],16) #take the last value and convert to int
-                        self.engine_speed = engine_speed
+                if provided_answer[0] == possible_answer[0] and provided_answer[1] == possible_answer[1]:
+                    print("first to values checkout out")
+                    upper = int(self.steps[self.currentStepIndex]["answer_upper"],16)
+                    lower = int(self.steps[self.currentStepIndex]["answer_lower"],16)
 
-                    return True
+                    if provided_answer[2] > upper or provided_answer[2] < lower:
+                        print("provided answer outside valid range")
+                        self.update_game_progress()
+                        return True
 
+
+        # nothing matched an acceptable answer
         return False
+
+    def parseStrHex(self, provided_answer):
+        """ helper method to convert string hex to comparable ints """
+        partsStr = provided_answer.split()
+        parts = []
+        for x in partsStr:
+            try:
+                parts.append(int(x,16))
+            except ValueError as err:
+                print("incorrect parsing of hex str to int")
+                return None
+        return parts
+
 
     def getFakeI2CResponse(self):
         if "fake_i2c_response" in self.steps[self.currentStepIndex]:
@@ -112,9 +138,11 @@ class BrickUser:
 
 
     def getQuestion(self):
+        self.resetTimeout()
         return self.steps[self.currentStepIndex]["question"]
 
     def getHint(self):
+        self.resetTimeout()
         return self.steps[self.currentStepIndex]["hint"]
 
     def getAudio(self):
@@ -145,6 +173,7 @@ class BrickUser:
 
     def updateTimeout(self):
         """ Subtracts one from the timeout and returns the value """
+        print("updating user timeout:" + str(self.name))
         self.timeOut = self.timeOut - 1
         return self.timeOut
 
