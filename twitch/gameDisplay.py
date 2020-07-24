@@ -82,6 +82,9 @@ class GameDisplay(QMainWindow):
                 self.pixmap = self.pixmap.scaledToWidth(self.cfg["display"]["width"])
                 self.pixmap = self.pixmap.scaledToHeight(self.cfg["display"]["height"])
                 self.imageLabel.setPixmap(self.pixmap)
+            else:
+                print("emptying imageLabel")
+                self.imageLabel.clear()
         else:
             print("emptying imageLabel")
             self.imageLabel.clear()
