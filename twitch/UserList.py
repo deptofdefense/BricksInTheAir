@@ -11,13 +11,14 @@ from BrickUser import BrickUser
 class UserList:
     """ List of active users """
 
-    def __init__(self, cfg, dispMan, bot):
+    def __init__(self, cfg, dispMan, bia, bot):
         """ init method """
 
         self.cfg = cfg
         self.dispMan = dispMan
+        self.bia = bia
         self.bot = bot
-        #self.userList = [BrickUser("dan", cfg), BrickUser("Amanda", cfg)]
+        #self.userList = [BrickUser("dan", cfg), BrickUser("Amanda", cfg), BrickUser("cybertestpilot", cfg)]
         self.userList = []
         self.currentUser = None
         self.limit = cfg["cue"]["limit"]
@@ -109,7 +110,7 @@ class UserList:
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
         while True:
-            #print("********************************servicing userthread")
+            print("********************************servicing userthread")
 
             if len(self.userList) > 0:
                 self.cue_lock.acquire()
@@ -122,13 +123,15 @@ class UserList:
                 time.sleep(self.time_allowed)
 
                 if (user.updateTimeout() >= 0):
-                    self.cue_lock.acquire()
-                    self.userList.append(user)   #put them at the end
-                    self.cue_lock.release()
+                    self.currentUserToEndOfLine()
 
                 else:
                     print("removing user for inactivity: " + str(user))
-                    if user == self.getCurrentUser():
+                    self.userList.remove(user)
+
+                    if len(self.userList) >= 1:
+                        self.setCurrentUser(self.userList[0])
+                    else:
                         self.setCurrentUser(None)
 
                     self.triggerChanges()
@@ -163,13 +166,19 @@ class UserList:
         #print("setting current user: " + str(user))
         with self.current_user_lock:
             self.currentUser = user
-            #self.triggerChanges()
+        self.bia.run_prolouge(self.currentUser)
 
     def getUserList(self):
         """ Returns the list of current Users """
         print("userList:" + str(self.userList))
         with self.cue_lock:
             return self.userList
+
+    def currentUserToEndOfLine(self):
+        self.cue_lock.acquire()
+        self.userList.append(self.userList.pop(0))
+        self.cue_lock.release()
+
 
     def getNextUserList(self, nextCount):
         ''' Returns the next X users in the list formated by Name : time \nnextCount : how long the next user list should be '''

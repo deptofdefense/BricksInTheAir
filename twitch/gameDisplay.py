@@ -132,14 +132,17 @@ class DisplayManager():
 
     def updateUserList(self, userMsg):
         ''' public interface for updating the user list '''
-        self.display.dispUser(userMsg)
+        if self.display != None:
+            self.display.dispUser(userMsg)
 
     def updateCmdMsg(self, cmdMsg):
         ''' public interface for updating the command message '''
-        self.display.dispCmd(cmdMsg)
+        if self.display != None:
+            self.display.dispCmd(cmdMsg)
 
     def updateImage(self, fileStr):
-        self.display.dispImage(fileStr)
+        if self.display != None:
+            self.display.dispImage(fileStr)
 
 def main():
 

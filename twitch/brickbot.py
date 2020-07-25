@@ -46,7 +46,7 @@ bia_game = BricksInTheAir(CFG)
 dispMan = DisplayManager(CFG)
 
 # user list for managing active connections
-userList = UserList(CFG, dispMan, bot)
+userList = UserList(CFG, dispMan, bia_game, bot)
 userList.startUserThread()
 
 
@@ -59,6 +59,7 @@ async def event_ready():
     print(CFG["twitch"]["BOT_NICK"] + " is online!")
     ws = bot._ws
     await ws.send_privmsg(bot.initial_channels[0], f"/me is now operational")
+    userList.triggerChanges()
 
 # event for user entering something in chat
 @bot.event
@@ -107,8 +108,9 @@ async def cmd(ctx):
             #dispMan.updateCmdMsg(ctx.content)
             userList.triggerChanges(ctx.content)
             await ctx.channel.send(f"{ctx.author.name} {msg}")
-    else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
+        else:
+            await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
+
 
 # join command - allows user to join the user list
 @bot.command(name='join')
@@ -157,8 +159,8 @@ async def hint(ctx):
             msg = currentUser.getHint()
             #dispMan.updateCmdMsg(ctx.content)
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
-    else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+        else:
+            await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
 
 @bot.command(name='goto')
 async def goto(ctx):
@@ -177,8 +179,8 @@ async def goto(ctx):
                 pass
 
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
-    else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
+        else:
+            await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
 
 @bot.command(name='question')
 async def question(ctx):
@@ -191,8 +193,8 @@ async def question(ctx):
             #dispMan.updateCmdMsg(ctx.content)
             currentUser.resetTimeout()
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
-    else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
+        else:
+            await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
 
 
 if __name__ == "__main__":
