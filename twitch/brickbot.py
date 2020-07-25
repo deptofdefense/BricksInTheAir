@@ -77,23 +77,11 @@ async def reset(ctx):
     global CFG, bia_game, userList, dispMan
 
     if ctx.author.name in CFG["admins"]:
-        bia_game.reset(userList.getCurrentUser().getCurrentStep())
+        bia_game.reset_board()
         await ctx.channel.send(f"{ctx.author.name} sent the command reset")
     else:
         await ctx.channel.send(f"{ctx.author.name}: nope")
 
-# replay command - sets the current step to 0 so the user may replay the game
-@bot.command(name='replay')
-async def replay(ctx):
-    global CFG, bia_game, userList, dispMan
-
-    if userList.getCurrentUser().matchName(ctx.author.name):
-        userList.getCurrentUser().resetTimeout()
-        userList.getCurrentUser().setCurrentStep(0)
-        bia_game.reset(userList.getCurrentUser().getCurrentStep())
-        await ctx.channel.send(f"{ctx.author.name} sent the replay command")
-    else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to use the ground station")
 
 # generic command - meant to be flexible
 @bot.command(name='cmd')
@@ -110,6 +98,8 @@ async def cmd(ctx):
             await ctx.channel.send(f"{ctx.author.name} {msg}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
 
 
 # join command - allows user to join the user list
@@ -161,6 +151,8 @@ async def hint(ctx):
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
 
 @bot.command(name='goto')
 async def goto(ctx):
@@ -181,6 +173,8 @@ async def goto(ctx):
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
 
 @bot.command(name='question')
 async def question(ctx):
@@ -195,6 +189,8 @@ async def question(ctx):
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
 
 
 if __name__ == "__main__":

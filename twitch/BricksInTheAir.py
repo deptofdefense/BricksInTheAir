@@ -157,25 +157,26 @@ class BricksInTheAir:
 
         return buf
 
-    def reset(self, user):
+    def reset_board(self):
         self.write_read_i2c(self.fcc_address, [0xFE])
         self.write_read_i2c(self.engine_address, [0xFE])
         self.write_read_i2c(self.gear_address, [0xFE])
 
 
     def run_prolouge(self, user):
-        prologue = user.get_prologue()
-        #print(prologue)
-        if prologue != None:
-            for i2c_command in prologue:
-                tmp_command = i2c_command.split()
-                tmp = []
-                for x in tmp_command:
-                    tmp.append(str_to_hex(x))
-                self.write_read_i2c(tmp[0], tmp[1:])
+        if user != None:
+            prologue = user.get_prologue()
+            #print(prologue)
+            if prologue != None:
+                for i2c_command in prologue:
+                    tmp_command = i2c_command.split()
+                    tmp = []
+                    for x in tmp_command:
+                        tmp.append(str_to_hex(x))
+                    self.write_read_i2c(tmp[0], tmp[1:])
 
-        # Update the user's engine sound
-        self.set_engine_speed(user.getEngineSpeed())
+            # Update the user's engine sound
+            self.set_engine_speed(user.getEngineSpeed())
 
     def set_engine_speed(self, speed):
         self.write_read_i2c(self.engine_address, [0x11, speed])

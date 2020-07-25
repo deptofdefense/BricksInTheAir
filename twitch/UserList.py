@@ -176,7 +176,8 @@ class UserList:
 
     def currentUserToEndOfLine(self):
         self.cue_lock.acquire()
-        self.userList.append(self.userList.pop(0))
+        if len(self.userList) >= 1:
+            self.userList.append(self.userList.pop(0))
         self.cue_lock.release()
 
 
