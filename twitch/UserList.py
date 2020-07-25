@@ -17,8 +17,8 @@ class UserList:
         self.cfg = cfg
         self.dispMan = dispMan
         self.bot = bot
+        #self.userList = [BrickUser("dan", cfg), BrickUser("Amanda", cfg)]
         self.userList = []
-        #self.currentUser = BrickUser("temp", self.cfg)
         self.currentUser = None
         self.limit = cfg["cue"]["limit"]
         self.time_allowed = cfg["cue"]["time"]
@@ -38,17 +38,20 @@ class UserList:
         if not self.userList:
             print("adding new user:" + name)
             newUser = BrickUser(name, self.cfg)
+            #self.cue_lock.acquire()
             self.userList.append(newUser)
             self.cue_lock.release()
             self.setCurrentUser(newUser)
             self.triggerChanges()
+            return True
 
         if len(self.userList) < self.limit:
-            print("adding new user:" + name)
+            print("adding new user to current list:" + name)
+            #self.cue_lock.acquire()
             self.userList.append(BrickUser(name, self.cfg))
-            self.triggerChanges()
             print(self.userList)
             self.cue_lock.release()
+            self.triggerChanges()
             return True
         else:
             self.cue_lock.release()
@@ -73,20 +76,28 @@ class UserList:
                         self.currentUser = self.userList[0]
                     else:
                         self.currentUser = None
-                self.triggerChanges()
 
                 self.current_user_lock.release()
+                self.triggerChanges()
                 return True
-        self.triggerChanges()
         self.cue_lock.release()
         return False
 
-    def triggerChanges(self):
-        self.dispMan.updateUserList(self.getNextUserList(5))
+    def triggerChanges(self, cmd=None):
+        #print("triggerChanges************************")
+
+        self.dispMan.updateUserList(self.getUserList())
+
         if self.currentUser != None:
+            #print("!= none user... getImage")
             self.dispMan.updateImage(self.currentUser.getImage())
         else:
+            #print("none user... set Image None")
             self.dispMan.updateImage(None)
+
+        if cmd != None:
+            self.dispMan.updateCmdMsg(cmd)
+
 
     def startUserThread(self):
         """ Starts the user thread """
@@ -98,14 +109,16 @@ class UserList:
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
         while True:
-            print("********************************servicing userthread")
+            #print("********************************servicing userthread")
 
             if len(self.userList) > 0:
                 self.cue_lock.acquire()
-                user = self.userList.pop(0) # remove the first user in the list
+                user = self.userList[0] # remove the first user in the list
                 self.cue_lock.release()
 
                 self.setCurrentUser(user)
+                self.triggerChanges()
+
                 time.sleep(self.time_allowed)
 
                 if (user.updateTimeout() >= 0):
@@ -113,28 +126,30 @@ class UserList:
                     self.userList.append(user)   #put them at the end
                     self.cue_lock.release()
 
-
                 else:
                     print("removing user for inactivity: " + str(user))
+                    if user == self.getCurrentUser():
+                        self.setCurrentUser(None)
+
+                    self.triggerChanges()
+
                     try:
                         msg = "Removing " + user.getName() + " for inactivity."
                         asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
                     except Exception as err:
                         pass
 
-                self.dispMan.updateUserList(self.getNextUserList(5))
-                if self.currentUser != None:
-                    self.dispMan.updateImage(self.currentUser.getImage())
 
             else:
                 #print("no active users")
                 time.sleep(1)
                 try:
-                    self.dispMan.updateImage(None)
-                    self.currentUser = None
+                    #self.triggerChanges()
+                    self.setCurrentUser(None)
                 except Exception as err:
-                    print("error inializing dispMan")
+                    #print("error inializing dispMan")
                     print(repr(err))
+
 
 
 
@@ -145,13 +160,14 @@ class UserList:
 
     def setCurrentUser(self, user):
         """ Grabs the current user as dictated by userThread """
-        print("setting current user: " + str(user))
+        #print("setting current user: " + str(user))
         with self.current_user_lock:
             self.currentUser = user
-            self.triggerChanges()
+            #self.triggerChanges()
 
     def getUserList(self):
         """ Returns the list of current Users """
+        print("userList:" + str(self.userList))
         with self.cue_lock:
             return self.userList
 
@@ -159,9 +175,9 @@ class UserList:
         ''' Returns the next X users in the list formated by Name : time \nnextCount : how long the next user list should be '''
 
         msg = ""
-        self.cue_lock.acquire()
+        #self.cue_lock.acquire()
         for x in self.userList:
             msg += x.getName() + "\n"
-        self.cue_lock.release()
+        #self.cue_lock.release()
         print("active user list: " + msg)
         return msg

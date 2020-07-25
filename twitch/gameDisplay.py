@@ -7,6 +7,9 @@ import os   # to make sure files exist
 
 import time # needed for sleep
 import threading # needed for threads
+import random
+
+import zmq
 
 class GameDisplay(QMainWindow):
     ''' Custom Class to handle the game overlay window '''
@@ -16,6 +19,12 @@ class GameDisplay(QMainWindow):
         self.cfg = CFG
         self.font_size_users = 14
         self.font_size_cmd = 20
+
+        context = zmq.Context()
+        self.socket = context.socket(zmq.SUB)
+        self.socket.connect("tcp://localhost:5555")
+        print("zmq socket setup")
+
 
         # set the title
         self.setWindowTitle("Text Overlay Window")
@@ -63,12 +72,18 @@ class GameDisplay(QMainWindow):
         ''' Causes a string representing the command message to be displayed on the bottom of the screen '''
 
         self.cmdLabel.setText(str(cmdMsg))
+        self.cmdLabel.update()
+        threading.Thread(target=self.clearCmdMsg, daemon=True).start()
+
+    def clearCmdMsg(self):
         time.sleep(5)
         self.cmdLabel.setText("")
         self.cmdLabel.update()
 
+
     def dispUser(self, userMsg):
         ''' Updates the user list '''
+        #userMsg = "\n".join(userMsg)
         self.lstLabel.setText("Active User List (limit {})\n{}".format(self.cfg["cue"]["limit"], userMsg))
         self.lstLabel.update()
 
@@ -76,7 +91,7 @@ class GameDisplay(QMainWindow):
         # Image Overlay
         if fileStr != None:
             if os.path.isfile(fileStr):
-                print(fileStr)
+                #print(fileStr)
                 self.pixmap = QPixmap(fileStr)
                 self.pixmap = self.pixmap.scaledToWidth(self.cfg["display"]["width"])
                 self.pixmap = self.pixmap.scaledToHeight(self.cfg["display"]["height"])
@@ -110,7 +125,9 @@ class DisplayManager():
 
     def startDisplay(self):
         ''' Starts the game overlay '''
-        threading.Thread(target=self.__startDisplayThread, daemon=True).start()
+        t = threading.Thread(target=self.__startDisplayThread, daemon=True)
+        t.start()
+        #t.join()
         time.sleep(1)
 
     def updateUserList(self, userMsg):
@@ -119,7 +136,29 @@ class DisplayManager():
 
     def updateCmdMsg(self, cmdMsg):
         ''' public interface for updating the command message '''
-        threading.Thread(target=self.display.dispCmd, args=(cmdMsg, ), daemon=True).start()
+        self.display.dispCmd(cmdMsg)
 
     def updateImage(self, fileStr):
         self.display.dispImage(fileStr)
+
+def main():
+
+    cfg = {}
+    cfg["display"] = {}
+    cfg["display"]["width"] = 1080
+    cfg["display"]["height"] = 720
+
+    cfg["cue"] = {}
+    cfg["cue"]["limit"] = 5
+
+    # create pyqt5 app
+    App = QApplication(sys.argv)
+
+    # create the instance of our Window
+    display = GameDisplay(cfg)
+
+    # start the app
+    sys.exit(App.exec())
+
+if __name__ == "__main__":
+    main()

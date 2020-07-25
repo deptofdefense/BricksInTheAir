@@ -271,7 +271,7 @@ void process_i2c_request(void) {
         }else{
           set_led(ON, OFF, OFF);
         }
-        set_led(ON, OFF, OFF);
+        
         break;
       default:
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);

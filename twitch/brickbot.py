@@ -15,6 +15,10 @@ from BrickUser import BrickUser             # needed for user management
 
 from gameDisplay import DisplayManager  # needed for running the game overlay
 
+from PyQt5.QtCore import Qt # needed for gui
+from PyQt5.QtGui import *  # needed for gui
+from PyQt5.QtWidgets import * # needed for gui
+
 CFG = None  # global CFG settings
 
 with open("config.yml", "r") as ymlfile:
@@ -44,7 +48,7 @@ dispMan = DisplayManager(CFG)
 # user list for managing active connections
 userList = UserList(CFG, dispMan, bot)
 userList.startUserThread()
-dispMan.startDisplay()
+
 
 # bot connection event
 @bot.event
@@ -95,12 +99,13 @@ async def replay(ctx):
 async def cmd(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser() != None:
-        if userList.getCurrentUser().matchName(ctx.author.name):
-            userList.getCurrentUser().resetTimeout()
-            msg = bia_game.checkCmd(userList.getCurrentUser(), ctx.content[5:])
-            dispMan.updateCmdMsg(ctx.content)
-            userList.triggerChanges()
+    currentUser = userList.getCurrentUser()
+    if currentUser != None:
+        if currentUser.matchName(ctx.author.name):
+            currentUser.resetTimeout()
+            msg = bia_game.checkCmd(currentUser, ctx.content[5:])
+            #dispMan.updateCmdMsg(ctx.content)
+            userList.triggerChanges(ctx.content)
             await ctx.channel.send(f"{ctx.author.name} {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
@@ -115,8 +120,10 @@ async def join(ctx):
             bia_game.run_prolouge(userList.getCurrentUser())
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
             await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
+            userList.triggerChanges()
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list.")
+            userList.triggerChanges()
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are already on the user list.")
 
@@ -128,6 +135,7 @@ async def leave(ctx):
     print("leave cmd sent")
     if userList.removeUser(ctx.author.name):
         await ctx.channel.send(f"{ctx.author.name} has left the user list.")
+        userList.triggerChanges()
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are not on the user list.")
 
@@ -142,11 +150,12 @@ async def help(ctx):
 async def hint(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser() != None:
-        if userList.getCurrentUser().matchName(ctx.author.name):
-            userList.getCurrentUser().resetTimeout()
-            msg = userList.getCurrentUser().getHint()
-            dispMan.updateCmdMsg(ctx.content)
+    currentUser = userList.getCurrentUser()
+    if currentUser != None:
+        if currentUser.matchName(ctx.author.name):
+            currentUser.resetTimeout()
+            msg = currentUser.getHint()
+            #dispMan.updateCmdMsg(ctx.content)
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
@@ -155,15 +164,15 @@ async def hint(ctx):
 async def goto(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser() != None:
-        if userList.getCurrentUser().matchName(ctx.author.name):
-            userList.getCurrentUser().resetTimeout()
+    currentUser = userList.getCurrentUser()
+    if currentUser != None:
+        if currentUser.matchName(ctx.author.name):
+            currentUser.resetTimeout()
             try:
                 step = int(ctx.content[6:])
-                msg = userList.getCurrentUser().setCurrentStep(step)
-                bia_game.run_prolouge(userList.getCurrentUser())
-                userList.triggerChanges()
-                dispMan.updateCmdMsg(ctx.content)
+                msg = currentUser.setCurrentStep(step)
+                bia_game.run_prolouge(currentUser)
+                userList.triggerChanges(ctx.content)
             except ValueError:
                 pass
 
@@ -175,16 +184,17 @@ async def goto(ctx):
 async def question(ctx):
     global CFG, bia_game, userList, dispMan
 
-    if userList.getCurrentUser() != None:
+    currentUser = userList.getCurrentUser()
+    if currentUser != None:
         if userList.getCurrentUser().matchName(ctx.author.name):
-            userList.getCurrentUser().resetTimeout()
-            msg = userList.getCurrentUser().getQuestion()
-            dispMan.updateCmdMsg(ctx.content)
+            msg = currentUser.getQuestion()
+            #dispMan.updateCmdMsg(ctx.content)
+            currentUser.resetTimeout()
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
 
 
-
 if __name__ == "__main__":
+    dispMan.startDisplay()
     bot.run()
