@@ -216,6 +216,10 @@ class BrickUser:
         """ Get the user's set engine speed for audio sound file purposes. """
         return self.engine_speed
 
+    def setEngineSpeed(self, speed):
+        """ Get the user's set engine speed for audio sound file purposes. """
+        self.engine_speed = speed
+
 
     def update_game_progress(self):
         self.steps[self.currentStepIndex]["completed"] = True

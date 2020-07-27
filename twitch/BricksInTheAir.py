@@ -121,7 +121,7 @@ class BricksInTheAir:
 
                 if len(tmp_command) == 3:
                     if tmp[0] == self.engine_address and tmp[1] == 0x11:     # set speed change
-                        user.set_engine_speed(int(tmp[2]))
+                        user.setEngineSpeed(int(tmp[2]))
 
         # handle the possible sound effect
         sound_effect_str = user.getAudio()
