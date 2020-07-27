@@ -87,6 +87,9 @@ class UserList:
     def triggerChanges(self, cmd=None):
         #print("triggerChanges************************")
 
+        # run prologoue for this specific user
+        self.bia.run_prolouge(self.currentUser)
+
         self.dispMan.updateUserList(self.getUserList())
 
         if self.currentUser != None:

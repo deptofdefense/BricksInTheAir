@@ -110,10 +110,9 @@ async def join(ctx):
 
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
-            bia_game.run_prolouge(userList.getCurrentUser())
+            userList.triggerChanges()
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
             await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
-            userList.triggerChanges()
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list.")
             userList.triggerChanges()
@@ -166,7 +165,6 @@ async def goto(ctx):
             try:
                 step = int(ctx.content[6:])
                 msg = currentUser.setCurrentStep(step)
-                bia_game.run_prolouge(currentUser)
                 userList.triggerChanges(ctx.content)
             except ValueError:
                 pass

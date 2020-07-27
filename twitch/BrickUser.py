@@ -39,7 +39,7 @@ class BrickUser:
             self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
             for x in self.steps:
                 self.steps[x]["completed"] = False
-            self.currentStepIndex = "1" # dict key, keep as a string. convert to int for math but store as string
+            self.currentStepIndex = "1"
             self.maxStep = 0
             self.timeOut = 3
             self.join_timestamp = time.time()
@@ -174,9 +174,12 @@ class BrickUser:
         return self.steps[self.currentStepIndex]["hint"]
 
     def getAudio(self):
+        print("User getAudio")
         if "audio" in self.steps[self.currentStepIndex]:
+            print(self.steps[self.currentStepIndex]["audio"])
             return self.steps[self.currentStepIndex]["audio"]
         else:
+            print("no audio")
             return None
 
     def getI2CEffect(self):
@@ -224,7 +227,10 @@ class BrickUser:
             f.write(json.dumps(self.__dict__))
 
     def get_prologue(self):
-        if "prologue" in self.steps[self.currentStepIndex]:
-            return self.steps[self.currentStepIndex]["prologue"]
-        else:
-            return None
+        try:
+            if "prologue" in self.steps[self.currentStepIndex]:
+                return self.steps[self.currentStepIndex]["prologue"]
+            else:
+                return None
+        except Exception as err:
+            print(repr(err))
