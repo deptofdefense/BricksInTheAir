@@ -190,13 +190,15 @@ class BricksInTheAir:
 
     def set_engine_sound(self, value):
         print("changing engine speed {}".format(value))
-        if value >= 0 and value <= 7:
+        if value >= 1 and value <= 7:
             try:
                 effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_"+str(value)])
                 self.engine_sound_channel.stop()
                 self.engine_sound_channel.play(effect, loops=-1)
             except FileNotFoundError as err:
                 print("pygame effect audio: file not found")
+        else:
+            self.engine_sound_channel.stop()
 
 
 def str_to_hex(hex_str):
