@@ -89,6 +89,7 @@ class UserList:
 
         # run prologoue for this specific user
         self.bia.run_prolouge(self.currentUser)
+        self.bia.set_engine_sound(self.currentUser.getEngineSpeed())
 
         self.dispMan.updateUserList(self.getUserList())
 
