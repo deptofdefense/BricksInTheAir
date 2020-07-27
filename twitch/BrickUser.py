@@ -2,6 +2,7 @@
 from collections import OrderedDict
 import time
 import os
+from os import path
 import json
 
 class BrickUser:
@@ -11,18 +12,44 @@ class BrickUser:
     def __init__(self, name, cfg):
         """ Initialization method: note name needs to be unique """
 
-        self.name = str(name)
-        self.steps = cfg["steps"]
-        self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
-        for x in self.steps:
-            self.steps[x]["completed"] = False
+        fileStr = os. getcwd() + cfg["logging"]["path"] + name + ".log"
+        print(fileStr)
+        if(path.isfile(fileStr)):
+            # Users has been here previously, reload their state.
+            print("user previously played... initialze their previous state.")
+            try:
+                with open(fileStr, 'r') as fh:
+                    data = json.load(fh)
+                    self.name = data["name"]
+                    self.steps = data["steps"]
+                    print(data["steps"])
+                    print(type(data["steps"]))
+                    self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
+                    self.currentStepIndex = str(data["currentStepIndex"])
+                    self.maxStep = int(data["maxStep"])
+                    self.timeOut = int(data["timeOut"])
+                    self.join_timestamp = data["join_timestamp"]
+                    self.engine_speed = data["engine_speed"]
 
-        self.currentStepIndex = 1
-        self.maxStep = 0
-        self.timeOut = 3
-        self.join_timestamp = time.time()
-        self.engine_speed = 2
-        self.log_event()
+            except Exception as err:
+                print("Error loading preivously saved user information.")
+                print(repr(err))
+
+        else:
+            print("brand new user, make from scratch.")
+            self.name = str(name)
+            self.steps = cfg["steps"]
+            self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
+            for x in self.steps:
+                self.steps[x]["completed"] = False
+
+            self.currentStepIndex = 1
+            self.maxStep = 0
+            self.timeOut = 3
+            self.join_timestamp = time.time()
+            self.engine_speed = 2
+            self.log_event()
+
 
     def __str__(self):
         return self.name

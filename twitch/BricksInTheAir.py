@@ -53,13 +53,13 @@ class BricksInTheAir:
             bg_audio_loop = pygame.mixer.Sound(self.cfg["audio"]["background"])
             self.background_channel.play(bg_audio_loop, loops=-1)
         except FileNotFoundError as err:
-            print("pygame background audio: file not found")
+            print("pygame background audio: file not found: " + self.cfg["audio"]["background"])
 
         try:
             effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_2"])
             self.effect_channel.play(effect, loops=-1)
         except FileNotFoundError as err:
-            print("pygame effect audio: file not found")
+            print("pygame effect audio: file not found: " + self.cfg["audio"]["engine_speed_2"])
 
     def checkCmd(self, user, cmd):
         """

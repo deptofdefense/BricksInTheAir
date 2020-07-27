@@ -9,7 +9,6 @@ import time # needed for sleep
 import threading # needed for threads
 import random
 
-import zmq
 
 class GameDisplay(QMainWindow):
     ''' Custom Class to handle the game overlay window '''
@@ -19,12 +18,6 @@ class GameDisplay(QMainWindow):
         self.cfg = CFG
         self.font_size_users = 14
         self.font_size_cmd = 20
-
-        context = zmq.Context()
-        self.socket = context.socket(zmq.SUB)
-        self.socket.connect("tcp://localhost:5555")
-        print("zmq socket setup")
-
 
         # set the title
         self.setWindowTitle("Text Overlay Window")
