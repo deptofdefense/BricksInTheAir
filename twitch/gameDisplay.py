@@ -3,15 +3,28 @@ from PyQt5.QtGui import *  # needed for gui
 from PyQt5.QtWidgets import * # needed for gui
 
 import sys # needed for gui
+import os   # to make sure files exist
 
 import time # needed for sleep
 import threading # needed for threads
+import random
+
+import zmq
 
 class GameDisplay(QMainWindow):
     ''' Custom Class to handle the game overlay window '''
 
-    def __init__(self, sizeX, sizeY):
+    def __init__(self, CFG):
         super().__init__()
+        self.cfg = CFG
+        self.font_size_users = 14
+        self.font_size_cmd = 20
+
+        context = zmq.Context()
+        self.socket = context.socket(zmq.SUB)
+        self.socket.connect("tcp://localhost:5555")
+        print("zmq socket setup")
+
 
         # set the title
         self.setWindowTitle("Text Overlay Window")
@@ -20,67 +33,135 @@ class GameDisplay(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # setting  the geometry of window
-        self.setGeometry(0, 0, sizeX, sizeY)
+        self.setGeometry(0, 0, self.cfg["display"]["width"], self.cfg["display"]["height"])
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.lay = QVBoxLayout(self.central_widget)
+
+        self.imageLabel = QLabel(self)
+        self.pixmap = QPixmap()
+        self.imageLabel.setPixmap(self.pixmap)
+        self.imageLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
+
+        self.lay.addWidget(self.imageLabel)
+        #self.show()
 
         # Command Label
         self.cmdLabel = QLabel("cmdLabel", self)
-        self.cmdLabel.setStyleSheet("color: rgb(251, 0, 255);")
+        self.cmdLabel.setStyleSheet("color: rgb(0, 0, 0);")
         self.cmdLabel.setText("")
-        self.cmdLabel.setFont(QFont('Arial', 20))
-        self.cmdLabel.resize(sizeX, sizeY)
+        self.cmdLabel.setFont(QFont('Arial', self.font_size_cmd))
+        self.cmdLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.cmdLabel.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
 
         # UserList Label
         self.lstLabel = QLabel("lstLabel", self)
-        self.lstLabel.setStyleSheet("color: rgb(251, 0, 255);")
-        self.lstLabel.setText("User List (Next 5): ")
-        self.lstLabel.setFont(QFont('Arial', 20))
-        self.lstLabel.resize(sizeX, sizeY)
+        self.lstLabel.setStyleSheet("color: rgb(0, 0, 0);")
+        self.lstLabel.setText("Active User List (limit {})".format(self.cfg["cue"]["limit"]))
+        self.lstLabel.setFont(QFont('Arial', self.font_size_users))
+        self.lstLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.lstLabel.setAlignment(Qt.AlignRight)
 
         # show all the widgets
+        self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.show()
+
 
     def dispCmd(self, cmdMsg):
         ''' Causes a string representing the command message to be displayed on the bottom of the screen '''
 
         self.cmdLabel.setText(str(cmdMsg))
-        #self.show
+        self.cmdLabel.update()
+        threading.Thread(target=self.clearCmdMsg, daemon=True).start()
+
+    def clearCmdMsg(self):
         time.sleep(5)
         self.cmdLabel.setText("")
-        #self.show
+        self.cmdLabel.update()
+
 
     def dispUser(self, userMsg):
         ''' Updates the user list '''
+        #userMsg = "\n".join(userMsg)
+        self.lstLabel.setText("Active User List (limit {})\n{}".format(self.cfg["cue"]["limit"], userMsg))
+        self.lstLabel.update()
 
-        self.lstLabel.setText("User List (Next 5): \n" + str(userMsg))
+    def dispImage(self, fileStr):
+        # Image Overlay
+        if fileStr != None:
+            if os.path.isfile(fileStr):
+                #print(fileStr)
+                self.pixmap = QPixmap(fileStr)
+                self.pixmap = self.pixmap.scaledToWidth(self.cfg["display"]["width"])
+                self.pixmap = self.pixmap.scaledToHeight(self.cfg["display"]["height"])
+                self.imageLabel.setPixmap(self.pixmap)
+            else:
+                self.imageLabel.clear()
+        else:
+            self.imageLabel.clear()
+        self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
+        self.imageLabel.update()
+
 
 class DisplayManager():
     ''' Custom class for managing the display '''
 
-    def __startDisplayThread(self, sizeX, sizeY):
-        ''' private class for starting the display as a separate thread '''
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.display = None
 
-        #print("test")
+    def __startDisplayThread(self):
+        ''' private class for starting the display as a separate thread '''
 
         # create pyqt5 app
         App = QApplication(sys.argv)
 
         # create the instance of our Window
-        self.display = GameDisplay(sizeX, sizeY)
+        self.display = GameDisplay(self.cfg)
 
         # start the app
         sys.exit(App.exec())
 
-    def startDisplay(self, sizeX, sizeY):
+    def startDisplay(self):
         ''' Starts the game overlay '''
-        threading.Thread(target=self.__startDisplayThread, args=(sizeX, sizeY, ), daemon=True).start()
+        t = threading.Thread(target=self.__startDisplayThread, daemon=True)
+        t.start()
+        #t.join()
         time.sleep(1)
 
     def updateUserList(self, userMsg):
         ''' public interface for updating the user list '''
-        self.display.dispUser(userMsg)
+        if self.display != None:
+            self.display.dispUser(userMsg)
 
     def updateCmdMsg(self, cmdMsg):
         ''' public interface for updating the command message '''
-        threading.Thread(target=self.display.dispCmd, args=(cmdMsg, ), daemon=True).start()
+        if self.display != None:
+            self.display.dispCmd(cmdMsg)
+
+    def updateImage(self, fileStr):
+        if self.display != None:
+            self.display.dispImage(fileStr)
+
+def main():
+
+    cfg = {}
+    cfg["display"] = {}
+    cfg["display"]["width"] = 1080
+    cfg["display"]["height"] = 720
+
+    cfg["cue"] = {}
+    cfg["cue"]["limit"] = 5
+
+    # create pyqt5 app
+    App = QApplication(sys.argv)
+
+    # create the instance of our Window
+    display = GameDisplay(cfg)
+
+    # start the app
+    sys.exit(App.exec())
+
+if __name__ == "__main__":
+    main()

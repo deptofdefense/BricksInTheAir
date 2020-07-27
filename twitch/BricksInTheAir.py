@@ -14,7 +14,7 @@ import binascii
 
 
 class BricksInTheAir:
-    ''' Used to manage progressing through the cpx simple sat game '''
+    ''' Used to manage progressing through the Bricks in the Air game '''
 
     def __init__(self, CFG):
 
@@ -53,7 +53,13 @@ class BricksInTheAir:
             bg_audio_loop = pygame.mixer.Sound(self.cfg["audio"]["background"])
             self.background_channel.play(bg_audio_loop, loops=-1)
         except FileNotFoundError as err:
-            print("background audio: file not found")
+            print("pygame background audio: file not found")
+
+        try:
+            effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_2"])
+            self.effect_channel.play(effect, loops=-1)
+        except FileNotFoundError as err:
+            print("pygame effect audio: file not found")
 
     def checkCmd(self, user, cmd):
         """
@@ -75,6 +81,11 @@ class BricksInTheAir:
                 # do the stuff to indicate complete
                 response = "0x" + self.process_cmd(user, cmd)[2:-1]
 
+            if "0x55 0x11" in cmd:
+                # this is a set engine speed command... update the sound effect.
+                value = int(cmd.split()[-1],16) #take the last value and convert to int
+                self.set_engine_sound(value)
+
             user.incrementCurrentStepIndex()
 
             return "\n\nI2C Response: " + response + "\n\nCongratulations, you've completed this step.\n"\
@@ -94,14 +105,23 @@ class BricksInTheAir:
         for i in range(1, len(x)):
             payload.append(str_to_hex(x[i]))
 
-        print(hex(addr))
-        for x in payload:
-            print(hex(x))
+        #print(hex(addr))
+        #for x in payload:
+        #    print(hex(x))
 
         response = None
         response = self.write_read_i2c(addr, payload, 1)
-        print(binascii.hexlify(response))
+        #print(binascii.hexlify(response))
 
+        # handle the possible i2c effect
+        i2c_effect = user.getI2CEffect()
+        if(i2c_effect):
+            for i2c_command in i2c_effect:
+                tmp_command = i2c_command.split()
+                tmp = []
+                for x in tmp_command:
+                    tmp.append(str_to_hex(x))
+                self.write_read_i2c(tmp[0], tmp[1:])
 
         # handle the possible sound effect
         sound_effect_str = user.getAudio()
@@ -137,25 +157,40 @@ class BricksInTheAir:
 
         return buf
 
-    def reset(self, user):
-
-        #print("Calling brick reset")
-        #time.sleep(.1)
+    def reset_board(self):
         self.write_read_i2c(self.fcc_address, [0xFE])
-        time.sleep(.1)
+        self.write_read_i2c(self.engine_address, [0xFE])
+        self.write_read_i2c(self.gear_address, [0xFE])
 
 
     def run_prolouge(self, user):
-        prologue = user.get_prologue()
-        #print(prologue)
-        if prologue != None:
-            for i2c_command in prologue:
-                tmp_command = i2c_command.split()
-                tmp = []
-                for x in tmp_command:
-                    tmp.append(str_to_hex(x))
-                self.write_read_i2c(tmp[0], tmp[1:])
+        if user != None:
+            prologue = user.get_prologue()
+            #print(prologue)
+            if prologue != None:
+                for i2c_command in prologue:
+                    tmp_command = i2c_command.split()
+                    tmp = []
+                    for x in tmp_command:
+                        tmp.append(str_to_hex(x))
+                    self.write_read_i2c(tmp[0], tmp[1:])
 
+            # Update the user's engine sound
+            self.set_engine_speed(user.getEngineSpeed())
+
+    def set_engine_speed(self, speed):
+        self.write_read_i2c(self.engine_address, [0x11, speed])
+        self.set_engine_sound(speed)
+
+    def set_engine_sound(self, value):
+        print("changing engine speed {}".format(value))
+        if value >= 0 and value <= 7:
+            try:
+                effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_"+str(value)])
+                self.effect_channel.stop()
+                self.effect_channel.play(effect, loops=-1)
+            except FileNotFoundError as err:
+                print("pygame effect audio: file not found")
 
 
 def str_to_hex(hex_str):

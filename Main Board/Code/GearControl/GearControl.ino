@@ -261,17 +261,30 @@ void process_i2c_request(void) {
         g_i2c_rx_buffer.clear();
         g_pri_operation_mode = PRI_OPERATION_MODE;
         g_main_status_mode = MAINT_STATUS_NORMAL;
-        g_mode_change = false;
-        g_lower_gear = false;
-        g_raise_gear = false;
-        if(g_gear_position == GEAR_IN_TRANSIT){
-          set_led(OFF, ON, OFF);
-        }else if(g_gear_position == GEAR_RETRACTED){
+
+        // determine if gear is in transit.. if so... finish first
+        if (g_gear_position == GEAR_IN_TRANSIT){
+          // delay at least lenght of time for full transit
+          delay(GEAR_RETRACT_DELAY);
+          if(g_lower_gear){
+            g_mode_change = false;
+            g_lower_gear = false;
+            g_raise_gear = false;
+            g_gear_position = GEAR_EXTENDED;
+          }else if(g_raise_gear){
+            g_mode_change = false;
+            g_lower_gear = false;
+            g_raise_gear = false;
+            g_gear_position = GEAR_RETRACTED;
+          }
+        }
+        
+        if(g_gear_position == GEAR_RETRACTED){
           set_led(OFF, OFF, ON);
-        }else{
+        }else if(g_gear_position == GEAR_EXTENDED){
           set_led(ON, OFF, OFF);
         }
-        set_led(ON, OFF, OFF);
+        
         break;
       default:
         g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
