@@ -119,6 +119,10 @@ class BricksInTheAir:
                     tmp.append(str_to_hex(x))
                 self.write_read_i2c(tmp[0], tmp[1:])
 
+                if len(tmp_command) == 3:
+                    if tmp[0] == engine_address and tmp[1] == 0x11:     # set speed change
+                        user.set_engine_speed(int(tmp[2]))
+
         # handle the possible sound effect
         sound_effect_str = user.getAudio()
         if(sound_effect_str):

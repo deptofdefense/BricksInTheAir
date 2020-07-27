@@ -113,7 +113,7 @@ class UserList:
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
         while True:
-            print("********************************servicing userthread")
+            # print("********************************servicing userthread")
 
             if len(self.userList) > 0:
                 self.cue_lock.acquire()
