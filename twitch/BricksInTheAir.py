@@ -120,7 +120,7 @@ class BricksInTheAir:
                 self.write_read_i2c(tmp[0], tmp[1:])
 
                 if len(tmp_command) == 3:
-                    if tmp[0] == engine_address and tmp[1] == 0x11:     # set speed change
+                    if tmp[0] == self.engine_address and tmp[1] == 0x11:     # set speed change
                         user.set_engine_speed(int(tmp[2]))
 
         # handle the possible sound effect
