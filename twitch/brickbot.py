@@ -24,7 +24,7 @@ CFG = None  # global CFG settings
 with open("config.yml", "r") as ymlfile:
     creds = yaml.safe_load(ymlfile)
 
-with open("script.yml", "r") as scriptfile:
+with open(creds["script"], "r") as scriptfile:
     script = yaml.safe_load(scriptfile)
 
 CFG = {**creds, **script}

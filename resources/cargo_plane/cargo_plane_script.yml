@@ -1,0 +1,242 @@
+# These are used to add context to actions
+audio:
+    background: 'audio/bensound-scifi.wav'
+    engine_speed_1: '../resources/cargo_plane/cargo_prop_1.wav'
+    engine_speed_2: '../resources/cargo_plane/cargo_prop_2.wav'
+    engine_speed_3: '../resources/cargo_plane/cargo_prop_3.wav'
+    engine_speed_4: '../resources/cargo_plane/cargo_prop_4.wav'
+    engine_speed_5: '../resources/cargo_plane/cargo_prop_5.wav'
+    engine_speed_6: '../resources/cargo_plane/cargo_prop_6.wav'
+    engine_speed_7: '../resources/cargo_plane/cargo_prop_7.wav'
+    gear_down: '../resources/cargo_plane/cargo_prop_7.wav'
+    gear_up: '../resources/cargo_plane/gear_moving.wav'
+    screech: '../resources/cargo_plane/gear_moving.wav'
+
+steps:
+    1:
+      question: "What Lego Power Function IR Channel is the engine motor connected to?"
+      answer:
+        - "0x50 0x51 0x55 0x80"
+      hint: "The devil is in the details. What does the ICD say?"
+      scene: ""
+      fake_i2c_response: "0x00"
+      prologue:
+          - "0x50 0xFE"
+          - "0x55 0xFE"
+          - "0x55 0x11 0x02"
+          - "0x60 0xFE"
+      image: "../resources/cargo_plane/Cargo_1-1.png"
+
+
+    2:
+      question: "What Lego Power Function IR Color is the landing gear motor connected to?"
+      answer:
+        - "0x50 0x51 0x60 0x90"
+      hint: "You've already been reading the ICD... read some more."
+      scene: ""
+      fake_i2c_response: "0x01"
+      prologue:
+          - "0x50 0xFE"
+          - "0x55 0xFE"
+          - "0x60 0xFE"
+      image: "../resources/cargo_plane/Cargo_1-2.png"
+
+    3:
+      question: "Is the Flight Control Computer connected to a Lego Power Function IR Channel?"
+      answer:
+        - "0x50 0x80"
+        - "0x50 0x90"
+      hint: ""
+      scene: ""
+      prologue:
+          - "0x50 0xFE"
+          - "0x55 0xFE"
+          - "0x60 0xFE"
+      image: "../resources/cargo_plane/Cargo_1-3.png"
+
+    4:
+      question: "In it's current state the FCC is the bus controller. Can you configure it to stop overriding messages?"
+      answer:
+        - "0x50 0x31 0x01"
+      hint: "The FCC has 2 modes of operation, try setting it to secondary mode."
+      prologue:
+          - "0x50 0xFE"
+      image: "../resources/cargo_plane/Cargo_2-1.png"
+
+    5:
+      question: "Now that it's in secondary mode, can you set it to debug?"
+      answer:
+        - "0x50 0x41 0x01"
+      hint: "The FCC has a maintenace debug mode."
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+      image: "../resources/cargo_plane/Cargo_2-2.png"
+
+    6:
+      question: "Now that you have the FCC out of the way, can you lower the landing gear?"
+      answer:
+        - "0x60 0x21 0x00"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"
+          - "0x60 0x21 0x01"
+      image: "../resources/cargo_plane/Cargo_3-1.png"
+
+    7:
+      question: "Okay, show-off. Raise the landing gear so we can move along with the test flight."
+      answer:
+        - "0x60 0x21 0x01"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x60 0x21 0x00"
+      image: "../resources/cargo_plane/Cargo_3-2.png"
+
+    8:
+      question: "Changing the landing gear was a fluke. The engine control has a lot of additional safety precautions."
+      answer:
+        - "0x55 0x11 0x02"
+        - "0x55 0x11 0x03"
+        - "0x55 0x11 0x04"
+      hint: "Like the FCC the engine control unit has various modes of operation, what range of values is it letting you change to/from?"
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x60 0x21 0x01"
+      image: "../resources/cargo_plane/Cargo_3-3.png"
+
+    9:
+      question: "Can you get the engine controller into a different mode?"
+      answer:
+        - "0x55 0x31 0x01"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x60 0x21 0x01"
+      image: "../resources/cargo_plane/Cargo_4-1.png"
+
+    10:
+      question: "Can you get the engine controller into maintenace debug mode?"
+      answer:
+        - "0x55 0x41 0x01"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x55 0x31 0x01"    # Put the enginer per previous step
+          - "0x60 0xFE"
+          - "0x60 0x21 0x01"
+      image: "../resources/cargo_plane/Cargo_4-2.png"
+
+    11:
+      question: "What valid range of engine speed values can you set now?"
+      answer:
+        - "0x55 0x11 0x00"
+        - "0x55 0x11 0x01"
+        - "0x55 0x11 0x02"
+        - "0x55 0x11 0x03"
+        - "0x55 0x11 0x04"
+        - "0x55 0x11 0x05"
+        - "0x55 0x11 0x06"
+        - "0x55 0x11 0x07"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x55 0x31 0x01"    # Put the enginer per previous step
+          - "0x55 0x41 0x01"
+          - "0x60 0xFE"
+          - "0x60 0x21 0x01"
+      image: "../resources/cargo_plane/Cargo_4-3.png"
+
+    12:
+      question: "What about invalid values?"
+      answer:
+          - "0x55 0x11"
+      answer_lower: "0x00"
+      answer_upper: "0x07"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x55 0x31 0x01"    # Put the enginer per previous step
+          - "0x55 0x41 0x01"
+          - "0x60 0xFE"
+          - "0x60 0x21 0x01"
+      audio: '../resources/cargo_plane/pop_smoke_sound.wav'
+      i2c_effect:
+          - "0x50 0xb5 0x01"
+          - "0x55 0x11 0x00"
+      image: "../resources/cargo_plane/Cargo_4-4.png"
+
+    13:
+      question: "Put it back! Put it back! I need engine power back!"
+      answer:
+        - "0x55 0x11 0x02"
+        - "0x55 0x11 0x03"
+        - "0x55 0x11 0x04"
+        - "0x55 0x11 0x05"
+        - "0x55 0x11 0x06"
+        - "0x55 0x11 0x07"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x55 0x31 0x01"    # Put the enginer per previous step
+          - "0x55 0x41 0x01"
+          - "0x60 0xFE"
+          - "0x60 0x21 0x01"
+      image: "../resources/cargo_plane/Cargo_5-1.png"
+
+    14:
+      question: "Alright alright! You've convinced me. Cybersecurity in avionics systems is critical! Let's go in to land... set my engine speed to 4."
+      answer:
+        - "0x55 0x11 0x04"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x55 0x31 0x01"    # Put the enginer per previous step
+          - "0x55 0x41 0x01"
+          - "0x60 0xFE"
+          - "0x60 0x21 0x01"
+      image: "../resources/cargo_plane/Cargo_5-2.png"
+
+    15:
+      question: "We've been cleared to land.. airspeed checks... gear down please."
+      answer:
+        - "0x60 0x21 0x00"
+      hint: ""
+      prologue:
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
+          - "0x55 0x31 0x01"    # Put the enginer per previous step
+          - "0x55 0x41 0x01"
+          - "0x60 0xFE"
+          - "0x60 0x21 0x01"
+      image: "../resources/cargo_plane/Cargo_5-3.png"
+
+    16:
+      question: "Success you've worked through the entire challenge! We hope that you've learned something new here and have a newfound appreciation for cybersecurity and avionics!"
+      hint: "Your progress has been saved and you can go back to any point previous."
+      image: "../resources/cargo_plane/Cargo_Success.png"
+
+# A generic place to put global text based messages
+text:
+    help: >
+        I am OtterBot, your helpful bot for Bricks in the Air! For a list of commands
+        and formating, please see the user documentation with [LINK HERE].

@@ -24,6 +24,18 @@ hardware:
 display:
     height: 720
     width: 1280
+    textColor: ""
+    cmdDelay: 5
 
 logging:
     path: "/user_logs/"
+
+cue:
+    time: 10
+    limit: 5
+
+script: ""
+
+admins:
+    - cybertestpilot
+    - zeetwii
