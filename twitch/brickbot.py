@@ -96,6 +96,7 @@ async def cmd(ctx):
             #dispMan.updateCmdMsg(ctx.content)
             userList.triggerChanges(ctx.content)
             await ctx.channel.send(f"{ctx.author.name} {msg}")
+            await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
     else:
@@ -171,6 +172,7 @@ async def goto(ctx):
                 pass
 
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
+            await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
     else:

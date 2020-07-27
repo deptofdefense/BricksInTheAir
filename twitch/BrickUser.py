@@ -13,7 +13,6 @@ class BrickUser:
         """ Initialization method: note name needs to be unique """
 
         fileStr = os. getcwd() + cfg["logging"]["path"] + name + ".log"
-        print(fileStr)
         if(path.isfile(fileStr)):
             # Users has been here previously, reload their state.
             print("user previously played... initialze their previous state.")
@@ -22,10 +21,8 @@ class BrickUser:
                     data = json.load(fh)
                     self.name = data["name"]
                     self.steps = data["steps"]
-                    print(data["steps"])
-                    print(type(data["steps"]))
                     self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
-                    self.currentStepIndex = str(data["currentStepIndex"])
+                    self.currentStepIndex = str(data["currentStepIndex"])   # dict key, keep as a string. convert to int for math but store as string
                     self.maxStep = int(data["maxStep"])
                     self.timeOut = int(data["timeOut"])
                     self.join_timestamp = data["join_timestamp"]
@@ -42,8 +39,7 @@ class BrickUser:
             self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
             for x in self.steps:
                 self.steps[x]["completed"] = False
-
-            self.currentStepIndex = 1
+            self.currentStepIndex = "1" # dict key, keep as a string. convert to int for math but store as string
             self.maxStep = 0
             self.timeOut = 3
             self.join_timestamp = time.time()
@@ -75,11 +71,13 @@ class BrickUser:
 
     def getCurrentStep(self):
         """ Returns the current step """
-        return self.currentStepIndex
+        return str(self.currentStepIndex)
 
     def setCurrentStep(self, desired_step):
+        desired_step = int(desired_step)
         if desired_step <= len(self.steps) and desired_step >= 1:
-            self.currentStepIndex = desired_step
+            self.currentStepIndex = str(desired_step)
+            self.log_event()
             return "Step: {} set.".format(desired_step)
         else:
             return "Invalid step requested."
@@ -159,14 +157,17 @@ class BrickUser:
             return None
 
     def incrementCurrentStepIndex(self):
-        self.currentStepIndex += 1
-        if self.maxStep < self.currentStepIndex:
-            self.maxStep = self.currentStepIndex
+        index = int(self.currentStepIndex) + 1
+        self.currentStepIndex = str(index)
+        if int(self.maxStep) < int(self.currentStepIndex):
+            self.maxStep = int(self.currentStepIndex)
+
+        self.log_event()
 
 
     def getQuestion(self):
         self.resetTimeout()
-        return self.steps[self.currentStepIndex]["question"]
+        return self.steps[str(self.currentStepIndex)]["question"]
 
     def getHint(self):
         self.resetTimeout()
