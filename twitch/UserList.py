@@ -91,7 +91,7 @@ class UserList:
         if self.currentUser != None:
             if prologue:
                 self.bia.run_prolouge(self.currentUser)
-            self.bia.set_engine_sound(self.currentUser.getEngineSpeed())
+            self.bia.set_engine_speed(self.currentUser.getEngineSpeed(), True)
             self.dispMan.updateImage(self.currentUser.getImage())
 
         else:

@@ -185,9 +185,10 @@ class BricksInTheAir:
             # Update the user's engine sound
             #self.set_engine_speed(user.getEngineSpeed())
 
-    def set_engine_speed(self, speed):
+    def set_engine_speed(self, speed, sound=False):
         self.write_read_i2c(self.engine_address, [0x11, speed])
-        self.set_engine_sound(speed)
+        if sound:
+            self.set_engine_sound(speed)
 
     def set_engine_sound(self, value):
         print("changing engine speed {}".format(value))
