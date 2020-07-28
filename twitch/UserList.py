@@ -79,17 +79,18 @@ class UserList:
                         self.currentUser = None
 
                 self.current_user_lock.release()
-                self.triggerChanges()
+                self.triggerChanges(False)
                 return True
         self.cue_lock.release()
         return False
 
-    def triggerChanges(self, cmd=None):
+    def triggerChanges(self, prologue=True, cmd=None):
         #print("triggerChanges************************")
 
         # run prologoue for this specific user
         if self.currentUser != None:
-            self.bia.run_prolouge(self.currentUser)
+            if prologue:
+                self.bia.run_prolouge(self.currentUser)
             self.bia.set_engine_sound(self.currentUser.getEngineSpeed())
             self.dispMan.updateImage(self.currentUser.getImage())
 
@@ -137,7 +138,7 @@ class UserList:
                     else:
                         self.setCurrentUser(None)
 
-                    self.triggerChanges()
+                    self.triggerChanges(False)
 
                     try:
                         msg = "Removing " + user.getName() + " for inactivity."

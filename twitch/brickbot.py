@@ -192,6 +192,22 @@ async def question(ctx):
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
 
+@bot.command(name='pause')
+async def pause(ctx):
+    # store state of current userList. Perhaps useful for a hard restart
+    if ctx.author.name in CFG["admins"]:
+        await ctx.channel.send(f"{ctx.author.name} sent the pause command")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}: nope")
+
+
+@bot.command(name='restore')
+async def restore(ctx):
+    # store state of current userList. Perhaps useful for a hard restart
+    if ctx.author.name in CFG["admins"]:
+        await ctx.channel.send(f"{ctx.author.name} sent the restore command")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}: nope")
 
 if __name__ == "__main__":
     dispMan.startDisplay()

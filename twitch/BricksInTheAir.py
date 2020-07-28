@@ -81,7 +81,8 @@ class BricksInTheAir:
             if "0x55 0x11" in cmd:
                 # this is a set engine speed command... update the sound effect.
                 value = int(cmd.split()[-1],16) #take the last value and convert to int
-                self.set_engine_sound(value)
+                #self.set_engine_sound(value)
+                user.setEngineSpeed(value)
 
             user.incrementCurrentStepIndex()
 
@@ -182,7 +183,7 @@ class BricksInTheAir:
                     self.write_read_i2c(tmp[0], tmp[1:])
 
             # Update the user's engine sound
-            self.set_engine_speed(user.getEngineSpeed())
+            #self.set_engine_speed(user.getEngineSpeed())
 
     def set_engine_speed(self, speed):
         self.write_read_i2c(self.engine_address, [0x11, speed])
