@@ -26,6 +26,8 @@ class UserList:
         self.current_user_lock = threading.Lock()
         self.cue_lock = threading.Lock()
 
+        self.thread = None
+
     def addUser(self, name):
         """ Checks if user already exists, and if not adds them to the list.  \nReturns True if name is added, False otherwise """
 
@@ -108,8 +110,12 @@ class UserList:
         """ Starts the user thread """
         print("Start userList thread")
 
-        t = threading.Thread(target=self.userThread, args=(), daemon=True)
-        t.start()
+        self.thread = threading.Thread(target=self.userThread, args=(), daemon=True)
+        self.thread.start()
+
+    def restartUserThread(self):
+        self.thread.stop()
+        self.startUserThread()
 
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
@@ -118,7 +124,7 @@ class UserList:
 
             if len(self.userList) > 0:
                 self.cue_lock.acquire()
-                user = self.userList[0] # remove the first user in the list
+                user = self.userList[0]
                 self.cue_lock.release()
 
                 self.setCurrentUser(user)
@@ -126,7 +132,7 @@ class UserList:
 
                 time.sleep(self.time_allowed)
 
-                if (user.updateTimeout() >= 0):
+                if (user.updateTimeout() > 0):
                     self.currentUserToEndOfLine()
 
                 else:
@@ -148,7 +154,8 @@ class UserList:
 
 
             else:
-                #print("no active users")
+                # No active users
+                self.bia.set_engine_speed(0)
                 time.sleep(1)
                 try:
                     #self.triggerChanges()
@@ -158,8 +165,6 @@ class UserList:
                     print(repr(err))
 
 
-
-
     def getCurrentUser(self):
         """ Grabs the current user as dictated by userThread """
         with self.current_user_lock:
@@ -167,14 +172,13 @@ class UserList:
 
     def setCurrentUser(self, user):
         """ Grabs the current user as dictated by userThread """
-        #print("setting current user: " + str(user))
         with self.current_user_lock:
             self.currentUser = user
         self.bia.run_prolouge(self.currentUser)
 
     def getUserList(self):
         """ Returns the list of current Users """
-        print("userList:" + str(self.userList))
+        #print("userList:" + str(self.userList))
         with self.cue_lock:
             return self.userList
 

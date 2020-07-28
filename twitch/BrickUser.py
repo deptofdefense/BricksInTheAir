@@ -38,12 +38,12 @@ class BrickUser:
             self.steps = cfg["steps"]
             self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
             for x in self.steps:
-                self.steps[x]["completed"] = False
+                self.steps[x]["completed"] = [] # an empty list to keep track of how many times they complete it.
             self.currentStepIndex = "1"
             self.maxStep = 0
             self.timeOut = 3
             self.join_timestamp = time.time()
-            self.engine_speed = 2
+            self.engine_speed = 0
             self.log_event()
 
 
@@ -76,9 +76,13 @@ class BrickUser:
     def setCurrentStep(self, desired_step):
         desired_step = int(desired_step)
         if desired_step <= len(self.steps) and desired_step >= 1:
-            self.currentStepIndex = str(desired_step)
-            self.log_event()
-            return "Step: {} set.".format(desired_step)
+            # only allow if user has previously completed
+            if len(self.steps[self.currentStepIndex]["completed"]) > 0:
+                self.currentStepIndex = str(desired_step)
+                self.log_event()
+                return "Step: {} set.".format(desired_step)
+            else:
+                return "Invalid step requested."
         else:
             return "Invalid step requested."
 
@@ -204,7 +208,6 @@ class BrickUser:
 
     def updateTimeout(self):
         """ Subtracts one from the timeout and returns the value """
-        print("updating user timeout:" + str(self.name))
         self.timeOut = self.timeOut - 1
         return self.timeOut
 
@@ -222,8 +225,7 @@ class BrickUser:
 
 
     def update_game_progress(self):
-        self.steps[self.currentStepIndex]["completed"] = True
-        self.steps[self.currentStepIndex]["completed_timestamp"] = time.time()
+        self.steps[self.currentStepIndex]["completed"].append(time.time())
         self.log_event()
 
     def log_event(self):

@@ -125,6 +125,13 @@ async def leave(ctx):
     global CFG, bia_game, userList, dispMan
 
     print("leave cmd sent")
+    currentUser = userList.getCurrentUser()
+    if currentUser != None:
+        if currentUser.matchName(ctx.author.name):
+            # the active user is trying to leave. Resart userThread
+            userList.removeUser(ctx.author.name)
+            userList.restartUserThread()
+
     if userList.removeUser(ctx.author.name):
         await ctx.channel.send(f"{ctx.author.name} has left the user list.")
         userList.triggerChanges()

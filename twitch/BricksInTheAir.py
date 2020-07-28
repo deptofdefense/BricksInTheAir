@@ -56,11 +56,13 @@ class BricksInTheAir:
         except FileNotFoundError as err:
             print("pygame background audio: file not found: " + self.cfg["audio"]["background"])
 
+        """
         try:
             effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_2"])
             self.engine_sound_channel.play(effect, loops=-1)
         except FileNotFoundError as err:
             print("pygame effect audio: file not found: " + self.cfg["audio"]["engine_speed_2"])
+        """
 
     def checkCmd(self, user, cmd):
         """
@@ -102,13 +104,8 @@ class BricksInTheAir:
         for i in range(1, len(x)):
             payload.append(str_to_hex(x[i]))
 
-        #print(hex(addr))
-        #for x in payload:
-        #    print(hex(x))
-
         response = None
         response = self.write_read_i2c(addr, payload, 1)
-        #print(binascii.hexlify(response))
 
         # handle the possible i2c effect
         i2c_effect = user.getI2CEffect()
@@ -140,7 +137,6 @@ class BricksInTheAir:
                 print("sound effect: file not found")
 
         # handle the possible scene change
-
         return str(binascii.hexlify(response))
 
     def restore_normal_volume(self, delay):
@@ -182,8 +178,13 @@ class BricksInTheAir:
                         tmp.append(str_to_hex(x))
                     self.write_read_i2c(tmp[0], tmp[1:])
 
-            # Update the user's engine sound
-            #self.set_engine_speed(user.getEngineSpeed())
+                    # adjusting users engine speed
+                    if "0x55 0x11" in i2c_command:
+                        tmp = i2c_command.split()
+                        if len(tmp) >= 3:
+                            user.setEngineSpeed(int(tmp[2], 16))
+
+
 
     def set_engine_speed(self, speed, sound=False):
         self.write_read_i2c(self.engine_address, [0x11, speed])
@@ -191,7 +192,6 @@ class BricksInTheAir:
             self.set_engine_sound(speed)
 
     def set_engine_sound(self, value):
-        print("changing engine speed {}".format(value))
         if value >= 1 and value <= 7:
             try:
                 effect = pygame.mixer.Sound(self.cfg["audio"]["engine_speed_"+str(value)])
