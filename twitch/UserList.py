@@ -88,17 +88,16 @@ class UserList:
         #print("triggerChanges************************")
 
         # run prologoue for this specific user
-        self.bia.run_prolouge(self.currentUser)
-        self.bia.set_engine_sound(self.currentUser.getEngineSpeed())
-
-        self.dispMan.updateUserList(self.getUserList())
-
         if self.currentUser != None:
-            #print("!= none user... getImage")
+            self.bia.run_prolouge(self.currentUser)
+            self.bia.set_engine_sound(self.currentUser.getEngineSpeed())
             self.dispMan.updateImage(self.currentUser.getImage())
+
         else:
             #print("none user... set Image None")
             self.dispMan.updateImage(None)
+
+        self.dispMan.updateUserList(self.getUserList())
 
         if cmd != None:
             self.dispMan.updateCmdMsg(cmd)
