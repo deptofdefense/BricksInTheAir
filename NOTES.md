@@ -34,5 +34,5 @@ Powering the Lego Power Functions directly from a power supply is rather straigh
     - take the lowermost and 3rd lower most wires and connect them to the + lead.
     - take the second lowermost and top cable and connect them to the - lead.
 
-!(Lego PF direct wire)[lego_pf.png]
+<img src="lego_pf.png" width="900">
 
