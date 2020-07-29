@@ -3,10 +3,7 @@
 Following [these](https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/overiew)
 instructions is helpful as an in depth reference.
 
-Upgrading from Ubuntu 18.04 to 20.04 appeared to upgrade to python3.8 and
-then broke pip.
-
-## Use pip for dependency installation
+## Install pip
 ```
 sudo apt-get remove python-pip
 sudo apt-get remove python3-pip
@@ -36,4 +33,6 @@ Powering the Lego Power Functions directly from a power supply is rather straigh
 2. Using the picture below
     - take the lowermost and 3rd lower most wires and connect them to the + lead.
     - take the second lowermost and top cable and connect them to the - lead.
+
+!(Lego PF direct wire)[lego_pf.png]
 
