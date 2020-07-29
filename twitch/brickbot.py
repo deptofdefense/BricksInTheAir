@@ -96,7 +96,7 @@ async def cmd(ctx):
             #dispMan.updateCmdMsg(ctx.content)
             userList.triggerChanges(ctx.content)
             await ctx.channel.send(f"{ctx.author.name} {msg}")
-            await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
+            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
     else:
@@ -112,7 +112,7 @@ async def join(ctx):
         if len(userList.getUserList()) == 1:
             userList.triggerChanges()
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
-            await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
+            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list.")
             userList.triggerChanges()
@@ -131,10 +131,11 @@ async def leave(ctx):
             # the active user is trying to leave. Resart userThread
             userList.removeUser(ctx.author.name)
             userList.restartUserThread()
+            await ctx.channel.send(f"{ctx.author.name} has left the user list.")
 
-    if userList.removeUser(ctx.author.name):
-        await ctx.channel.send(f"{ctx.author.name} has left the user list.")
-        userList.triggerChanges()
+        elif userList.removeUser(ctx.author.name):
+            await ctx.channel.send(f"{ctx.author.name} has left the user list.")
+            userList.triggerChanges()
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are not on the user list.")
 
@@ -177,7 +178,7 @@ async def goto(ctx):
                 pass
 
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
-            await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
+            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
     else:

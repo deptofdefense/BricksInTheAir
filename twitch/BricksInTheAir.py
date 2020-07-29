@@ -93,7 +93,7 @@ class BricksInTheAir:
         else:
             # nothing to do here?
             # response = self.process_cmd(user, cmd)
-            return "Incorrect cmd sent for the current question."
+            return "Incorrect cmd sent to answer the current question."
 
 
     def process_cmd(self, user, cmd):

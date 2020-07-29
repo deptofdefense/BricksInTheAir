@@ -26,6 +26,8 @@ class UserList:
         self.current_user_lock = threading.Lock()
         self.cue_lock = threading.Lock()
         self.threadRunning = True
+        self.tick = self.time_allowed
+        self.newUser = True
 
         self.thread = None
 
@@ -90,6 +92,7 @@ class UserList:
     def triggerChanges(self, prologue=True, cmd=None):
         #print("triggerChanges************************")
 
+        self.current_user_lock.acquire()
         # run prologoue for this specific user
         if self.currentUser != None:
             if prologue:
@@ -105,6 +108,7 @@ class UserList:
 
         if cmd != None:
             self.dispMan.updateCmdMsg(cmd)
+        self.current_user_lock.release()
 
 
     def startUserThread(self):
@@ -115,11 +119,12 @@ class UserList:
         self.thread.start()
 
     def restartUserThread(self):
-        pass
-        """
+        print("restarting UserList Thread")
+
         self.threadRunning = False
+        time.sleep(1)
         self.startUserThread()
-        """
+
 
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
@@ -134,11 +139,23 @@ class UserList:
                 self.setCurrentUser(user)
                 self.triggerChanges()
 
-                time.sleep(self.time_allowed)
+                self.newUser = False    # variable used to track if trigger should be invoked
 
+                time.sleep(self.time_allowed)
                 if (user.updateTimeout() > 0):
                     self.currentUserToEndOfLine()
+                    """
+                    time.sleep(1)
+                    if self.tick < 0:
+                        if (user.updateTimeout() > 0):
+                            self.currentUserToEndOfLine()
+                        self.tick = self.time_allowed
 
+                    elif self.tick >= 0:
+                        print("decrement userList.tick")
+                        self.tick -= 1
+
+                    """
                 else:
                     print("removing user for inactivity: " + str(user))
                     self.userList.remove(user)
@@ -192,6 +209,10 @@ class UserList:
         self.cue_lock.acquire()
         if len(self.userList) >= 1:
             self.userList.append(self.userList.pop(0))
+            self.setCurrentUser(user)
+            #if self.currentUser != None:
+            #    self.triggerChanges()
+            #self.newUser = True
         self.cue_lock.release()
 
 

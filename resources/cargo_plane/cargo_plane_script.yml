@@ -87,7 +87,7 @@ steps:
       audio: '../resources/cargo_plane/gear_moving.wav'
 
     '7':
-      question: "Okay, show-off. Raise the landing gear so we can move along with the test flight."
+      question: "Okay, show-off. Can you raise the landing gear so we can move along with the test flight?"
       answer:
         - "0x60 0x21 0x01"
       hint: ""
@@ -100,7 +100,7 @@ steps:
       audio: '../resources/cargo_plane/gear_moving.wav'
 
     '8':
-      question: "Changing the landing gear was a fluke. The engine control has a lot of additional safety precautions."
+      question: "Can you change the Engine Control Computer to a normally allowable setting?"
       answer:
         - "0x55 0x11 0x02"
         - "0x55 0x11 0x03"
@@ -162,7 +162,7 @@ steps:
       image: "../resources/cargo_plane/Cargo_4-4.png"
 
     '12':
-      question: "What about invalid values?"
+      question: "What happens when invalid values are sent to the Engine Control Computer?"
       answer:
           - "0x55 0x11"
       answer_lower: "0x00"
@@ -233,7 +233,13 @@ steps:
       image: "../resources/cargo_plane/Cargo_5-3.png"
 
     '16':
-      question: "Success you've worked through the entire challenge! We hope that you've learned something new here and have a newfound appreciation for cybersecurity and avionics!"
+      question: "Success you've worked through the entire challenge! We hope
+                that you've learned something new here and have a newfound
+                appreciation for cybersecurity and avionics! In short, the
+                devices inherently trust one another and it's paramount that
+                devices be isolated from one another depending upon their
+                criticality. Oh, and remember to remove test code before going
+                into production."
       hint: "Your progress has been saved and you can go back to any point previous."
       image: "../resources/cargo_plane/Cargo_Success.png"
 
