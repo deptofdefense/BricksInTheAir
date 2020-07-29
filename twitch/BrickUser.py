@@ -74,17 +74,27 @@ class BrickUser:
         return str(self.currentStepIndex)
 
     def setCurrentStep(self, desired_step):
-        desired_step = int(desired_step)
-        if desired_step <= len(self.steps) and desired_step >= 1:
-            # only allow if user has previously completed
-            if len(self.steps[self.currentStepIndex]["completed"]) > 0:
+        desired_step = str(desired_step)
+
+        if desired_step in self.steps:
+            # it's a valid step, but can/should the user be allowed to go there?
+
+            # they've been there before... sure they can go back
+            if len(self.steps[str(desired_step)]["completed"]) > 0:
                 self.currentStepIndex = str(desired_step)
                 self.log_event()
                 return "Step: {} set.".format(desired_step)
+            # they are asking to goto the first non completed step.
+            elif len(self.steps[str(int(desired_step)-1)]["completed"]) > 0 and len(self.steps[str(desired_step)]["completed"]) == 0:
+                self.currentStepIndex = str(desired_step)
+                self.log_event()
+                return "Step: {} set.".format(desired_step)
+
             else:
                 return "Invalid step requested."
         else:
             return "Invalid step requested."
+
 
     def getMaxStep(self):
         """ Returns the max step the user has completed """
