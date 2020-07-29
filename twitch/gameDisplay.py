@@ -79,11 +79,11 @@ class GameDisplay(QMainWindow):
     def dispUser(self, userMsg, time_remaining=60):
         ''' Updates the user list '''
 
-        msg = "Active Users (limit {})\nTime Remaining: {}\n".format(self.cfg["cue"]["limit"], time_remaining)
+        msg = "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
         count = 1
         if userMsg != None:
             for brickUser in userMsg:
-                msg += str(count) + ": " + brickUser.getName() + "\n"
+                msg += str(count) + " min: " + brickUser.getName() + "\n"
                 count += 1
 
         self.lstLabel.setText("{}".format(msg))
