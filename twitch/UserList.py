@@ -25,6 +25,7 @@ class UserList:
         self.time_allowed = cfg["cue"]["time"]
         self.current_user_lock = threading.Lock()
         self.cue_lock = threading.Lock()
+        self.threadRunning = True
 
         self.thread = None
 
@@ -114,12 +115,15 @@ class UserList:
         self.thread.start()
 
     def restartUserThread(self):
-        self.thread.stop()
+        pass
+        """
+        self.threadRunning = False
         self.startUserThread()
+        """
 
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
-        while True:
+        while self.threadRunning:
             # print("********************************servicing userthread")
 
             if len(self.userList) > 0:
@@ -163,6 +167,8 @@ class UserList:
                 except Exception as err:
                     #print("error inializing dispMan")
                     print(repr(err))
+
+        print("")
 
 
     def getCurrentUser(self):
