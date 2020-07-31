@@ -103,6 +103,7 @@ class UserList:
         else:
             #print("none user... set Image None")
             self.dispMan.updateImage(None)
+            self.bia.set_engine_speed(0, True)
 
         self.dispMan.updateUserList(self.getUserList())
 
@@ -121,9 +122,9 @@ class UserList:
     def restartUserThread(self):
         print("restarting UserList Thread")
 
-        self.threadRunning = False
-        time.sleep(1)
-        self.startUserThread()
+        #self.threadRunning = False
+        #time.sleep(1)
+        #self.startUserThread()
 
 
     def userThread(self):
@@ -142,41 +143,43 @@ class UserList:
                 self.newUser = False    # variable used to track if trigger should be invoked
 
                 time.sleep(self.time_allowed)
-                if (user.updateTimeout() > 0):
-                    self.currentUserToEndOfLine()
-                    """
-                    time.sleep(1)
-                    if self.tick < 0:
-                        if (user.updateTimeout() > 0):
-                            self.currentUserToEndOfLine()
-                        self.tick = self.time_allowed
 
-                    elif self.tick >= 0:
-                        print("decrement userList.tick")
-                        self.tick -= 1
+                if self.currentUser != None:
+                    if (self.currentUser.updateTimeout() > 0):
+                        self.currentUserToEndOfLine()
+                        """
+                        time.sleep(1)
+                        if self.tick < 0:
+                            if (user.updateTimeout() > 0):
+                                self.currentUserToEndOfLine()
+                            self.tick = self.time_allowed
 
-                    """
-                else:
-                    print("removing user for inactivity: " + str(user))
-                    self.userList.remove(user)
+                        elif self.tick >= 0:
+                            print("decrement userList.tick")
+                            self.tick -= 1
 
-                    if len(self.userList) >= 1:
-                        self.setCurrentUser(self.userList[0])
+                        """
                     else:
-                        self.setCurrentUser(None)
+                        print("removing user for inactivity: " + str(user))
+                        self.userList.remove(user)
 
-                    self.triggerChanges(False)
+                        if len(self.userList) >= 1:
+                            self.setCurrentUser(self.userList[0])
+                        else:
+                            self.setCurrentUser(None)
 
-                    try:
-                        msg = "Removing " + user.getName() + " for inactivity."
-                        asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
-                    except Exception as err:
-                        pass
+                        self.triggerChanges(False)
+
+                        try:
+                            msg = "Removing " + self.currentUser.getName() + " for inactivity."
+                            asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
+                        except Exception as err:
+                            pass
 
 
             else:
                 # No active users
-                self.bia.set_engine_speed(0)
+                self.bia.set_engine_speed(0, True)
                 time.sleep(1)
                 try:
                     #self.triggerChanges()
@@ -197,7 +200,8 @@ class UserList:
         """ Grabs the current user as dictated by userThread """
         with self.current_user_lock:
             self.currentUser = user
-        self.bia.run_prolouge(self.currentUser)
+
+        self.triggerChanges(True)
 
     def getUserList(self):
         """ Returns the list of current Users """
@@ -224,3 +228,10 @@ class UserList:
         #self.cue_lock.release()
         print("active user list: " + msg)
         return msg
+
+    def emptyUserList(self):
+        self.cue_lock.acquire()
+        self.userList.clear()
+        self.cue_lock.release()
+        self.setCurrentUser(None)
+        self.triggerChanges()

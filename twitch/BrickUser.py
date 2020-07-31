@@ -89,12 +89,12 @@ class BrickUser:
                 if len(self.steps[str(step)]["completed"]) > 0:
                     self.currentStepIndex = str(step)
                     self.log_event()
-                    return "Step: {} set.".format(step)
+                    return "Step: {} set.".format(scene)
                 # they are asking to goto the first non completed step.
                 elif len(self.steps[str(int(step)-1)]["completed"]) > 0 and len(self.steps[str(step)]["completed"]) == 0:
                     self.currentStepIndex = str(step)
                     self.log_event()
-                    return "Step: {} set.".format(step)
+                    return "Step: {} set.".format(scene)
 
         else:
             return "Invalid step requested."

@@ -67,6 +67,7 @@
 //Commands
 #define GET_ENGINE_SPEED      0x10
 #define SET_ENGINE_SPEED      0x11
+#define STOP_ENGINE           0x15    // This exists only to stop the engine when no on is playing
 #define GET_MODE_OF_OPERATION 0x30
 #define SET_MODE_OF_OPERATION 0x31
 #define GET_MAINT_STATUS      0x40
@@ -202,6 +203,16 @@ void process_i2c_request(void) {
   if(command != 0xff && payload != 0xff){
     //recieved a set request, need a payload
     switch(command){
+
+      case STOP_ENGINE:
+        if(payload == ON){
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+          g_engine_speed = 0;
+          timer.setTimeout(1, update_ir_motor_speed);   // need the timer delay to respond to i2c correctly
+        }else{
+          g_i2c_tx_buffer.push(REJECTED_COMMAND);
+        }
+        break;
       
       case SET_ENGINE_SPEED:
         // Need to expand logic to speicify when the enigne can be changed
@@ -227,9 +238,11 @@ void process_i2c_request(void) {
         if(payload == PRI_OPERATION_MODE){
           g_operation_mode = PRI_OPERATION_MODE;
           set_led(DC, OFF, DC);
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
         }else if(payload == SEC_OPERATION_MODE){
           g_operation_mode = SEC_OPERATION_MODE;
           set_led(DC, ON, DC);
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
         }else{
           g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
         }
@@ -240,9 +253,11 @@ void process_i2c_request(void) {
           if(payload == MAINT_STATUS_NORMAL){
             g_main_status_mode = MAINT_STATUS_NORMAL;
             set_led(DC, DC, OFF);
+            g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
           }else if(payload == MAINT_STATUS_DEBUG){
             g_main_status_mode = MAINT_STATUS_DEBUG;
             set_led(DC, DC, ON);
+            g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
           }else{
             g_i2c_tx_buffer.push(UNKNOWN_COMMAND);
           }

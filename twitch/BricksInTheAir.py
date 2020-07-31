@@ -158,6 +158,7 @@ class BricksInTheAir:
 
             return buf
         except Exception as err:
+            #print("address: " + str(address) + " command: " + str(command))
             print(repr(err) )
 
     def reset_board(self):
@@ -187,7 +188,14 @@ class BricksInTheAir:
 
 
     def set_engine_speed(self, speed, sound=False):
-        self.write_read_i2c(self.engine_address, [0x11, speed])
+        #print("bia.set_engine_speed: " + str(speed))
+        if speed == 0:  # perform the manual STOP_ENGINE
+            x = self.write_read_i2c(self.engine_address, [0x15, 0x01])
+            #print(x)
+        else:
+            x = self.write_read_i2c(self.engine_address, [0x11, speed])
+            #print(x)
+
         if sound:
             self.set_engine_sound(speed)
 

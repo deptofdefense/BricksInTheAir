@@ -117,7 +117,7 @@ steps:
       audio: '../resources/cargo_plane/gear_moving.wav'
 
     '8':
-      question: "Can you change the Engine Control Computer to a normally allowable setting?"
+      question: "Like the FCC the enigne control unit has various modes of operation. What is an example 'safe' speed you can currently set?"
       answer:
         - "0x55 0x11 0x02"
         - "0x55 0x11 0x03"

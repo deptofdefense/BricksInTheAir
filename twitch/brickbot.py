@@ -78,6 +78,8 @@ async def reset(ctx):
 
     if ctx.author.name in CFG["admins"]:
         bia_game.reset_board()
+        bia_game.set_engine_speed(0, True)
+        userList.emptyUserList()
         await ctx.channel.send(f"{ctx.author.name} sent the command reset")
     else:
         await ctx.channel.send(f"{ctx.author.name}: nope")
