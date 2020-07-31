@@ -48,7 +48,7 @@ class UserList:
             self.userList.append(newUser)
             self.cue_lock.release()
             self.setCurrentUser(newUser)
-            self.triggerChanges()
+            #self.triggerChanges()
             return True
 
         if len(self.userList) < self.limit:
@@ -57,7 +57,7 @@ class UserList:
             self.userList.append(BrickUser(name, self.cfg))
             print(self.userList)
             self.cue_lock.release()
-            self.triggerChanges()
+            #self.triggerChanges()
             return True
         else:
             self.cue_lock.release()

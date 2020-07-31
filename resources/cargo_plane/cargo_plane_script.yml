@@ -264,4 +264,4 @@ steps:
 text:
     help: >
         I am OtterBot, your helpful bot for Bricks in the Air! For a list of commands
-        and formating, please see the user documentation with [LINK HERE].
+        and formating, please see the user documentation available here: https://github.com/deptofdefense/dds-at-DEFCON/tree/master/bricks-in-the-air

@@ -158,7 +158,7 @@ class BricksInTheAir:
 
             return buf
         except Exception as err:
-            #print("address: " + str(address) + " command: " + str(command))
+            print("BricksInTheAir.write)read_i2c error: address: " + str(address) + " command: " + str(command))
             print(repr(err) )
 
     def reset_board(self):
