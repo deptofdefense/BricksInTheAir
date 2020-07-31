@@ -12,6 +12,23 @@ audio:
     gear_up: '../resources/cargo_plane/gear_moving.wav'
     screech: '../resources/cargo_plane/gear_moving.wav'
 
+scene_mapping:
+    - ['1', '1.1']
+    - ['2', '1.2']
+    - ['3', '1.3']
+    - ['4', '2.1']
+    - ['5', '2.2']
+    - ['6', '3.1']
+    - ['7', '3.2']
+    - ['8', '4.1']
+    - ['9', '4.2']
+    - ['10', '4.3']
+    - ['11', '4.4']
+    - ['12', '4.5']
+    - ['13', '5.1']
+    - ['14', '5.2']
+    - ['15', '5.3']
+
 steps:
     '1':
       question: "What Lego Power Function IR Channel is the engine motor connected to?"

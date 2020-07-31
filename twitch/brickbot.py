@@ -170,15 +170,18 @@ async def goto(ctx):
     if currentUser != None:
         if currentUser.matchName(ctx.author.name):
             currentUser.resetTimeout()
+            msg = None
             try:
-                step = int(ctx.content[6:])
+                step = str(ctx.content[6:])
                 msg = currentUser.setCurrentStep(step)
                 userList.triggerChanges(ctx.content)
-            except ValueError:
-                pass
+            except Exception as err:
+                print(repr(err))
 
-            await ctx.channel.send(f"{ctx.author.name}: {msg}")
-            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
+            if msg != None:
+                await ctx.channel.send(f"{ctx.author.name}: {msg}")
+                await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
+
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
     else:

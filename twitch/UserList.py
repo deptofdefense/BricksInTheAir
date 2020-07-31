@@ -209,11 +209,9 @@ class UserList:
         self.cue_lock.acquire()
         if len(self.userList) >= 1:
             self.userList.append(self.userList.pop(0))
-            self.setCurrentUser(user)
-            #if self.currentUser != None:
-            #    self.triggerChanges()
-            #self.newUser = True
-        self.cue_lock.release()
+
+            self.cue_lock.release()
+            self.setCurrentUser(self.userList[0])
 
 
     def getNextUserList(self, nextCount):
