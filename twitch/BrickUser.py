@@ -2,6 +2,7 @@
 from collections import OrderedDict
 import time
 import os
+from os import path
 import json
 
 class BrickUser:
@@ -11,18 +12,40 @@ class BrickUser:
     def __init__(self, name, cfg):
         """ Initialization method: note name needs to be unique """
 
-        self.name = str(name)
-        self.steps = cfg["steps"]
-        self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
-        for x in self.steps:
-            self.steps[x]["completed"] = False
+        fileStr = os. getcwd() + cfg["logging"]["path"] + name + ".log"
+        if(path.isfile(fileStr)):
+            # Users has been here previously, reload their state.
+            print("user previously played... initialze their previous state.")
+            try:
+                with open(fileStr, 'r') as fh:
+                    data = json.load(fh)
+                    self.name = data["name"]
+                    self.steps = data["steps"]
+                    self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
+                    self.currentStepIndex = str(data["currentStepIndex"])   # dict key, keep as a string. convert to int for math but store as string
+                    self.maxStep = int(data["maxStep"])
+                    self.timeOut = int(data["timeOut"])
+                    self.join_timestamp = data["join_timestamp"]
+                    self.engine_speed = data["engine_speed"]
 
-        self.currentStepIndex = 1
-        self.maxStep = 0
-        self.timeOut = 3
-        self.join_timestamp = time.time()
-        self.engine_speed = 2
-        self.log_event()
+            except Exception as err:
+                print("Error loading preivously saved user information.")
+                print(repr(err))
+
+        else:
+            print("brand new user, make from scratch.")
+            self.name = str(name)
+            self.steps = cfg["steps"]
+            self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
+            for x in self.steps:
+                self.steps[x]["completed"] = [] # an empty list to keep track of how many times they complete it.
+            self.currentStepIndex = "1"
+            self.maxStep = 0
+            self.timeOut = 3
+            self.join_timestamp = time.time()
+            self.engine_speed = 0
+            self.log_event()
+
 
     def __str__(self):
         return self.name
@@ -48,14 +71,30 @@ class BrickUser:
 
     def getCurrentStep(self):
         """ Returns the current step """
-        return self.currentStepIndex
+        return str(self.currentStepIndex)
 
     def setCurrentStep(self, desired_step):
-        if desired_step <= len(self.steps) and desired_step >= 1:
-            self.currentStepIndex = desired_step
-            return "Step: {} set.".format(desired_step)
+        desired_step = str(desired_step)
+
+        if desired_step in self.steps:
+            # it's a valid step, but can/should the user be allowed to go there?
+
+            # they've been there before... sure they can go back
+            if len(self.steps[str(desired_step)]["completed"]) > 0:
+                self.currentStepIndex = str(desired_step)
+                self.log_event()
+                return "Step: {} set.".format(desired_step)
+            # they are asking to goto the first non completed step.
+            elif len(self.steps[str(int(desired_step)-1)]["completed"]) > 0 and len(self.steps[str(desired_step)]["completed"]) == 0:
+                self.currentStepIndex = str(desired_step)
+                self.log_event()
+                return "Step: {} set.".format(desired_step)
+
+            else:
+                return "Invalid step requested."
         else:
             return "Invalid step requested."
+
 
     def getMaxStep(self):
         """ Returns the max step the user has completed """
@@ -132,23 +171,29 @@ class BrickUser:
             return None
 
     def incrementCurrentStepIndex(self):
-        self.currentStepIndex += 1
-        if self.maxStep < self.currentStepIndex:
-            self.maxStep = self.currentStepIndex
+        index = int(self.currentStepIndex) + 1
+        self.currentStepIndex = str(index)
+        if int(self.maxStep) < int(self.currentStepIndex):
+            self.maxStep = int(self.currentStepIndex)
+
+        self.log_event()
 
 
     def getQuestion(self):
         self.resetTimeout()
-        return self.steps[self.currentStepIndex]["question"]
+        return self.steps[str(self.currentStepIndex)]["question"]
 
     def getHint(self):
         self.resetTimeout()
         return self.steps[self.currentStepIndex]["hint"]
 
     def getAudio(self):
+        print("User getAudio")
         if "audio" in self.steps[self.currentStepIndex]:
+            print(self.steps[self.currentStepIndex]["audio"])
             return self.steps[self.currentStepIndex]["audio"]
         else:
+            print("no audio")
             return None
 
     def getI2CEffect(self):
@@ -173,7 +218,6 @@ class BrickUser:
 
     def updateTimeout(self):
         """ Subtracts one from the timeout and returns the value """
-        print("updating user timeout:" + str(self.name))
         self.timeOut = self.timeOut - 1
         return self.timeOut
 
@@ -185,10 +229,13 @@ class BrickUser:
         """ Get the user's set engine speed for audio sound file purposes. """
         return self.engine_speed
 
+    def setEngineSpeed(self, speed):
+        """ Get the user's set engine speed for audio sound file purposes. """
+        self.engine_speed = speed
+
 
     def update_game_progress(self):
-        self.steps[self.currentStepIndex]["completed"] = True
-        self.steps[self.currentStepIndex]["completed_timestamp"] = time.time()
+        self.steps[self.currentStepIndex]["completed"].append(time.time())
         self.log_event()
 
     def log_event(self):
@@ -196,7 +243,10 @@ class BrickUser:
             f.write(json.dumps(self.__dict__))
 
     def get_prologue(self):
-        if "prologue" in self.steps[self.currentStepIndex]:
-            return self.steps[self.currentStepIndex]["prologue"]
-        else:
-            return None
+        try:
+            if "prologue" in self.steps[self.currentStepIndex]:
+                return self.steps[self.currentStepIndex]["prologue"]
+            else:
+                return None
+        except Exception as err:
+            print(repr(err))

@@ -9,7 +9,6 @@ import time # needed for sleep
 import threading # needed for threads
 import random
 
-import zmq
 
 class GameDisplay(QMainWindow):
     ''' Custom Class to handle the game overlay window '''
@@ -20,11 +19,7 @@ class GameDisplay(QMainWindow):
         self.font_size_users = 14
         self.font_size_cmd = 20
 
-        context = zmq.Context()
-        self.socket = context.socket(zmq.SUB)
-        self.socket.connect("tcp://localhost:5555")
-        print("zmq socket setup")
-
+        self.time_limit = int(self.cfg["cue"]["time"])
 
         # set the title
         self.setWindowTitle("Text Overlay Window")
@@ -81,11 +76,37 @@ class GameDisplay(QMainWindow):
         self.cmdLabel.update()
 
 
-    def dispUser(self, userMsg):
+    def dispUser(self, userMsg, time_remaining=60):
         ''' Updates the user list '''
-        #userMsg = "\n".join(userMsg)
-        self.lstLabel.setText("Active User List (limit {})\n{}".format(self.cfg["cue"]["limit"], userMsg))
+
+        msg = "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
+        count = 1
+        if userMsg != None:
+            for brickUser in userMsg:
+                msg += str(count) + " min: " + brickUser.getName() + "\n"
+                count += 1
+
+        self.lstLabel.setText("{}".format(msg))
         self.lstLabel.update()
+
+        #threading.Thread(target=self.updateTimeRemaining, args=(userMsg, self.time_limit), daemon=True).start()
+
+    def updateTimeRemaining(self, userMsg, time_remaining):
+        if time_remaining > 0:
+            msg = "Active Users (limit {})\nTime Remaining: {}\n".format(self.cfg["cue"]["limit"], time_remaining)
+            count = 1
+            if userMsg != None:
+                for brickUser in userMsg:
+                    msg += str(count) + ": " + brickUser.getName() + "\n"
+                    count += 1
+
+            self.lstLabel.setText("{}".format(msg))
+            self.lstLabel.update()
+
+            time.sleep(1)
+            time_remaining -= 1
+            self.updateTimeRemaining(userMsg, time_remaining)
+
 
     def dispImage(self, fileStr):
         # Image Overlay
@@ -127,7 +148,6 @@ class DisplayManager():
         ''' Starts the game overlay '''
         t = threading.Thread(target=self.__startDisplayThread, daemon=True)
         t.start()
-        #t.join()
         time.sleep(1)
 
     def updateUserList(self, userMsg):

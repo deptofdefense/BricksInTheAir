@@ -96,6 +96,7 @@ async def cmd(ctx):
             #dispMan.updateCmdMsg(ctx.content)
             userList.triggerChanges(ctx.content)
             await ctx.channel.send(f"{ctx.author.name} {msg}")
+            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
     else:
@@ -109,10 +110,9 @@ async def join(ctx):
 
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
-            bia_game.run_prolouge(userList.getCurrentUser())
-            await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
-            await ctx.channel.send(f"Question {userList.getCurrentUser().getCurrentStep()}: {userList.getCurrentUser().getQuestion()}")
             userList.triggerChanges()
+            await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
+            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list.")
             userList.triggerChanges()
@@ -125,9 +125,17 @@ async def leave(ctx):
     global CFG, bia_game, userList, dispMan
 
     print("leave cmd sent")
-    if userList.removeUser(ctx.author.name):
-        await ctx.channel.send(f"{ctx.author.name} has left the user list.")
-        userList.triggerChanges()
+    currentUser = userList.getCurrentUser()
+    if currentUser != None:
+        if currentUser.matchName(ctx.author.name):
+            # the active user is trying to leave. Resart userThread
+            userList.removeUser(ctx.author.name)
+            userList.restartUserThread()
+            await ctx.channel.send(f"{ctx.author.name} has left the user list.")
+
+        elif userList.removeUser(ctx.author.name):
+            await ctx.channel.send(f"{ctx.author.name} has left the user list.")
+            userList.triggerChanges()
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are not on the user list.")
 
@@ -165,12 +173,12 @@ async def goto(ctx):
             try:
                 step = int(ctx.content[6:])
                 msg = currentUser.setCurrentStep(step)
-                bia_game.run_prolouge(currentUser)
                 userList.triggerChanges(ctx.content)
             except ValueError:
                 pass
 
             await ctx.channel.send(f"{ctx.author.name}: {msg}")
+            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
             await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
     else:
@@ -192,6 +200,22 @@ async def question(ctx):
     else:
         await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
 
+@bot.command(name='pause')
+async def pause(ctx):
+    # store state of current userList. Perhaps useful for a hard restart
+    if ctx.author.name in CFG["admins"]:
+        await ctx.channel.send(f"{ctx.author.name} sent the pause command")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}: nope")
+
+
+@bot.command(name='restore')
+async def restore(ctx):
+    # store state of current userList. Perhaps useful for a hard restart
+    if ctx.author.name in CFG["admins"]:
+        await ctx.channel.send(f"{ctx.author.name} sent the restore command")
+    else:
+        await ctx.channel.send(f"{ctx.author.name}: nope")
 
 if __name__ == "__main__":
     dispMan.startDisplay()

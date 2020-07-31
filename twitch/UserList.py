@@ -25,6 +25,11 @@ class UserList:
         self.time_allowed = cfg["cue"]["time"]
         self.current_user_lock = threading.Lock()
         self.cue_lock = threading.Lock()
+        self.threadRunning = True
+        self.tick = self.time_allowed
+        self.newUser = True
+
+        self.thread = None
 
     def addUser(self, name):
         """ Checks if user already exists, and if not adds them to the list.  \nReturns True if name is added, False otherwise """
@@ -79,52 +84,78 @@ class UserList:
                         self.currentUser = None
 
                 self.current_user_lock.release()
-                self.triggerChanges()
+                self.triggerChanges(False)
                 return True
         self.cue_lock.release()
         return False
 
-    def triggerChanges(self, cmd=None):
+    def triggerChanges(self, prologue=True, cmd=None):
         #print("triggerChanges************************")
 
-        self.dispMan.updateUserList(self.getUserList())
-
+        self.current_user_lock.acquire()
+        # run prologoue for this specific user
         if self.currentUser != None:
-            #print("!= none user... getImage")
+            if prologue:
+                self.bia.run_prolouge(self.currentUser)
+            self.bia.set_engine_speed(self.currentUser.getEngineSpeed(), True)
             self.dispMan.updateImage(self.currentUser.getImage())
+
         else:
             #print("none user... set Image None")
             self.dispMan.updateImage(None)
 
+        self.dispMan.updateUserList(self.getUserList())
+
         if cmd != None:
             self.dispMan.updateCmdMsg(cmd)
+        self.current_user_lock.release()
 
 
     def startUserThread(self):
         """ Starts the user thread """
         print("Start userList thread")
 
-        t = threading.Thread(target=self.userThread, args=(), daemon=True)
-        t.start()
+        self.thread = threading.Thread(target=self.userThread, args=(), daemon=True)
+        self.thread.start()
+
+    def restartUserThread(self):
+        print("restarting UserList Thread")
+
+        self.threadRunning = False
+        time.sleep(1)
+        self.startUserThread()
+
 
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
-        while True:
-            print("********************************servicing userthread")
+        while self.threadRunning:
+            # print("********************************servicing userthread")
 
             if len(self.userList) > 0:
                 self.cue_lock.acquire()
-                user = self.userList[0] # remove the first user in the list
+                user = self.userList[0]
                 self.cue_lock.release()
 
                 self.setCurrentUser(user)
                 self.triggerChanges()
 
+                self.newUser = False    # variable used to track if trigger should be invoked
+
                 time.sleep(self.time_allowed)
-
-                if (user.updateTimeout() >= 0):
+                if (user.updateTimeout() > 0):
                     self.currentUserToEndOfLine()
+                    """
+                    time.sleep(1)
+                    if self.tick < 0:
+                        if (user.updateTimeout() > 0):
+                            self.currentUserToEndOfLine()
+                        self.tick = self.time_allowed
 
+                    elif self.tick >= 0:
+                        print("decrement userList.tick")
+                        self.tick -= 1
+
+                    """
                 else:
                     print("removing user for inactivity: " + str(user))
                     self.userList.remove(user)
@@ -134,7 +165,7 @@ class UserList:
                     else:
                         self.setCurrentUser(None)
 
-                    self.triggerChanges()
+                    self.triggerChanges(False)
 
                     try:
                         msg = "Removing " + user.getName() + " for inactivity."
@@ -144,7 +175,8 @@ class UserList:
 
 
             else:
-                #print("no active users")
+                # No active users
+                self.bia.set_engine_speed(0)
                 time.sleep(1)
                 try:
                     #self.triggerChanges()
@@ -153,7 +185,7 @@ class UserList:
                     #print("error inializing dispMan")
                     print(repr(err))
 
-
+        print("")
 
 
     def getCurrentUser(self):
@@ -163,14 +195,13 @@ class UserList:
 
     def setCurrentUser(self, user):
         """ Grabs the current user as dictated by userThread """
-        #print("setting current user: " + str(user))
         with self.current_user_lock:
             self.currentUser = user
         self.bia.run_prolouge(self.currentUser)
 
     def getUserList(self):
         """ Returns the list of current Users """
-        print("userList:" + str(self.userList))
+        #print("userList:" + str(self.userList))
         with self.cue_lock:
             return self.userList
 
@@ -178,6 +209,10 @@ class UserList:
         self.cue_lock.acquire()
         if len(self.userList) >= 1:
             self.userList.append(self.userList.pop(0))
+            self.setCurrentUser(user)
+            #if self.currentUser != None:
+            #    self.triggerChanges()
+            #self.newUser = True
         self.cue_lock.release()
 
 
