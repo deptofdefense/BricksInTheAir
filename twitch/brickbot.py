@@ -79,9 +79,10 @@ async def reset(ctx):
     global CFG, bia_game, userList, dispMan
 
     if ctx.author.name in CFG["admins"]:
+        userList.emptyUserList()
         bia_game.reset_board()
         bia_game.set_engine_speed(0, True)
-        userList.emptyUserList()
+
         await ctx.channel.send(f"{ctx.author.name} sent the command reset")
     else:
         await ctx.channel.send(f"{ctx.author.name}: nope")
@@ -115,7 +116,8 @@ async def join(ctx):
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
-            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
+            if userList.getCurrentUser() != None:
+                await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
             userList.triggerChanges()
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list and will show as active soon.")

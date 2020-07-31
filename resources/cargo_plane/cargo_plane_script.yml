@@ -248,6 +248,7 @@ steps:
           - "0x60 0xFE"
           - "0x60 0x21 0x01"
       image: "../resources/cargo_plane/Cargo_5-3.png"
+      audio: '../resources/cargo_plane/gear_moving.wav'
 
     '16':
       question: "Success you've worked through the entire challenge! We hope
