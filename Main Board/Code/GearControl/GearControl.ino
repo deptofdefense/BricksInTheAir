@@ -198,18 +198,20 @@ void process_i2c_request(void) {
         }else if(g_gear_position == GEAR_RETRACTED && payload == GEAR_EXTENDED){
           set_led(OFF, ON, OFF);
           //requesting a gear change from retracted to lowered
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+          delay(1);
           g_gear_position = GEAR_IN_TRANSIT;
           g_lower_gear = true;
-          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_EXTEND_DIRECTION);
-          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_EXTEND_DIRECTION);          
           timer.setTimeout(GEAR_EXTEND_DELAY, stop_motor);
         }else if(g_gear_position == GEAR_EXTENDED && payload == GEAR_RETRACTED){
           //requesting a gear change from lowered to retracted
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+          delay(1);
           set_led(OFF, ON, OFF);
           g_gear_position = GEAR_IN_TRANSIT;
           g_raise_gear = true;
-          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_RETRACT_DIRECTION);
-          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_RETRACT_DIRECTION);          
           timer.setTimeout(GEAR_RETRACT_DELAY, stop_motor);
         }else{
           //gear is probably in transit... do nothing

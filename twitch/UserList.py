@@ -161,6 +161,7 @@ class UserList:
                         """
                     else:
                         print("removing user for inactivity: " + str(user))
+                        userName = user.getName()
                         self.userList.remove(user)
 
                         if len(self.userList) >= 1:
@@ -171,10 +172,11 @@ class UserList:
                         self.triggerChanges(False)
 
                         try:
-                            msg = "Removing " + self.currentUser.getName() + " for inactivity."
+                            msg = "Removing " + userName + " for inactivity."
                             asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
                         except Exception as err:
-                            pass
+                            print("Erorr attempting to notify bot of user removal.")
+                            print(repr(err))
 
 
             else:

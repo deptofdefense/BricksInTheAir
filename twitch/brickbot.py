@@ -61,6 +61,7 @@ async def event_ready():
     await ws.send_privmsg(bot.initial_channels[0], f"/me is now operational")
     userList.triggerChanges()
 
+
 # event for user entering something in chat
 @bot.event
 async def event_message(ctx):
@@ -70,6 +71,7 @@ async def event_message(ctx):
         return
     await bot.handle_commands(ctx)
     print(f'{ctx.channel} - {ctx.author.name}: {ctx.content}')
+
 
 # reset command - proof of concept
 @bot.command(name='reset')
@@ -112,12 +114,12 @@ async def join(ctx):
 
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
-            userList.triggerChanges()
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
             await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
-        else:
-            await ctx.channel.send(f"{ctx.author.name} has joined the user list.")
             userList.triggerChanges()
+        else:
+            await ctx.channel.send(f"{ctx.author.name} has joined the user list and will show as active soon.")
+            #userList.triggerChanges()
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are already on the user list.")
 
@@ -209,6 +211,9 @@ async def question(ctx):
 async def pause(ctx):
     # store state of current userList. Perhaps useful for a hard restart
     if ctx.author.name in CFG["admins"]:
+        #bot.initial_channels[0].send("TEst")
+        print(type(ctx))
+        print(ctx)
         await ctx.channel.send(f"{ctx.author.name} sent the pause command")
     else:
         await ctx.channel.send(f"{ctx.author.name}: nope")
