@@ -17,6 +17,7 @@ gear_address = 0x60
 
 # Verify that everything is communicating as expected
 avail = i2c.scan()
+print(avail)
 print("fcc_address present: {}".format("True" if fcc_address in avail else "False"))
 print("engine_address present: {}".format("True" if engine_address in avail else "False"))
 print("gear_address present: {}".format("True" if gear_address in avail else "False"))
@@ -92,10 +93,10 @@ def test_fcc_functionality(fcc_address):
     print("Send RESET command")
 
     res = write_read(fcc_address, [0x51, 0x55, 0x80])
-    print(res)
+    print(binascii.hexlify(res))
 
-#test_engine_funcionality(engine_address)
-#print("\n\n")
-#test_landing_gear_functionality(gear_address)
-#print("\n\n")
+test_engine_funcionality(engine_address)
+print("\n\n")
+test_landing_gear_functionality(gear_address)
+print("\n\n")
 test_fcc_functionality(fcc_address)
