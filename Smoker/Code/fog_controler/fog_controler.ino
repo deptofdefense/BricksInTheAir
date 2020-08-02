@@ -22,11 +22,11 @@
 #define MIN_FOG         0
 #define MAX_FOG         255
 
-#define DEFAULT_RUN     20
+#define DEFAULT_RUN     15
 #define MIN_RUN         0
 #define MAX_RUN         255
 
-#define DEFAULT_COOL    5
+#define DEFAULT_COOL    60
 #define MIN_COOL        0
 #define MAX_COOL        255
 
@@ -52,16 +52,16 @@ int g_run_time = 0;
 int g_cool_time = 0;
 
 //Timer variables
-unsigned long g_timer_current_time = 0;
-unsigned long g_timer_previous_mark = 0;
-unsigned long g_fog_running_timer = 0;
-unsigned long g_fog_cooldown_timer = 0;
+volatile unsigned long g_timer_current_time = 0;
+volatile unsigned long g_timer_previous_mark = 0;
+volatile unsigned long g_fog_running_timer = 0;
+volatile unsigned long g_fog_cooldown_timer = 0;
 
 //Used to track UART triggering mode
-bool g_manual_trigger = 0;
+volatile bool g_manual_trigger = 0;
 
 //Fogger state machine variable
-int g_fogger_state = FOG_OFF;
+volatile int g_fogger_state = FOG_OFF;
 
 //Function Prototypes
 void print_instructions(void);

@@ -1,0 +1,11 @@
+# ignore config file
+config.yml
+
+# ignore python cache files
+*.pyc
+
+# ignore all user generated logs
+twitch/user_logs/*
+
+# ignore the freecad stash
+*.FCStd1
