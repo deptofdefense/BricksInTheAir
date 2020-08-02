@@ -254,3 +254,13 @@ class BrickUser:
                 return None
         except Exception as err:
             print(repr(err))
+
+    def get_scene_hotkey(self):
+        try:
+            if "scene_hotkey" in self.steps[self.currentStepIndex]:
+                return self.steps[self.currentStepIndex]["scene_hotkey"]
+            else:
+                return None
+        except Exception as err:
+            print("BrickUser.get_scene_hotkey() error")
+            print(repr(err))

@@ -178,7 +178,7 @@ async def goto(ctx):
             currentUser.resetTimeout()
             msg = None
             try:
-                step = str(ctx.content[6:])
+                step = str(ctx.content[6:]).lower()
                 msg = currentUser.setCurrentStep(step)
                 userList.triggerChanges(ctx.content)
             except Exception as err:
