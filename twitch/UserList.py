@@ -6,6 +6,9 @@ import threading # needed for userThread
 import random # needed for zone generation
 import asyncio # needed for async ops
 
+from pykeyboard import PyKeyboard   # needed for OBS Studio hotkey scene changes
+import os
+
 from BrickUser import BrickUser
 
 class UserList:
@@ -30,6 +33,14 @@ class UserList:
         self.newUser = True
 
         self.thread = None
+
+        # OBS Studio specific variables
+        self.keyboard = PyKeyboard()
+        self.transition_hotkey = cfg["default"]["transition_hotkey"]
+        self.transition_hotkey_list = self.scene_hotkey_to_useable_list(self.transition_hotkey)
+        self.default_scene_hotkey = cfg["default"]["scene_hotkey"]
+        self.window_focus_name = cfg["default"]["window_focus_name"]
+        self.default_image = cfg["default"]["image"]
 
     def addUser(self, name):
         """ Checks if user already exists, and if not adds them to the list.  \nReturns True if name is added, False otherwise """
@@ -95,14 +106,20 @@ class UserList:
         self.current_user_lock.acquire()
         # run prologoue for this specific user
         if self.currentUser != None:
+            scene_hotkey = self.currentUser.get_scene_hotkey()
+            if scene_hotkey != None:
+                self.press_hotkeys(scene_hotkey)
+
             if prologue:
                 self.bia.run_prolouge(self.currentUser)
             self.bia.set_engine_speed(self.currentUser.getEngineSpeed(), True)
             self.dispMan.updateImage(self.currentUser.getImage())
 
         else:
-            #print("none user... set Image None")
-            self.dispMan.updateImage(None)
+            scene_hotkey = self.default_scene_hotkey
+            if scene_hotkey != None:
+                self.press_hotkeys(scene_hotkey)
+            self.dispMan.updateImage(self.default_image)
             self.bia.set_engine_speed(0, True)
 
         self.dispMan.updateUserList(self.getUserList())
@@ -237,3 +254,31 @@ class UserList:
         self.cue_lock.release()
         self.setCurrentUser(None)
         self.triggerChanges()
+
+    def scene_hotkey_to_useable_list(self, scene_hotkey_str):
+        scene_list = None
+        try:
+            scene_list = scene_hotkey_str.split("+")
+
+            for index, value in enumerate(scene_list):
+                if scene_list[index].lower() == "shift":
+                    scene_list[index] = self.keyboard.shift_key
+        except Exception as err:
+            print("UserList.scene_hotkey_to_useable_list() error")
+            print(repr(err))
+
+        return scene_list
+
+    def press_hotkeys(self, scene_hotkey):
+        try:
+            os.system("xdotool search --name \"" + self.window_focus_name + "\" | xargs xdotool windowactivate")
+        except Exception as err:
+            print("UserList.triggerChanges() error")
+            print(repr(err))
+
+        scene_change = self.scene_hotkey_to_useable_list(scene_hotkey)
+        if scene_change != None:
+            #print(scene_change)
+            self.keyboard.press_keys(scene_change)
+        if self.transition_hotkey_list != None:
+            self.keyboard.press_keys(self.transition_hotkey_list)

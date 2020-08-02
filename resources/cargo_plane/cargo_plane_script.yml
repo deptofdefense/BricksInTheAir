@@ -1,4 +1,10 @@
 # These are used to add context to actions
+default:
+    image: ../resources/cargo_plane/Cargo_1-1.png
+    transition_hotkey: "shift+t"
+    scene_hotkey: "shift+1"
+    window_focus_name: "OBS Studio"
+
 audio:
     background: 'audio/bensound-scifi.wav'
     engine_speed_1: '../resources/cargo_plane/cargo_prop_1.wav'
@@ -28,6 +34,7 @@ scene_mapping:
     - ['13', '5.1']
     - ['14', '5.2']
     - ['15', '5.3']
+    - ['16', 'success']
 
 steps:
     '1':
@@ -35,7 +42,7 @@ steps:
       answer:
         - "0x50 0x51 0x55 0x80"
       hint: "The devil is in the details. What does the ICD say?"
-      scene: ""
+      scene_hotkey: "shift+1"
       fake_i2c_response: "0x00"
       prologue:
           - "0x50 0xFE"
@@ -50,7 +57,7 @@ steps:
       answer:
         - "0x50 0x51 0x60 0x90"
       hint: "You've already been reading the ICD... read some more."
-      scene: ""
+      scene_hotkey: "shift+1"
       fake_i2c_response: "0x01"
       prologue:
           - "0x50 0xFE"
@@ -63,8 +70,8 @@ steps:
       answer:
         - "0x50 0x80"
         - "0x50 0x90"
-      hint: ""
-      scene: ""
+      hint: "Why would the FCC even be connected to the Lego Power Functions?"
+      scene_hotkey: "shift+1"
       prologue:
           - "0x50 0xFE"
           - "0x55 0xFE"
@@ -76,6 +83,7 @@ steps:
       answer:
         - "0x50 0x31 0x01"
       hint: "The FCC has 2 modes of operation, try setting it to secondary mode."
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"
       image: "../resources/cargo_plane/Cargo_2-1.png"
@@ -84,7 +92,8 @@ steps:
       question: "Now that it's in secondary mode, can you set it to debug?"
       answer:
         - "0x50 0x41 0x01"
-      hint: "The FCC has a maintenace debug mode."
+      hint: "The FCC has a maintenace debug mode?"
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -94,7 +103,8 @@ steps:
       question: "Now that you have the FCC out of the way, can you lower the landing gear?"
       answer:
         - "0x60 0x21 0x00"
-      hint: ""
+      hint: "The FCC isn't overrding commands anymore... can you interact directly?"
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -107,7 +117,8 @@ steps:
       question: "Okay, show-off. Can you raise the landing gear so we can move along with the test flight?"
       answer:
         - "0x60 0x21 0x01"
-      hint: ""
+      hint: "Why would you need a hint here.. not much different than the previous step really."
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -123,6 +134,7 @@ steps:
         - "0x55 0x11 0x03"
         - "0x55 0x11 0x04"
       hint: "Like the FCC the engine control unit has various modes of operation, what range of values is it letting you change to/from?"
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -134,7 +146,8 @@ steps:
       question: "Can you get the engine controller into a different mode?"
       answer:
         - "0x55 0x31 0x01"
-      hint: ""
+      hint: "Does the ICD indicate that it's very simialar to the FCC?"
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -146,7 +159,8 @@ steps:
       question: "Can you get the engine controller into maintenace debug mode?"
       answer:
         - "0x55 0x41 0x01"
-      hint: ""
+      hint: "You've already done it before fo the FCC."
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -167,7 +181,8 @@ steps:
         - "0x55 0x11 0x05"
         - "0x55 0x11 0x06"
         - "0x55 0x11 0x07"
-      hint: ""
+      hint: "In it's normal mode, the Eninge Controller only allows a limited 'safe' range of available values."
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -184,7 +199,8 @@ steps:
           - "0x55 0x11"
       answer_lower: "0x00"
       answer_upper: "0x07"
-      hint: ""
+      hint: "UH oh. Does the Engine Controller do proper data sanitization checks of values recieved?"
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -208,7 +224,8 @@ steps:
         - "0x55 0x11 0x05"
         - "0x55 0x11 0x06"
         - "0x55 0x11 0x07"
-      hint: ""
+      hint: "Hurry up... we need more power!"
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -223,7 +240,8 @@ steps:
       question: "Alright alright! You've convinced me. Cybersecurity in avionics systems is critical! Let's go in to land... set my engine speed to 4."
       answer:
         - "0x55 0x11 0x04"
-      hint: ""
+      hint: "It's failry obvious by now that the devices do what they're told without validation right?"
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -238,7 +256,8 @@ steps:
       question: "We've been cleared to land.. airspeed checks... gear down please."
       answer:
         - "0x60 0x21 0x00"
-      hint: ""
+      hint: "There are certainly a myriad of trust issues within the bus configuration... but we still need to land safely."
+      scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
@@ -259,6 +278,7 @@ steps:
                 criticality. Oh, and remember to remove test code before going
                 into production."
       hint: "Your progress has been saved and you can go back to any point previous."
+      scene_hotkey: "shift+3"
       image: "../resources/cargo_plane/Cargo_Success.png"
 
 # A generic place to put global text based messages
