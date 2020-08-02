@@ -108,7 +108,8 @@ class UserList:
         if self.currentUser != None:
             scene_hotkey = self.currentUser.get_scene_hotkey()
             if scene_hotkey != None:
-                self.press_hotkeys(scene_hotkey)
+                threading.Thread(target=self.press_hotkeys, args=(scene_hotkey,), daemon=True).start()
+                #self.press_hotkeys(scene_hotkey)
 
             if prologue:
                 self.bia.run_prolouge(self.currentUser)
@@ -118,7 +119,8 @@ class UserList:
         else:
             scene_hotkey = self.default_scene_hotkey
             if scene_hotkey != None:
-                self.press_hotkeys(scene_hotkey)
+                threading.Thread(target=self.press_hotkeys, args=(scene_hotkey,), daemon=True).start()
+                #self.press_hotkeys(scene_hotkey)
             self.dispMan.updateImage(self.default_image)
             self.bia.set_engine_speed(0, True)
 
@@ -271,14 +273,16 @@ class UserList:
 
     def press_hotkeys(self, scene_hotkey):
         try:
-            os.system("xdotool search --name \"" + self.window_focus_name + "\" | xargs xdotool windowactivate")
+            os.popen("xdotool search --name \"" + self.window_focus_name + "\" | xargs xdotool windowactivate")
         except Exception as err:
             print("UserList.triggerChanges() error")
             print(repr(err))
 
         scene_change = self.scene_hotkey_to_useable_list(scene_hotkey)
         if scene_change != None:
-            #print(scene_change)
             self.keyboard.press_keys(scene_change)
-        if self.transition_hotkey_list != None:
-            self.keyboard.press_keys(self.transition_hotkey_list)
+            time.sleep(.1)
+
+            # if no scene change then no transtion either
+            if self.transition_hotkey_list != None:
+                self.keyboard.press_keys(self.transition_hotkey_list)
