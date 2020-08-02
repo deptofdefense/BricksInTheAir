@@ -25,6 +25,30 @@ You will also need several basic tools such as wire strippers, pliers, drill, an
 | Arduino Mini Pro 5V 16MHz |	1 |	[Sparkfun](https://www.sparkfun.com/products/11113) |
 | USB FTDI Breakout |	1 |	[Sparkfun](https://www.sparkfun.com/products/9716) |
 
+### PCB
+The PCB is optional and currently in alpha state meaning it has been designed but not yet manufactured and tested. The circuits are simple and can be assembled without a PCB, but it does make things neater and easier. 
+
+
+![](Images/Fogger_Power_CTRL.png)
+
+
+![](Images/Fogger_Power_CTRL-PCB.png)
+
+
+![](Images/Fogger_Power_CTRL-SCH.png)
+
+The PCB has been designed to be easily made at home either via etching or isolation routing.  
+
+There is also an interactive Bill Of Materials (BOM). Just open the web page and it will highlight the parts selected making it easy to assemble and trace out circuit paths.  
+
+
+![](Images/Fogger_Power_CTRL-BOM.png)
+
+All the PCB files can be found in the PCB folder in this repo. It was designed using KiCAD which is free and open source tool so that everyone has access to the source files for modification.  
+
+**IMPORTANT**  
+The only thing that is easy to mess up that could cause damage is inserting the diode incorrectly. Make sure the stripe is facing the correct way as indicated in the photo above. Inserting it backwards will cause a short across the diode when the motor is engaged which can cause components to heat up and potentially cause a fire. Please pay attention to this!
+
 
 ### eSig Modification
 This section will walk you through modifying the eSig and connecting the wires needed to drive the coil in it. Originally the T2 is designed to connect to a controller that applies power to it. We are making our own controller in substitution of this. 
