@@ -39,9 +39,9 @@
 #define STARTUP_LED_SPEED_MS  100
 
 #define GEAR_RETRACT_DELAY 5000  //Gear up/down will need to be tuned per Lego model
-#define GEAR_EXTEND_DELAY 7000
-const short GEAR_EXTEND_DIRECTION = PWM_FWD2;
-const short GEAR_RETRACT_DIRECTION = PWM_REV2;
+#define GEAR_EXTEND_DELAY 5000
+const short GEAR_EXTEND_DIRECTION = PWM_REV3;
+const short GEAR_RETRACT_DIRECTION = PWM_FWD3;
 const short GEAR_STOP_DIRECTION = PWM_BRK;
 
 /*
@@ -85,6 +85,10 @@ const short GEAR_STOP_DIRECTION = PWM_BRK;
 //Response
 #define UNKNOWN_COMMAND   0x33
 #define NO_DATA           0xFF
+
+#define REJECTED_COMMAND 0xDE
+#define ACCEPTED_COMMAND 0x01
+#define FAULT_DETECTED   0xDA
 
 /*
  * Library Instantiations
@@ -189,24 +193,30 @@ void process_i2c_request(void) {
       case SET_GEAR_POS:
         if(payload == g_gear_position){
           //nothing to do, already in the desired state
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
           break;
         }else if(g_gear_position == GEAR_RETRACTED && payload == GEAR_EXTENDED){
           set_led(OFF, ON, OFF);
           //requesting a gear change from retracted to lowered
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+          delay(1);
           g_gear_position = GEAR_IN_TRANSIT;
           g_lower_gear = true;
-          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_EXTEND_DIRECTION);
+          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_EXTEND_DIRECTION);          
           timer.setTimeout(GEAR_EXTEND_DELAY, stop_motor);
         }else if(g_gear_position == GEAR_EXTENDED && payload == GEAR_RETRACTED){
           //requesting a gear change from lowered to retracted
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
+          delay(1);
           set_led(OFF, ON, OFF);
           g_gear_position = GEAR_IN_TRANSIT;
           g_raise_gear = true;
-          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_RETRACT_DIRECTION);
+          pf.single_pwm(LEGO_MOTOR_OUTPUT_BLOCK, GEAR_RETRACT_DIRECTION);          
           timer.setTimeout(GEAR_RETRACT_DELAY, stop_motor);
         }else{
           //gear is probably in transit... do nothing
           //maybe put an easter egg here.. it would be timing dependent to execute.
+          g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
           break;
         }
         
@@ -220,6 +230,7 @@ void process_i2c_request(void) {
           g_pri_operation_mode = SEC_OPERATION_MODE;
           set_led(DC, ON, DC);
         }
+        g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
         break;   
              
       case SET_MAINT_STATUS:
@@ -230,6 +241,7 @@ void process_i2c_request(void) {
           g_main_status_mode = MAINT_STATUS_DEBUG;
           set_led(DC, DC, ON);
         }
+        g_i2c_tx_buffer.push(ACCEPTED_COMMAND);
         break;
         
       default:

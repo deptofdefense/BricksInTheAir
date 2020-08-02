@@ -21,6 +21,7 @@ class BrickUser:
                     data = json.load(fh)
                     self.name = data["name"]
                     self.steps = data["steps"]
+                    self.scene_mapping = data["scene_mapping"]
                     self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
                     self.currentStepIndex = str(data["currentStepIndex"])   # dict key, keep as a string. convert to int for math but store as string
                     self.maxStep = int(data["maxStep"])
@@ -36,6 +37,7 @@ class BrickUser:
             print("brand new user, make from scratch.")
             self.name = str(name)
             self.steps = cfg["steps"]
+            self.scene_mapping = cfg["scene_mapping"]
             self.log_name = os.getcwd() +  cfg["logging"]["path"] + name +".log"
             for x in self.steps:
                 self.steps[x]["completed"] = [] # an empty list to keep track of how many times they complete it.
@@ -76,22 +78,24 @@ class BrickUser:
     def setCurrentStep(self, desired_step):
         desired_step = str(desired_step)
 
-        if desired_step in self.steps:
+        for item in self.scene_mapping:
+            step = item[0]  # each step/scene pairing comes in as a list.
+            scene = item[1]
+
+            if desired_step == scene:
             # it's a valid step, but can/should the user be allowed to go there?
 
-            # they've been there before... sure they can go back
-            if len(self.steps[str(desired_step)]["completed"]) > 0:
-                self.currentStepIndex = str(desired_step)
-                self.log_event()
-                return "Step: {} set.".format(desired_step)
-            # they are asking to goto the first non completed step.
-            elif len(self.steps[str(int(desired_step)-1)]["completed"]) > 0 and len(self.steps[str(desired_step)]["completed"]) == 0:
-                self.currentStepIndex = str(desired_step)
-                self.log_event()
-                return "Step: {} set.".format(desired_step)
+                # they've been there before... sure they can go back
+                if len(self.steps[str(step)]["completed"]) > 0:
+                    self.currentStepIndex = str(step)
+                    self.log_event()
+                    return "Step: {} set.".format(scene)
+                # they are asking to goto the first non completed step.
+                elif len(self.steps[str(int(step)-1)]["completed"]) > 0 and len(self.steps[str(step)]["completed"]) == 0:
+                    self.currentStepIndex = str(step)
+                    self.log_event()
+                    return "Step: {} set.".format(scene)
 
-            else:
-                return "Invalid step requested."
         else:
             return "Invalid step requested."
 
