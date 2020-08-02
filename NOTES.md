@@ -15,6 +15,9 @@ python3 -m pip install pyftdi
 python3 -m pip install adafruit-blinka
 python3 -m pip install pygame
 python3 -m pip install pyqt5
+python3 -m pip install pip install PyUserInput
+
+sudo apt install xdotool
 ```
 
 Need to export the correct env variable
