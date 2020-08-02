@@ -1,6 +1,6 @@
 # These are used to add context to actions
 default:
-    image: ../resources/cargo_plane/Cargo_1-1.png
+    image: ../resources/Lobby.png
     transition_hotkey: "shift+t"
     scene_hotkey: "shift+1"
     window_focus_name: "OBS Studio"
