@@ -42,6 +42,8 @@ class UserList:
         self.window_focus_name = cfg["default"]["window_focus_name"]
         self.default_image = cfg["default"]["image"]
 
+        self.last_scene_change = None   # keep track of last to not do a new one if at all necassary
+
     def addUser(self, name):
         """ Checks if user already exists, and if not adds them to the list.  \nReturns True if name is added, False otherwise """
 
@@ -108,7 +110,8 @@ class UserList:
         if self.currentUser != None:
             scene_hotkey = self.currentUser.get_scene_hotkey()
             if scene_hotkey != None:
-                self.press_hotkeys(scene_hotkey)
+                threading.Thread(target=self.press_hotkeys, args=(scene_hotkey,), daemon=True).start()
+                #self.press_hotkeys(scene_hotkey)
 
             if prologue:
                 self.bia.run_prolouge(self.currentUser)
@@ -118,7 +121,8 @@ class UserList:
         else:
             scene_hotkey = self.default_scene_hotkey
             if scene_hotkey != None:
-                self.press_hotkeys(scene_hotkey)
+                threading.Thread(target=self.press_hotkeys, args=(scene_hotkey,), daemon=True).start()
+                #self.press_hotkeys(scene_hotkey)
             self.dispMan.updateImage(self.default_image)
             self.bia.set_engine_speed(0, True)
 
@@ -127,7 +131,6 @@ class UserList:
         if cmd != None:
             self.dispMan.updateCmdMsg(cmd)
         self.current_user_lock.release()
-
 
     def startUserThread(self):
         """ Starts the user thread """
@@ -138,11 +141,6 @@ class UserList:
 
     def restartUserThread(self):
         print("restarting UserList Thread")
-
-        #self.threadRunning = False
-        #time.sleep(1)
-        #self.startUserThread()
-
 
     def userThread(self):
         """ Runs through list and updates the current user every X seconds """
@@ -236,7 +234,6 @@ class UserList:
             self.cue_lock.release()
             self.setCurrentUser(self.userList[0])
 
-
     def getNextUserList(self, nextCount):
         ''' Returns the next X users in the list formated by Name : time \nnextCount : how long the next user list should be '''
 
@@ -270,15 +267,23 @@ class UserList:
         return scene_list
 
     def press_hotkeys(self, scene_hotkey):
-        try:
-            os.system("xdotool search --name \"" + self.window_focus_name + "\" | xargs xdotool windowactivate")
-        except Exception as err:
-            print("UserList.triggerChanges() error")
-            print(repr(err))
-
         scene_change = self.scene_hotkey_to_useable_list(scene_hotkey)
+
         if scene_change != None:
-            #print(scene_change)
-            self.keyboard.press_keys(scene_change)
-        if self.transition_hotkey_list != None:
-            self.keyboard.press_keys(self.transition_hotkey_list)
+
+            if self.last_scene_change != scene_change:  # only do when necassary
+                try:
+                    os.popen("xdotool search --name \"" + self.window_focus_name + "\" | xargs xdotool windowactivate")
+
+                except Exception as err:
+                    print("UserList.triggerChanges() error")
+                    print(repr(err))
+
+                print("Scene change: " + str(scene_change))
+                self.keyboard.press_keys(scene_change)
+                time.sleep(.1)
+                self.last_scene_change = scene_change
+
+                # if no scene change then no transtion either
+                if self.transition_hotkey_list != None:
+                    self.keyboard.press_keys(self.transition_hotkey_list)
