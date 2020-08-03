@@ -50,6 +50,7 @@
 #define DC  0x10
 
 #define MOTOR_CRUISING_NORMAL 0x02
+#define MOTOR_START_SPEED 0x00
 
 #define PRI_OPERATION_MODE 0x00
 #define SEC_OPERATION_MODE  0x01
@@ -89,7 +90,7 @@ PowerFunctions pf(LEGO_PF_PIN, LEGO_IR_CHANNEL);   //Setup Lego Power functions 
 /*
  * Globals
  */
-short volatile g_engine_speed = MOTOR_CRUISING_NORMAL;
+short volatile g_engine_speed = MOTOR_START_SPEED;
 short volatile g_operation_mode = PRI_OPERATION_MODE;
 short volatile g_main_status_mode = MAINT_STATUS_NORMAL;
 
