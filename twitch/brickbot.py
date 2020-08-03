@@ -59,7 +59,7 @@ async def event_ready():
     print(CFG["twitch"]["BOT_NICK"] + " is online!")
     ws = bot._ws
     await ws.send_privmsg(bot.initial_channels[0], f"/me is now operational")
-    userList.triggerChanges()
+    #userList.triggerChanges()
 
 
 # event for user entering something in chat
@@ -99,7 +99,7 @@ async def cmd(ctx):
             currentUser.resetTimeout()
             msg = bia_game.checkCmd(currentUser, ctx.content[5:])
             #dispMan.updateCmdMsg(ctx.content)
-            userList.triggerChanges(ctx.content)
+            userList.triggerChanges()
             await ctx.channel.send(f"{ctx.author.name} {msg}")
             await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
@@ -180,7 +180,7 @@ async def goto(ctx):
             try:
                 step = str(ctx.content[6:]).lower()
                 msg = currentUser.setCurrentStep(step)
-                userList.triggerChanges(ctx.content)
+                #userList.triggerChanges(ctx.content)
             except Exception as err:
                 print(repr(err))
 
