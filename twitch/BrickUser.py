@@ -249,6 +249,12 @@ class BrickUser:
     def get_prologue(self):
         try:
             if "prologue" in self.steps[self.currentStepIndex]:
+
+                for item in self.steps[self.currentStepIndex]["prologue"]:
+                    if item == "0x55 0x15 0x01":
+                        # this is a prologue setting of engine OFF
+                        self.engine_speed = 0
+
                 return self.steps[self.currentStepIndex]["prologue"]
             else:
                 return None
