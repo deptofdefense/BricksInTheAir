@@ -50,6 +50,8 @@ class GameDisplay(QMainWindow):
         self.cmdLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.cmdLabel.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
 
+        self.lay.addWidget(self.cmdLabel)
+
         # UserList Label
         self.lstLabel = QLabel("lstLabel", self)
         self.lstLabel.setStyleSheet("color: rgb(0, 0, 0);")
@@ -57,6 +59,8 @@ class GameDisplay(QMainWindow):
         self.lstLabel.setFont(QFont('Arial', self.font_size_users))
         self.lstLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.lstLabel.setAlignment(Qt.AlignRight)
+
+        self.lay.addWidget(self.lstLabel)
 
         # show all the widgets
         self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
