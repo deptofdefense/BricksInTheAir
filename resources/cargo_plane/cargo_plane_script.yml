@@ -146,7 +146,7 @@ steps:
       question: "Can you get the engine controller into a different mode?"
       answer:
         - "0x55 0x31 0x01"
-      hint: "Does the ICD indicate that it's very simialar to the FCC?"
+      hint: "Does the ICD indicate that it's very similar to the FCC?"
       scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
