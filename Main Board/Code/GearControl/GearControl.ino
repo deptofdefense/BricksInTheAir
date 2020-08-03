@@ -38,8 +38,8 @@
 #define I2C_TX_BUFFER_SIZE 200
 #define STARTUP_LED_SPEED_MS  100
 
-#define GEAR_RETRACT_DELAY 5000  //Gear up/down will need to be tuned per Lego model
-#define GEAR_EXTEND_DELAY 5000
+#define GEAR_RETRACT_DELAY 6900  //Gear up/down will need to be tuned per Lego model
+#define GEAR_EXTEND_DELAY 6900
 const short GEAR_EXTEND_DIRECTION = PWM_REV3;
 const short GEAR_RETRACT_DIRECTION = PWM_FWD3;
 const short GEAR_STOP_DIRECTION = PWM_BRK;
