@@ -50,13 +50,17 @@ class GameDisplay(QMainWindow):
         self.cmdLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.cmdLabel.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
 
+        #self.lay.addWidget(self.cmdLabel)
+
         # UserList Label
         self.lstLabel = QLabel("lstLabel", self)
         self.lstLabel.setStyleSheet("color: rgb(0, 0, 0);")
-        self.lstLabel.setText("Active User List (limit {})".format(self.cfg["cue"]["limit"]))
+        self.lstLabel.setText("")
         self.lstLabel.setFont(QFont('Arial', self.font_size_users))
         self.lstLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.lstLabel.setAlignment(Qt.AlignRight)
+
+        #self.lay.addWidget(self.lstLabel)
 
         # show all the widgets
         self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
@@ -66,9 +70,13 @@ class GameDisplay(QMainWindow):
     def dispCmd(self, cmdMsg):
         ''' Causes a string representing the command message to be displayed on the bottom of the screen '''
 
-        self.cmdLabel.setText(str(cmdMsg))
-        self.cmdLabel.update()
-        threading.Thread(target=self.clearCmdMsg, daemon=True).start()
+        try:
+            self.cmdLabel.setText(str(cmdMsg))
+            self.cmdLabel.update()
+            threading.Thread(target=self.clearCmdMsg, daemon=True).start()
+        except Exception as err:
+            print("Error in gameDisplay.dispCmd()")
+            print(repr(err))
 
     def clearCmdMsg(self):
         time.sleep(5)
@@ -79,15 +87,20 @@ class GameDisplay(QMainWindow):
     def dispUser(self, userMsg, time_remaining=60):
         ''' Updates the user list '''
 
-        msg = "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
-        count = 1
-        if userMsg != None:
-            for brickUser in userMsg:
-                msg += str(count) + " min: " + brickUser.getName() + "\n"
-                count += 1
+        try:
+            if userMsg != None:
+                if len(userMsg) > 0:
+                    msg = "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
+                    count = 1
+                    for brickUser in userMsg:
+                        msg += str(count) + " min: " + brickUser.getName() + "\n"
+                        count += 1
 
-        self.lstLabel.setText("{}".format(msg))
-        self.lstLabel.update()
+                    self.lstLabel.setText("{}".format(msg))
+                    self.lstLabel.update()
+        except Exception as err:
+            print("Error in gameDisplay.dispUser()")
+            print(repr(err))
 
         #threading.Thread(target=self.updateTimeRemaining, args=(userMsg, self.time_limit), daemon=True).start()
 
@@ -110,19 +123,25 @@ class GameDisplay(QMainWindow):
 
     def dispImage(self, fileStr):
         # Image Overlay
-        if fileStr != None:
-            if os.path.isfile(fileStr):
-                #print(fileStr)
-                self.pixmap = QPixmap(fileStr)
-                self.pixmap = self.pixmap.scaledToWidth(self.cfg["display"]["width"])
-                self.pixmap = self.pixmap.scaledToHeight(self.cfg["display"]["height"])
-                self.imageLabel.setPixmap(self.pixmap)
+        try:
+            if fileStr != None:
+                if os.path.isfile(fileStr):
+                    #print(fileStr)
+                    self.pixmap = QPixmap(fileStr)
+                    self.pixmap = self.pixmap.scaledToWidth(self.cfg["display"]["width"])
+                    self.pixmap = self.pixmap.scaledToHeight(self.cfg["display"]["height"])
+                    self.imageLabel.setPixmap(self.pixmap)
+                else:
+                    print("gameDisplay.dispImage() file not found")
+                    self.imageLabel.clear()
             else:
+                print("gameDisplay.dispImage() file not provided")
                 self.imageLabel.clear()
-        else:
-            self.imageLabel.clear()
-        self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
-        self.imageLabel.update()
+            self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
+            self.imageLabel.update()
+        except Exception as err:
+            print("Error in gameDisplay.dispImage()")
+            print(repr(err))
 
 
 class DisplayManager():
@@ -148,7 +167,7 @@ class DisplayManager():
         ''' Starts the game overlay '''
         t = threading.Thread(target=self.__startDisplayThread, daemon=True)
         t.start()
-        time.sleep(1)
+        #time.sleep(1)
 
     def updateUserList(self, userMsg):
         ''' public interface for updating the user list '''
