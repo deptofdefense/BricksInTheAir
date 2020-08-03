@@ -280,6 +280,7 @@ steps:
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
+          - "0x55 0x11 0x04"    # Set engine speed to previous correct value
           - "0x60 0x21 0x01"    # Gear needs to be retracted at start
       image: "../resources/cargo_plane/Cargo_5-3.png"
       audio: '../resources/cargo_plane/gear_moving.wav'

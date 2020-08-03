@@ -251,7 +251,15 @@ class BrickUser:
             if "prologue" in self.steps[self.currentStepIndex]:
 
                 for item in self.steps[self.currentStepIndex]["prologue"]:
-                    if item == "0x55 0x15 0x01":
+                    if "0x55 0x11" in item:
+                        # engine speed in proluge, update user engine speed:
+                        try:
+                            speed = int(item.split(" ")[-1],16)
+                            self.engine_speed = speed
+                        except Exception as err:
+                            print("BrickUser.get_prologue() parsing error")
+                            print(repr(err))
+                    elif item == "0x55 0x15 0x01":
                         # this is a prologue setting of engine OFF
                         self.engine_speed = 0
 
