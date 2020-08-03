@@ -180,7 +180,7 @@ async def goto(ctx):
             try:
                 step = str(ctx.content[6:]).lower()
                 msg = currentUser.setCurrentStep(step)
-                #userList.triggerChanges(ctx.content)
+                userList.triggerChanges()
             except Exception as err:
                 print(repr(err))
 

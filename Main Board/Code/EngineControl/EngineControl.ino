@@ -296,7 +296,7 @@ void process_i2c_request(void) {
         break;
       
       case RESET:
-        g_engine_speed = MOTOR_CRUISING_NORMAL;
+        g_engine_speed = MOTOR_START_SPEED;
         g_operation_mode = PRI_OPERATION_MODE;
         g_main_status_mode = MAINT_STATUS_NORMAL;
         set_led(ON, OFF, OFF);
