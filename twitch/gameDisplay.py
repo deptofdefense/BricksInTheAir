@@ -50,17 +50,17 @@ class GameDisplay(QMainWindow):
         self.cmdLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.cmdLabel.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
 
-        self.lay.addWidget(self.cmdLabel)
+        #self.lay.addWidget(self.cmdLabel)
 
         # UserList Label
         self.lstLabel = QLabel("lstLabel", self)
         self.lstLabel.setStyleSheet("color: rgb(0, 0, 0);")
-        self.lstLabel.setText("Active User List (limit {})".format(self.cfg["cue"]["limit"]))
+        self.lstLabel.setText("")
         self.lstLabel.setFont(QFont('Arial', self.font_size_users))
         self.lstLabel.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
         self.lstLabel.setAlignment(Qt.AlignRight)
 
-        self.lay.addWidget(self.lstLabel)
+        #self.lay.addWidget(self.lstLabel)
 
         # show all the widgets
         self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
@@ -88,16 +88,16 @@ class GameDisplay(QMainWindow):
         ''' Updates the user list '''
 
         try:
-
-            msg = "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
-            count = 1
             if userMsg != None:
-                for brickUser in userMsg:
-                    msg += str(count) + " min: " + brickUser.getName() + "\n"
-                    count += 1
+                if len(userMsg) > 0:
+                    msg = "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
+                    count = 1
+                    for brickUser in userMsg:
+                        msg += str(count) + " min: " + brickUser.getName() + "\n"
+                        count += 1
 
-            self.lstLabel.setText("{}".format(msg))
-            self.lstLabel.update()
+                    self.lstLabel.setText("{}".format(msg))
+                    self.lstLabel.update()
         except Exception as err:
             print("Error in gameDisplay.dispUser()")
             print(repr(err))
@@ -132,8 +132,10 @@ class GameDisplay(QMainWindow):
                     self.pixmap = self.pixmap.scaledToHeight(self.cfg["display"]["height"])
                     self.imageLabel.setPixmap(self.pixmap)
                 else:
+                    print("gameDisplay.dispImage() file not found")
                     self.imageLabel.clear()
             else:
+                print("gameDisplay.dispImage() file not provided")
                 self.imageLabel.clear()
             self.resize(self.cfg["display"]["width"], self.cfg["display"]["height"])
             self.imageLabel.update()
