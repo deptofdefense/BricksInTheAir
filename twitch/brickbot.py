@@ -118,7 +118,7 @@ async def join(ctx):
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
             if userList.getCurrentUser() != None:
                 await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
-            userList.triggerChanges()
+            #userList.triggerChanges()
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list and will show as active soon.")
             #userList.triggerChanges()

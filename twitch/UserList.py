@@ -199,7 +199,7 @@ class UserList:
                 self.bia.set_engine_speed(0, True)
                 time.sleep(1)
                 try:
-                    #self.triggerChanges()
+                    self.triggerChanges()
                     self.setCurrentUser(None)
                 except Exception as err:
                     #print("error inializing dispMan")
