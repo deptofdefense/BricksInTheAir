@@ -233,13 +233,14 @@ steps:
     '13':
       question: "Put it back! Put it back! I need engine power back!"
       answer:
+        - "0x55 0x11 0x01"
         - "0x55 0x11 0x02"
         - "0x55 0x11 0x03"
         - "0x55 0x11 0x04"
         - "0x55 0x11 0x05"
         - "0x55 0x11 0x06"
         - "0x55 0x11 0x07"
-      hint: "Hurry up... we need more power!"
+      hint: "Hurry up... we need more power... zero isn't enough!"
       scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
@@ -249,6 +250,7 @@ steps:
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
           - "0x60 0x21 0x01"    # Gear needs to be retracted at start
+          - "0x55 0x15 0x01"    # Engine needs to be off per previous step.
       image: "../resources/cargo_plane/Cargo_5-1.png"
 
     '14':
