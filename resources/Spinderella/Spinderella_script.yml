@@ -2,7 +2,7 @@
 default:
     image: ../resources/Lobby.png
     transition_hotkey: "shift+t"
-    scene_hotkey: "shift+1"
+    scene_hotkey: "shift+d"
     window_focus_name: "OBS Studio"
 
 audio:
