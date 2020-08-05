@@ -123,7 +123,7 @@ async def join(ctx):
             await ctx.channel.send(f"{ctx.author.name} has joined the user list and will show as active soon.")
             userList.triggerChanges(prologue=False)
     else:
-        await ctx.channel.send(f"{ctx.author.name}, you are already on the user list.")
+        await ctx.channel.send(f"{ctx.author.name}, there are too many people in the active cue... try again soon.")
 
 # leave command - allows user to leave the user list before they timeout
 @bot.command(name='leave')
@@ -162,11 +162,11 @@ async def hint(ctx):
             currentUser.resetTimeout()
             msg = currentUser.getHint()
             #dispMan.updateCmdMsg(ctx.content)
-            await ctx.channel.send(f"{ctx.author.name}: {msg}")
+            await ctx.author.send(f"{ctx.author.name}: {msg}")
         else:
-            await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+            await ctx.author.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
     else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+        await ctx.author.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
 
 @bot.command(name='goto')
 async def goto(ctx):
@@ -185,13 +185,13 @@ async def goto(ctx):
                 print(repr(err))
 
             if msg != None:
-                await ctx.channel.send(f"{ctx.author.name}: {msg}")
-                await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
+                await ctx.author.send(f"{ctx.author.name}: {msg}")
+                await ctx.author.send(f"Question: {userList.getCurrentUser().getQuestion()}")
 
         else:
-            await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
+            await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
     else:
-        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
+        await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
 
 @bot.command(name='question')
 async def question(ctx):
