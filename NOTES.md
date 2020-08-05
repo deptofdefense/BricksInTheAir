@@ -11,10 +11,13 @@ sudo apt-get remove python3-pip
 
 ## Install Dependencies
 ```
+python3 -m pip3 install twitchio
+pyhton3 -m pip3 install asyncio
 python3 -m pip install pyftdi
 python3 -m pip install adafruit-blinka
 python3 -m pip install pygame
 python3 -m pip install pyqt5
+python3 -m pip install PySide2
 python3 -m pip install pip install PyUserInput
 
 sudo apt install xdotool
