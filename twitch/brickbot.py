@@ -120,9 +120,10 @@ async def join(ctx):
     if userList.addUser(ctx.author.name):
         if len(userList.getUserList()) == 1:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
-            if userList.getCurrentUser() != None:
+            currentUser = userList.getCurrentUser()
+            if currentUser != None:
                 #await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
-                await bot._ws.send_privmsg(bot.initial_channels[0], f"Question: {userList.getCurrentUser().getQuestion()}")
+                await bot._ws.send_privmsg(bot.initial_channels[0], f"Question: {currentUser.getQuestion()}")
             userList.triggerChanges(prologue=True, cmd=ctx.content)
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list and will show as active soon.")
