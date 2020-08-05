@@ -3,6 +3,8 @@
 Following [these](https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/overiew)
 instructions is helpful as an in depth reference.
 
+[Useful Linux steps](https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/linux)
+
 ## Install pip
 ```
 sudo apt-get remove python-pip
@@ -11,11 +13,14 @@ sudo apt-get remove python3-pip
 
 ## Install Dependencies
 ```
+python3 -m pip install twitchio
+pyhton3 -m pip install asyncio
 python3 -m pip install pyftdi
 python3 -m pip install adafruit-blinka
 python3 -m pip install pygame
 python3 -m pip install pyqt5
-python3 -m pip install pip install PyUserInput
+python3 -m pip install PySide2
+python3 -m pip install PyUserInput
 
 sudo apt install xdotool
 ```
@@ -28,6 +33,17 @@ export BLINKA_FT232H=1
 
 ## busio Documentation
 [busio](https://circuitpython.readthedocs.io/en/latest/shared-bindings/busio/#busio.I2C)
+
+## Background
+
+Created using [this guide](https://www.richwerks.com/index.php/2019/beginner-twitch-chatbot-using-python/).  
+
+Goal is to use a bot to pull commands from a twitch chat and pass them to a server we control.  This will allow an audience to remotely control the defcon events.  
+
+## Twitch chat bot setup
+1. Need to generate a oAth Password [here](https://twitchapps.com/tmi/)
+2. Register new Application (category chat bot) [here](https://dev.twitch.tv/console/apps)
+
 
 ## Lego PF without batteries
 
