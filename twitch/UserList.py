@@ -104,7 +104,7 @@ class UserList:
                         self.currentUser = None
 
                 self.current_user_lock.release()
-                self.triggerChanges(False)
+                #self.triggerChanges(False)
                 return True
         self.cue_lock.release()
         return False
@@ -244,7 +244,7 @@ class UserList:
         with self.current_user_lock:
             self.currentUser = user
 
-        self.triggerChanges(True)
+        #self.triggerChanges(True)
 
     def getUserList(self):
         """ Returns the list of current Users """
