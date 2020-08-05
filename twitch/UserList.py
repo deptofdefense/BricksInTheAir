@@ -203,7 +203,11 @@ class UserList:
                     else:
                         print("removing user for inactivity: " + str(user))
                         userName = user.getName()
-                        self.userList.remove(user)
+                        try:
+                            self.userList.remove(user)
+                        except ValueError as err:
+                            print("UserList.userThread(): User probably !leave while it was their turn.")
+                            print(repr(err))
 
                         if len(self.userList) >= 1:
                             self.setCurrentUser(self.userList[0])

@@ -84,8 +84,8 @@ async def reset(ctx):
         bia_game.set_engine_speed(0, True)
 
         await ctx.channel.send(f"{ctx.author.name} sent the command reset")
-    else:
-        await ctx.channel.send(f"{ctx.author.name}: nope")
+    #else:
+        #await ctx.channel.send(f"{ctx.author.name}: nope")
 
 
 # generic command - meant to be flexible
@@ -100,16 +100,16 @@ async def cmd(ctx):
             msg = bia_game.checkCmd(currentUser, ctx.content[5:])
             #dispMan.updateCmdMsg(ctx.content)
             userList.triggerChanges(prologue=True, cmd=ctx.content)
-            #await ctx.channel.send(f"{ctx.author.name} {msg}")
-            await bot._ws.send_privmsg(bot.initial_channels[0], msg)
-            #await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
-            await bot._ws.send_privmsg(bot.initial_channels[0], f"Question: {userList.getCurrentUser().getQuestion()}")
+            await ctx.channel.send(f"{ctx.author.name} {msg}")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], msg)
+            await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
-            #await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
-            await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn, please be patient.")
+            await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn, please be patient.")
     else:
-        #await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
-        await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn, please be patient.")
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn.")
+        #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn, please be patient.")
 
 
 # join command - allows user to join the user list
@@ -122,8 +122,8 @@ async def join(ctx):
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
             currentUser = userList.getCurrentUser()
             if currentUser != None:
-                #await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
-                await bot._ws.send_privmsg(bot.initial_channels[0], f"Question: {currentUser.getQuestion()}")
+                await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
+                #await bot._ws.send_privmsg(bot.initial_channels[0], f"Question: {currentUser.getQuestion()}")
             userList.triggerChanges(prologue=True, cmd=ctx.content)
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list and will show as active soon.")
@@ -143,16 +143,16 @@ async def leave(ctx):
             # the active user is trying to leave. Resart userThread
             userList.removeUser(ctx.author.name)
             userList.restartUserThread()
-            #await ctx.channel.send(f"{ctx.author.name} has left the user list.")
-            await bot._ws.send_privmsg(bot.initial_channels[0], "Thanks for playing.")
+            await ctx.channel.send(f"{ctx.author.name} has left the user list.")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], "Thanks for playing.")
 
         elif userList.removeUser(ctx.author.name):
-            #await ctx.channel.send(f"{ctx.author.name} has left the user list.")
-            await bot._ws.send_privmsg(bot.initial_channels[0], "Thanks for playing.")
+            await ctx.channel.send(f"{ctx.author.name} has left the user list.")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], "Thanks for playing.")
             userList.triggerChanges(prologue=False)
     else:
-        #await ctx.channel.send(f"{ctx.author.name}, you are not on the user list.")
-        await bot._ws.send_privmsg(bot.initial_channels[0], "Don't leave yet... !join first.")
+        await ctx.channel.send(f"{ctx.author.name}, you are not on the user list.")
+        #await bot._ws.send_privmsg(bot.initial_channels[0], "Don't leave yet... !join first.")
 
 # help command - link to repo readme with instructions
 @bot.command(name='help')
@@ -160,8 +160,8 @@ async def help(ctx):
     global CFG, bia_game, userList, dispMan
 
     msg = f'Hello {ctx.author.name}: {CFG["text"]["help"]}'
-    #await ctx.channel.send(f'Hello {ctx.author.name}: {CFG["text"]["help"]}')
-    await bot._ws.send_privmsg(bot.initial_channels[0], msg)
+    await ctx.channel.send(f'Hello {ctx.author.name}: {CFG["text"]["help"]}')
+    #await bot._ws.send_privmsg(bot.initial_channels[0], msg)
 
 @bot.command(name='hint')
 async def hint(ctx):
@@ -173,14 +173,14 @@ async def hint(ctx):
             currentUser.resetTimeout()
             msg = currentUser.getHint()
             #dispMan.updateCmdMsg(ctx.content)
-            #await ctx.author.send(f"{ctx.author.name}: {msg}")
-            await bot._ws.send_privmsg(bot.initial_channels[0], msg)
+            await ctx.author.send(f"{ctx.author.name}: {msg}")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], msg)
         else:
-            #await ctx.author.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
-            await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a hint.")
+            await ctx.author.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a hint.")
     else:
-        #await ctx.author.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
-        await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a hint.")
+        await ctx.author.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+        #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a hint.")
 
 @bot.command(name='goto')
 async def goto(ctx):
@@ -199,16 +199,16 @@ async def goto(ctx):
                 print(repr(err))
 
             if msg != None:
-                #await ctx.author.send(f"{ctx.author.name}: {msg}")
-                #await ctx.author.send(f"Question: {userList.getCurrentUser().getQuestion()}")
-                await bot._ws.send_privmsg(bot.initial_channels[0], msg)
+                await ctx.author.send(f"{ctx.author.name}: {msg}")
+                await ctx.author.send(f"Question: {userList.getCurrentUser().getQuestion()}")
+                #await bot._ws.send_privmsg(bot.initial_channels[0], msg)
 
         else:
-            #await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
-            await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to goto another step.")
+            await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to goto another step.")
     else:
-        #await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
-        await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to goto another step.")
+        await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
+        #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to goto another step.")
 
 @bot.command(name='question')
 async def question(ctx):
@@ -220,14 +220,14 @@ async def question(ctx):
             msg = currentUser.getQuestion()
             #dispMan.updateCmdMsg(ctx.content)
             currentUser.resetTimeout()
-            #await ctx.channel.send(f"{ctx.author.name}: {msg}")
-            await bot._ws.send_privmsg(bot.initial_channels[0], msg)
+            await ctx.channel.send(f"{ctx.author.name}: {msg}")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], msg)
         else:
-            #await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
-            await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a question.")
+            await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
+            #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a question.")
     else:
-        #await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
-        await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a question.")
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
+        #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a question.")
 
 @bot.command(name='pause')
 async def pause(ctx):
