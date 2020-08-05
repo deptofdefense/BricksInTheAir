@@ -137,11 +137,13 @@ class UserList:
             data["image"] = self.default_image
             self.bia.set_engine_speed(0, True)
 
-        msg = "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
-        count = 1
-        for brickUser in self.getUserList():
-            msg += str(count) + " min: " + brickUser.getName() + "\n"
-            count += 1
+        msg = ""
+        if self.getUserList() != None:
+            msg += "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
+            count = 1
+            for brickUser in self.getUserList():
+                msg += str(count) + " min: " + brickUser.getName() + "\n"
+                count += 1
         data["user_list"] = msg
 
         #self.dispMan.updateUserList(self.getUserList())
