@@ -8,6 +8,8 @@ import asyncio # needed for async ops
 
 from pykeyboard import PyKeyboard   # needed for OBS Studio hotkey scene changes
 import os
+import zmq
+import json
 
 from BrickUser import BrickUser
 
@@ -43,6 +45,11 @@ class UserList:
         self.default_image = cfg["default"]["image"]
 
         self.last_scene_change = None   # keep track of last to not do a new one if at all necassary
+
+        context = zmq.Context()
+
+        self.socket = context.socket(zmq.REQ)
+        self.socket.connect("tcp://127.0.0.1:8888")
 
     def addUser(self, name):
         """ Checks if user already exists, and if not adds them to the list.  \nReturns True if name is added, False otherwise """
@@ -105,6 +112,8 @@ class UserList:
     def triggerChanges(self, prologue=True, cmd=None):
         #print("triggerChanges************************")
 
+        data = {}
+
         self.current_user_lock.acquire()
         # run prologoue for this specific user
         if self.currentUser != None:
@@ -117,6 +126,7 @@ class UserList:
                 self.bia.run_prolouge(self.currentUser)
             self.bia.set_engine_speed(self.currentUser.getEngineSpeed(), True)
             self.dispMan.updateImage(self.currentUser.getImage())
+            data["image"] = self.currentUser.getImage()
 
         else:
             scene_hotkey = self.default_scene_hotkey
@@ -124,13 +134,19 @@ class UserList:
                 threading.Thread(target=self.press_hotkeys, args=(scene_hotkey,), daemon=True).start()
                 #self.press_hotkeys(scene_hotkey)
             self.dispMan.updateImage(self.default_image)
+            data["image"] = self.default_image
             self.bia.set_engine_speed(0, True)
 
         self.dispMan.updateUserList(self.getUserList())
+        data["user_list"] = self.getUserList()
 
         if cmd != None:
             self.dispMan.updateCmdMsg(cmd)
+            data["cmd"] = cmd
         self.current_user_lock.release()
+
+        self.socket.send_json(data)
+        self.socket.recv()
 
     def startUserThread(self):
         """ Starts the user thread """

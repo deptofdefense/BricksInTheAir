@@ -230,5 +230,5 @@ async def restore(ctx):
         await ctx.channel.send(f"{ctx.author.name}: nope")
 
 if __name__ == "__main__":
-    dispMan.startDisplay()
+    #dispMan.startDisplay()
     bot.run()
