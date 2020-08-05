@@ -20,7 +20,7 @@ python3 -m pip install adafruit-blinka
 python3 -m pip install pygame
 python3 -m pip install pyqt5
 python3 -m pip install PySide2
-python3 -m pip install pip install PyUserInput
+python3 -m pip install PyUserInput
 
 sudo apt install xdotool
 ```
