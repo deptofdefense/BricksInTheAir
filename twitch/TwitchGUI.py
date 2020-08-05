@@ -35,6 +35,7 @@ class TwitchGUI(QWidget):
                 if "cmd" in msg:
                     command = msg["cmd"]
                     self.commandLabel.setText(command)
+                    Thread(target=self.clear_cmd_msg, daemon=True).start()
 
                 if "user_list" in msg:
                     self.users.setText(msg["user_list"])
@@ -49,7 +50,6 @@ class TwitchGUI(QWidget):
                 print(repr(err))
 
             self.socket.send_string("thanks")
-
 
 
     def load_ui(self):
@@ -68,6 +68,11 @@ class TwitchGUI(QWidget):
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
         ui_file.close()
+
+    def clear_cmd_msg(self):
+        time.sleep(5)
+        self.commandLabel.setText("")
+        self.commandLabel.update()
 
 
 if __name__ == "__main__":
