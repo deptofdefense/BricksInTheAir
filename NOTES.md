@@ -3,6 +3,8 @@
 Following [these](https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/overiew)
 instructions is helpful as an in depth reference.
 
+[Useful Linux steps](https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/linux)
+
 ## Install pip
 ```
 sudo apt-get remove python-pip
