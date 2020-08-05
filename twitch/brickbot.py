@@ -99,7 +99,7 @@ async def cmd(ctx):
             currentUser.resetTimeout()
             msg = bia_game.checkCmd(currentUser, ctx.content[5:])
             #dispMan.updateCmdMsg(ctx.content)
-            userList.triggerChanges()
+            userList.triggerChanges(prologue=True, cmd=ctx.content)
             await ctx.channel.send(f"{ctx.author.name} {msg}")
             await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
@@ -118,10 +118,10 @@ async def join(ctx):
             await ctx.channel.send(f"{ctx.author.name} has joined the user list for this challenge and is now the active user.")
             if userList.getCurrentUser() != None:
                 await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
-            #userList.triggerChanges()
+            userList.triggerChanges(prologue=True, cmd=ctx.content)
         else:
             await ctx.channel.send(f"{ctx.author.name} has joined the user list and will show as active soon.")
-            #userList.triggerChanges()
+            userList.triggerChanges(prologue=False)
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are already on the user list.")
 
@@ -141,7 +141,7 @@ async def leave(ctx):
 
         elif userList.removeUser(ctx.author.name):
             await ctx.channel.send(f"{ctx.author.name} has left the user list.")
-            userList.triggerChanges()
+            userList.triggerChanges(prologue=False)
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are not on the user list.")
 
@@ -180,7 +180,7 @@ async def goto(ctx):
             try:
                 step = str(ctx.content[6:]).lower()
                 msg = currentUser.setCurrentStep(step)
-                userList.triggerChanges()
+                userList.triggerChanges(prologue=True, cmd=ctx.content)
             except Exception as err:
                 print(repr(err))
 
@@ -230,5 +230,5 @@ async def restore(ctx):
         await ctx.channel.send(f"{ctx.author.name}: nope")
 
 if __name__ == "__main__":
-    dispMan.startDisplay()
+    #dispMan.startDisplay()
     bot.run()
