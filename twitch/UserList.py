@@ -139,11 +139,12 @@ class UserList:
 
         msg = ""
         if self.getUserList() != None:
-            msg += "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
-            count = 1
-            for brickUser in self.getUserList():
-                msg += str(count) + " min: " + brickUser.getName() + "\n"
-                count += 1
+            if len(self.getUserList()) > 0:
+                msg += "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
+                count = 1
+                for brickUser in self.getUserList():
+                    msg += str(count) + " min: " + brickUser.getName() + "\n"
+                    count += 1
         data["user_list"] = msg
 
         #self.dispMan.updateUserList(self.getUserList())
