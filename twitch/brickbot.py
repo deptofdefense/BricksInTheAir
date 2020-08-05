@@ -99,7 +99,7 @@ async def cmd(ctx):
             currentUser.resetTimeout()
             msg = bia_game.checkCmd(currentUser, ctx.content[5:])
             #dispMan.updateCmdMsg(ctx.content)
-            userList.triggerChanges(proluge=True, cmd=ctx.content)
+            userList.triggerChanges(prologue=True, cmd=ctx.content)
             await ctx.channel.send(f"{ctx.author.name} {msg}")
             await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
         else:
@@ -141,7 +141,7 @@ async def leave(ctx):
 
         elif userList.removeUser(ctx.author.name):
             await ctx.channel.send(f"{ctx.author.name} has left the user list.")
-            userList.triggerChanges()
+            userList.triggerChanges(prologue=False)
     else:
         await ctx.channel.send(f"{ctx.author.name}, you are not on the user list.")
 
@@ -180,7 +180,7 @@ async def goto(ctx):
             try:
                 step = str(ctx.content[6:]).lower()
                 msg = currentUser.setCurrentStep(step)
-                userList.triggerChanges(proluge=True, cmd=ctx.content)
+                userList.triggerChanges(prologue=True, cmd=ctx.content)
             except Exception as err:
                 print(repr(err))
 
