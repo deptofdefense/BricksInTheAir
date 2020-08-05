@@ -173,13 +173,13 @@ async def hint(ctx):
             currentUser.resetTimeout()
             msg = currentUser.getHint()
             #dispMan.updateCmdMsg(ctx.content)
-            await ctx.author.send(f"{ctx.author.name}: {msg}")
+            await ctx.channel.send(f"{ctx.author.name}: {msg}")
             #await bot._ws.send_privmsg(bot.initial_channels[0], msg)
         else:
-            await ctx.author.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+            await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
             #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a hint.")
     else:
-        await ctx.author.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a hint.")
         #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to ask for a hint.")
 
 @bot.command(name='goto')
@@ -199,15 +199,15 @@ async def goto(ctx):
                 print(repr(err))
 
             if msg != None:
-                await ctx.author.send(f"{ctx.author.name}: {msg}")
-                await ctx.author.send(f"Question: {userList.getCurrentUser().getQuestion()}")
+                await ctx.channel.send(f"{ctx.author.name}: {msg}")
+                await ctx.channel.send(f"Question: {userList.getCurrentUser().getQuestion()}")
                 #await bot._ws.send_privmsg(bot.initial_channels[0], msg)
 
         else:
-            await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
+            await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
             #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to goto another step.")
     else:
-        await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
+        await ctx.channel.send(f"{ctx.author.name}, it is not your turn to goto another step.")
         #await bot._ws.send_privmsg(bot.initial_channels[0], "It is not your turn to goto another step.")
 
 @bot.command(name='question')
