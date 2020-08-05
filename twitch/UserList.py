@@ -148,7 +148,7 @@ class UserList:
 
 
         if cmd != None:
-            self.dispMan.updateCmdMsg(cmd)
+            #self.dispMan.updateCmdMsg(cmd)
             data["cmd"] = cmd
         self.current_user_lock.release()
 

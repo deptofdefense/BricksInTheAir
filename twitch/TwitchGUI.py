@@ -70,9 +70,11 @@ class TwitchGUI(QWidget):
         ui_file.close()
 
     def clear_cmd_msg(self):
+        print("clear cmd msg called... waiting")
         time.sleep(5)
         self.commandLabel.setText("")
         self.commandLabel.update()
+        print("clear cmd msg complete")
 
 
 if __name__ == "__main__":
