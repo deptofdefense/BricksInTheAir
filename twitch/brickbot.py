@@ -187,14 +187,14 @@ async def goto(ctx):
             if msg != None:
                 #await ctx.author.send(f"{ctx.author.name}: {msg}")
                 #await ctx.author.send(f"Question: {userList.getCurrentUser().getQuestion()}")
-                asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
+                asyncio.run(bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
 
         else:
             #await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
-            asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], "It is not your tunr to goto another step."))
+            asyncio.run(bot._ws.send_privmsg(self.bot.initial_channels[0], "It is not your tunr to goto another step."))
     else:
         #await ctx.author.send(f"{ctx.author.name}, it is not your turn to goto another step.")
-        asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], "It is not your turn to goto another step."))
+        asyncio.run(bot._ws.send_privmsg(self.bot.initial_channels[0], "It is not your turn to goto another step."))
 
 @bot.command(name='question')
 async def question(ctx):
@@ -207,13 +207,13 @@ async def question(ctx):
             #dispMan.updateCmdMsg(ctx.content)
             currentUser.resetTimeout()
             #await ctx.channel.send(f"{ctx.author.name}: {msg}")
-            asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
+            asyncio.run(bot._ws.send_privmsg(self.bot.initial_channels[0], msg))
         else:
             #await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
-            asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], "It is not your turn to ask for a question."))
+            asyncio.run(bot._ws.send_privmsg(self.bot.initial_channels[0], "It is not your turn to ask for a question."))
     else:
         #await ctx.channel.send(f"{ctx.author.name}, it is not your turn to ask for a question.")
-        asyncio.run(self.bot._ws.send_privmsg(self.bot.initial_channels[0], "It is not your turn to ask for a question."))
+        asyncio.run(bot._ws.send_privmsg(self.bot.initial_channels[0], "It is not your turn to ask for a question."))
 
 @bot.command(name='pause')
 async def pause(ctx):
