@@ -125,7 +125,7 @@ class UserList:
             if prologue:
                 self.bia.run_prolouge(self.currentUser)
             self.bia.set_engine_speed(self.currentUser.getEngineSpeed(), True)
-            self.dispMan.updateImage(self.currentUser.getImage())
+            #self.dispMan.updateImage(self.currentUser.getImage())
             data["image"] = self.currentUser.getImage()
 
         else:
@@ -133,12 +133,19 @@ class UserList:
             if scene_hotkey != None:
                 threading.Thread(target=self.press_hotkeys, args=(scene_hotkey,), daemon=True).start()
                 #self.press_hotkeys(scene_hotkey)
-            self.dispMan.updateImage(self.default_image)
+            #self.dispMan.updateImage(self.default_image)
             data["image"] = self.default_image
             self.bia.set_engine_speed(0, True)
 
-        self.dispMan.updateUserList(self.getUserList())
-        data["user_list"] = self.getUserList()
+        msg = "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
+        count = 1
+        for brickUser in self.getUserList():
+            msg += str(count) + " min: " + brickUser.getName() + "\n"
+            count += 1
+        data["user_list"] = msg
+
+        #self.dispMan.updateUserList(self.getUserList())
+
 
         if cmd != None:
             self.dispMan.updateCmdMsg(cmd)

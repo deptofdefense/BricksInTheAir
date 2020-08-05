@@ -31,16 +31,13 @@ class TwitchGUI(QWidget):
         while True:
             try:
                 msg = self.socket.recv_json()
-                
+
                 if "cmd" in msg:
                     command = msg["cmd"]
                     self.commandLabel.setText(command)
 
                 if "user_list" in msg:
-                    users = ""
-                    for x in msg["user_list"]:
-                        users += str(x) + "\n"
-                    self.users.setText(users)
+                    self.users.setText(msg["user_list"])
 
                 if "image" in msg:
                     if path.exists(msg["image"]):
