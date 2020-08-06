@@ -182,7 +182,7 @@ steps:
       image: "../resources/cargo_plane/Cargo_4-3.png"
 
     '11':
-      question: "Now that the engine is in debug mode, what new valid engine speed value can you set?
+      question: "Now that the engine is in debug mode, what new valid engine speed value can you set?"
       answer:
         - "0x55 0x11 0x00"
         - "0x55 0x11 0x01"
