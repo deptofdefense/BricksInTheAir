@@ -310,10 +310,10 @@ class UserList:
                     print(repr(err))
 
                 print("Scene change: " + str(scene_change))
-                self.keyboard.press_keys(scene_change)
-                #time.sleep(.1)
-                self.last_scene_change = scene_change
+                for i in range(3):
+                    self.keyboard.press_keys(scene_change)
+                    # if no scene change then no transtion either
+                    if self.transition_hotkey_list != None:
+                        self.keyboard.press_keys(self.transition_hotkey_list)
 
-                # if no scene change then no transtion either
-                if self.transition_hotkey_list != None:
-                    self.keyboard.press_keys(self.transition_hotkey_list)
+                self.last_scene_change = scene_change
