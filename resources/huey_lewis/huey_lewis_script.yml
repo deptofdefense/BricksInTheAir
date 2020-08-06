@@ -45,9 +45,9 @@ steps:
           - "0x50 0xFE"
           - "0x55 0xFE"
           - "0x60 0xFE"
-          - "0x55 0x11 0x02"
+          - "0x55 0x15 0x01"    # Engine off to start
+          - "0x60 0x21 0x00"    # Gear down to start
       image: "../resources/huey_lewis/Huey_1-1.png"
-
 
     '2':
       question: "What Lego Power Function IR Color is the winch motor connected to?"
@@ -60,6 +60,8 @@ steps:
           - "0x50 0xFE"
           - "0x55 0xFE"
           - "0x60 0xFE"
+          - "0x55 0x15 0x01"    # Engine off to start
+          - "0x60 0x21 0x00"    # Gear down to start
       image: "../resources/huey_lewis/Huey_1-2.png"
 
     '3':
@@ -73,6 +75,8 @@ steps:
           - "0x50 0xFE"
           - "0x55 0xFE"
           - "0x60 0xFE"
+          - "0x55 0x15 0x01"    # Engine off to start
+          - "0x60 0x21 0x00"    # Gear down to start
       image: "../resources/huey_lewis/Huey_1-3.png"
 
     '4':
@@ -83,6 +87,8 @@ steps:
       scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"
+          - "0x55 0x11 0x04"   # Airborne now
+          - "0x60 0x21 0x01"  # Gear Up
       image: "../resources/huey_lewis/Huey_2-1.png"
 
     '5':
@@ -94,19 +100,22 @@ steps:
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x55 0x11 0x04"    # Airborne now
+          - "0x60 0x21 0x01"    # Gear Up
       image: "../resources/huey_lewis/Huey_2-2.png"
 
     '6':
       question: "Now that you have the FCC out of the way, can you lower the winch?"
       answer:
         - "0x60 0x21 0x00"
-      hint: "The FCC isn't overrding commands anymore... can you interact directly?"
+      hint: "The FCC isn't overriding commands anymore... can you interact directly?"
       scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/huey_lewis/Huey_3-1.png"
       audio: '../resources/huey_lewis/winch_moving.wav'
 
@@ -120,7 +129,8 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x60 0x21 0x00"
+          - "0x60 0x21 0x00"    # Gear needs to be extended at start
+          - "0x55 0x11 0x04"    # Airborne now, motor running
       image: "../resources/huey_lewis/Huey_3-2.png"
       audio: '../resources/huey_lewis/winch_moving.wav'
 
@@ -136,7 +146,8 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"    # Airborne now, motor running
+          - "0x60 0x21 0x01"    # Gear needs to be retracted at start
       image: "../resources/huey_lewis/Huey_4-1.png"
 
     '9':
@@ -149,7 +160,8 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/huey_lewis/Huey_4-2.png"
 
     '10':
@@ -164,11 +176,12 @@ steps:
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/huey_lewis/Huey_4-3.png"
 
     '11':
-      question: "What valid range of engine speed values can you set now?"
+      question: "Now that the engine is in debug mode, what new valid engine speed value can you set?"
       answer:
         - "0x55 0x11 0x00"
         - "0x55 0x11 0x01"
@@ -187,7 +200,8 @@ steps:
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/huey_lewis/Huey_4-4.png"
 
     '12':
@@ -205,7 +219,7 @@ steps:
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       audio: '../resources/huey_lewis/pop_smoke_sound.wav'
       i2c_effect:
           - "0x50 0xb5 0x01"
@@ -230,7 +244,8 @@ steps:
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x60 0x21 0x01"    # Gear needs to be retracted at start
+          - "0x55 0x15 0x01"    # Engine needs to be off per previous step.
       image: "../resources/huey_lewis/Huey_5-1.png"
 
     '14':
@@ -246,7 +261,7 @@ steps:
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x60 0x21 0x01"    # Gear needs to be retracted at start
       image: "../resources/huey_lewis/Huey_5-2.png"
 
     '15':
@@ -259,6 +274,12 @@ steps:
                 into production."
       hint: "Your progress has been saved and you can go back to any point previous."
       scene_hotkey: "shift+3"
+      prologue:
+          - "0x50 0xFE"         # Reset the computers
+          - "0x55 0xFE"
+          - "0x60 0xFE"
+          - "0x55 0x15 0x01"    # Stop the motors
+          - "0x60 0x21 0x00"    # Gear needs to be extended for finish
       image: "../resources/huey_lewis/Huey_Success.png"
 
 # A generic place to put global text based messages
