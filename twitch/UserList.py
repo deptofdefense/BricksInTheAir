@@ -311,7 +311,7 @@ class UserList:
 
                 print("Scene change: " + str(scene_change))
                 self.keyboard.press_keys(scene_change)
-                time.sleep(.1)
+                #time.sleep(.1)
                 self.last_scene_change = scene_change
 
                 # if no scene change then no transtion either
