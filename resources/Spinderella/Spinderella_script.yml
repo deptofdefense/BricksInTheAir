@@ -6,7 +6,7 @@ default:
     window_focus_name: "OBS Studio"
 
 audio:
-    background: 'audio/bensound-scifi.wav'
+    background: ''
     engine_speed_1: '../resources/Spinderella/rotor_1.wav'
     engine_speed_2: '../resources/Spinderella/rotor_2.wav'
     engine_speed_3: '../resources/Spinderella/rotor_3.wav'
@@ -45,7 +45,8 @@ steps:
           - "0x50 0xFE"
           - "0x55 0xFE"
           - "0x60 0xFE"
-          - "0x55 0x11 0x02"
+          - "0x55 0x15 0x01"    # Engine off to start
+          - "0x60 0x21 0x00"    # Gear down to start
       image: "../resources/Spinderella/Spinderella_1-1.png"
 
     '2':
@@ -59,6 +60,8 @@ steps:
           - "0x50 0xFE"
           - "0x55 0xFE"
           - "0x60 0xFE"
+          - "0x55 0x15 0x01"    # Engine off to start
+          - "0x60 0x21 0x00"    # Gear down to start
       image: "../resources/Spinderella/Spinderella_1-2.png"
 
     '3':
@@ -72,6 +75,8 @@ steps:
           - "0x50 0xFE"
           - "0x55 0xFE"
           - "0x60 0xFE"
+          - "0x55 0x15 0x01"    # Engine off to start
+          - "0x60 0x21 0x00"    # Gear down to start
       image: "../resources/Spinderella/Spinderella_1-3.png"
 
     '4':
@@ -82,12 +87,17 @@ steps:
       scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"
+          - "0x55 0x11 0x04"   # Airborne now
+          - "0x60 0x21 0x01"  # Gear Up
       image: "../resources/Spinderella/Spinderella_2-1.png"
 
     '5':
       question: "Now that it's in secondary mode, can you set it to debug?"
       answer:
-        - "0x50 0x41 0x01"
+          - "0x50 0xFE"         # Reset the FCC
+          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x55 0x11 0x04"    # Airborne now
+          - "0x60 0x21 0x01"    # Gear Up
       hint: "The FCC has a maintenace debug mode?"
       scene_hotkey: "shift+2"
       prologue:
@@ -99,13 +109,14 @@ steps:
       question: "Now that you have the FCC out of the way, can you lower the landing gear?"
       answer:
         - "0x60 0x21 0x00"
-      hint: "The FCC isn't overrding commands anymore... can you interact directly?"
+      hint: "The FCC isn't overriding commands anymore... can you interact directly?"
       scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/Spinderella/Spinderella_3-1.png"
       audio: '../resources/Spinderella/gear_moving.wav'
 
@@ -119,7 +130,8 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x60 0x21 0x00"
+          - "0x60 0x21 0x00"    # Gear needs to be extended at start
+          - "0x55 0x11 0x04"    # Airborne now, motor running
       image: "../resources/Spinderella/Spinderella_3-2.png"
       audio: '../resources/Spinderella/gear_moving.wav'
 
@@ -135,7 +147,8 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/Spinderella/Spinderella_4-1.png"
 
     '9':
@@ -148,7 +161,8 @@ steps:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/Spinderella/Spinderella_4-2.png"
 
     '10':
@@ -163,11 +177,12 @@ steps:
           - "0x50 0x41 0x01"    # Put the FCC in Maint debug mode per previous step
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/Spinderella/Spinderella_4-3.png"
 
     '11':
-      question: "What valid range of engine speed values can you set now?"
+      question: "Now that the engine is in debug mode, what new valid engine speed value can you set?"
       answer:
         - "0x55 0x11 0x00"
         - "0x55 0x11 0x01"
@@ -186,7 +201,8 @@ steps:
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"   # Airborne now, motor running
+          - "0x60 0x21 0x01"   # Gear needs to be retracted at start
       image: "../resources/Spinderella/Spinderella_4-4.png"
 
     '12':
@@ -229,7 +245,8 @@ steps:
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x60 0x21 0x01"    # Gear needs to be retracted at start
+          - "0x55 0x15 0x01"    # Engine needs to be off per previous step.
       image: "../resources/Spinderella/Spinderella_5-1.png"
 
     '14':
@@ -261,7 +278,8 @@ steps:
           - "0x55 0x31 0x01"    # Put the enginer per previous step
           - "0x55 0x41 0x01"
           - "0x60 0xFE"
-          - "0x60 0x21 0x01"
+          - "0x55 0x11 0x04"    # Set engine speed to previous correct value
+          - "0x60 0x21 0x01"    # Gear needs to be retracted at start
       image: "../resources/Spinderella/Spinderella_5-3.png"
       audio: '../resources/Spinderella/gear_moving.wav'
 
@@ -275,6 +293,12 @@ steps:
                 into production."
       hint: "Your progress has been saved and you can go back to any point previous."
       scene_hotkey: "shift+3"
+      prologue:
+          - "0x50 0xFE"         # Reset the computers
+          - "0x55 0xFE"
+          - "0x60 0xFE"
+          - "0x55 0x15 0x01"    # Stop the motors
+          - "0x60 0x21 0x00"    # Gear needs to be extended for finish
       image: "../resources/Spinderella/Spinderella_Success.png"
 
 # A generic place to put global text based messages
