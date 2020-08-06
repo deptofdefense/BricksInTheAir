@@ -104,7 +104,7 @@ class UserList:
                         self.currentUser = None
 
                 self.current_user_lock.release()
-                self.triggerChanges(False)
+                #self.triggerChanges(False)
                 return True
         self.cue_lock.release()
         return False
@@ -139,11 +139,12 @@ class UserList:
 
         msg = ""
         if self.getUserList() != None:
-            msg += "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
-            count = 1
-            for brickUser in self.getUserList():
-                msg += str(count) + " min: " + brickUser.getName() + "\n"
-                count += 1
+            if len(self.getUserList()) > 0:
+                msg += "Active Users (limit {})\n".format(self.cfg["cue"]["limit"])
+                count = 1
+                for brickUser in self.getUserList():
+                    msg += str(count) + " min: " + brickUser.getName() + "\n"
+                    count += 1
         data["user_list"] = msg
 
         #self.dispMan.updateUserList(self.getUserList())
@@ -202,7 +203,11 @@ class UserList:
                     else:
                         print("removing user for inactivity: " + str(user))
                         userName = user.getName()
-                        self.userList.remove(user)
+                        try:
+                            self.userList.remove(user)
+                        except ValueError as err:
+                            print("UserList.userThread(): User probably !leave while it was their turn.")
+                            print(repr(err))
 
                         if len(self.userList) >= 1:
                             self.setCurrentUser(self.userList[0])
@@ -243,7 +248,7 @@ class UserList:
         with self.current_user_lock:
             self.currentUser = user
 
-        self.triggerChanges(True)
+        #self.triggerChanges(True)
 
     def getUserList(self):
         """ Returns the list of current Users """
@@ -305,10 +310,10 @@ class UserList:
                     print(repr(err))
 
                 print("Scene change: " + str(scene_change))
-                self.keyboard.press_keys(scene_change)
-                time.sleep(.1)
-                self.last_scene_change = scene_change
+                for i in range(3):
+                    self.keyboard.press_keys(scene_change)
+                    # if no scene change then no transtion either
+                    if self.transition_hotkey_list != None:
+                        self.keyboard.press_keys(self.transition_hotkey_list)
 
-                # if no scene change then no transtion either
-                if self.transition_hotkey_list != None:
-                    self.keyboard.press_keys(self.transition_hotkey_list)
+                self.last_scene_change = scene_change
