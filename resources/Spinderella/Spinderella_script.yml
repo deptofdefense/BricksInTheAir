@@ -94,15 +94,14 @@ steps:
     '5':
       question: "Now that it's in secondary mode, can you set it to debug?"
       answer:
-          - "0x50 0xFE"         # Reset the FCC
-          - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
-          - "0x55 0x11 0x04"    # Airborne now
-          - "0x60 0x21 0x01"    # Gear Up
+          - "0x50 0x41 0x01"
       hint: "The FCC has a maintenace debug mode?"
       scene_hotkey: "shift+2"
       prologue:
           - "0x50 0xFE"         # Reset the FCC
           - "0x50 0x31 0x01"    # Put FCC in secondary mode per previous step
+          - "0x55 0x11 0x04"    # Airborne now
+          - "0x60 0x21 0x01"    # Gear Up
       image: "../resources/Spinderella/Spinderella_2-2.png"
 
     '6':
