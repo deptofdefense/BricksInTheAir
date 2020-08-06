@@ -46,7 +46,7 @@ steps:
           - "0x55 0xFE"
           - "0x60 0xFE"
           - "0x55 0x15 0x01"    # Engine off to start
-          - "0x60 0x21 0x00"    # Gear down to start
+          - "0x60 0x21 0x01"    # cargo door up to start
       image: "../resources/huey_lewis/Huey_1-1.png"
 
     '2':
@@ -61,7 +61,7 @@ steps:
           - "0x55 0xFE"
           - "0x60 0xFE"
           - "0x55 0x15 0x01"    # Engine off to start
-          - "0x60 0x21 0x00"    # Gear down to start
+          - "0x60 0x21 0x01"    # cargo door up to start
       image: "../resources/huey_lewis/Huey_1-2.png"
 
     '3':
@@ -76,7 +76,7 @@ steps:
           - "0x55 0xFE"
           - "0x60 0xFE"
           - "0x55 0x15 0x01"    # Engine off to start
-          - "0x60 0x21 0x00"    # Gear down to start
+          - "0x60 0x21 0x01"    # cargo door up to start
       image: "../resources/huey_lewis/Huey_1-3.png"
 
     '4':
@@ -279,7 +279,7 @@ steps:
           - "0x55 0xFE"
           - "0x60 0xFE"
           - "0x55 0x15 0x01"    # Stop the motors
-          - "0x60 0x21 0x00"    # Gear needs to be extended for finish
+          - "0x60 0x21 0x01"    # Gear needs to be retracted for finish
       image: "../resources/huey_lewis/Huey_Success.png"
 
 # A generic place to put global text based messages
