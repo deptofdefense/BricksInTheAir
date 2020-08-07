@@ -5,7 +5,7 @@ config.yml
 *.pyc
 
 # ignore all user generated logs
-twitch/user_logs/*
+*.log
 
 # ignore the freecad stash
 *.FCStd1
