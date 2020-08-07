@@ -265,13 +265,8 @@ steps:
       image: "../resources/huey_lewis/Huey_5-2.png"
 
     '15':
-      question: "Success you've worked through the entire challenge! We hope
-                that you've learned something new here and have a newfound
-                appreciation for cybersecurity and avionics! In short, the
-                devices inherently trust one another and it's paramount that
-                devices be isolated from one another depending upon their
-                criticality. Oh, and remember to remove test code before going
-                into production."
+      question: "Congrats, to claim your free swag, send us your twitch handle in Discord
+                channel av-bricks-in-the-air-text and tag CK or email DDS-at-DEFCON@dds.mil."
       hint: "Your progress has been saved and you can go back to any point previous."
       scene_hotkey: "shift+3"
       prologue:
