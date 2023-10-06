@@ -1,5 +1,8 @@
 # [DDS](https://www.dds.mil) Bricks in the Air
 
+> [!NOTE]
+> This repo has been archived, to see the currently maintained version hosted by the Aerospace Village, go [here](https://github.com/AerospaceVillage/BricksInTheAir)  
+
 Hack the Plane with [Legos](https://www.lego.com/en-us) and [Arduinos](https://www.arduino.cc/)!
 
 This challenge was originally developed for Defcon27 in the Aviation Village. Improvements have continued since then. The concept is to create an environment that requires similar approaches to hacking actual aviation buses without using any of the real hardware, protocols, or commands. Challengers can freely play and develop skills without worrying about legalities or sensitivities of real systems. This also makes it much cheaper and easier for people to replicate. 
